@@ -51,7 +51,7 @@ export const Catalog = () => {
   // Filter states
   const [selectedDuration, setSelectedDuration] = useState('All Duration');
   const [selectedColor, setSelectedColor] = useState('');
-  const [selectedBrands, setSelectedBrands] = useState([]); // Or categories
+  const [selectedCategories, setSelectedCategories] = useState([]);
   const [minPrice, setMinPrice] = useState(0);
   const [maxPrice, setMaxPrice] = useState(10000);
 
@@ -61,7 +61,9 @@ export const Catalog = () => {
     const price = parseFloat(p.calculated_price) || parseFloat(p.base_price) || 0;
     const matchesPrice = price >= minPrice && price <= maxPrice;
     
-    return matchesSearch && matchesPrice;
+    const matchesCategory = selectedCategories.length === 0 || selectedCategories.includes(p.category_detail?.name);
+    
+    return matchesSearch && matchesPrice && matchesCategory;
   });
 
   const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
@@ -121,9 +123,20 @@ export const Catalog = () => {
             </div>
             
             <div className="filter-block-title">Categories</div>
-            {['Heavy Machinery', 'Electronics', 'Vehicles', 'Event Gear', 'Tools & Equipment'].map((cat, idx) => (
+            {[...new Set(products.map(p => p.category_detail?.name).filter(Boolean))].map((cat, idx) => (
               <label key={idx} className="filter-checkbox">
-                <input type="checkbox" />
+                <input 
+                  type="checkbox" 
+                  checked={selectedCategories.includes(cat)}
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      setSelectedCategories([...selectedCategories, cat]);
+                    } else {
+                      setSelectedCategories(selectedCategories.filter(c => c !== cat));
+                    }
+                    setCurrentPage(1);
+                  }}
+                />
                 <span>{cat}</span>
               </label>
             ))}
@@ -170,7 +183,7 @@ export const Catalog = () => {
                 <span>${minPrice}</span>
                 <span>${maxPrice}</span>
               </div>
-              <div style={{ position: 'relative', height: '4px', margin: '14px 0 24px 0' }}>
+              <div style={{ position: 'relative', height: '4px', margin: '14px 12px 24px 12px' }}>
                 <div className="price-slider-track" style={{ margin: 0 }}>
                   <div className="price-slider-fill" style={{ left: `${(minPrice / 10000) * 100}%`, right: `${100 - (maxPrice / 10000) * 100}%` }} />
                   <div className="price-slider-thumb left" style={{ left: `${(minPrice / 10000) * 100}%` }} />
