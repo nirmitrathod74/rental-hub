@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { api } from '../api';
+import { api, getMediaUrl } from '../api';
 import { Product, PriceList } from '../types';
 import { Tag, Sparkles, CheckCircle, AlertTriangle, Search } from 'lucide-react';
 
@@ -132,7 +132,7 @@ export const Catalog: React.FC = () => {
                 }}>
                   {product.image ? (
                     <img
-                      src={`http://localhost:8000${product.image}`}
+                      src={getMediaUrl(product.image)}
                       alt={product.name}
                       style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                     />

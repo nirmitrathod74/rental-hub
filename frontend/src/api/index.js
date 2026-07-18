@@ -1,4 +1,11 @@
-const BASE_URL = 'http://localhost:8000/api';
+export const API_ROOT = import.meta.env.VITE_API_URL || (window.location.hostname === 'localhost' ? 'http://localhost:8000' : `${window.location.protocol}//${window.location.hostname}:8000`);
+const BASE_URL = `${API_ROOT}/api`;
+
+export const getMediaUrl = (path) => {
+  if (!path) return '';
+  if (path.startsWith('http')) return path;
+  return `${API_ROOT}${path.startsWith('/') ? '' : '/'}${path}`;
+};
 
 const getHeaders = () => {
   const token = localStorage.getItem('access_token');

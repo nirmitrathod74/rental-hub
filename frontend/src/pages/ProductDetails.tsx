@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
-import { api } from '../api';
+import { api, getMediaUrl } from '../api';
 import { Product } from '../types';
 import { useCart } from '../context/CartContext';
 import { ShieldCheck, Info, CheckCircle2, ChevronLeft, CalendarClock } from 'lucide-react';
@@ -115,7 +115,7 @@ export const ProductDetails: React.FC = () => {
         }}>
           {product.image ? (
             <img
-              src={`http://localhost:8000${product.image}`}
+              src={getMediaUrl(product.image)}
               alt={product.name}
               style={{ width: '100%', height: '100%', objectFit: 'cover' }}
             />
