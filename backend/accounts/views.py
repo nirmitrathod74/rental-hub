@@ -15,9 +15,9 @@ User = get_user_model()
 def standard_response(success, message, data=None, errors=None, status_code=200):
     resp = {"success": success, "message": message}
     if success:
-        resp["data"] = data or {}
+        resp["data"] = data if data is not None else {}
     else:
-        resp["errors"] = errors or {}
+        resp["errors"] = errors if errors is not None else {}
     return Response(resp, status=status_code)
 
 class CustomTokenObtainPairView(TokenObtainPairView):
@@ -89,3 +89,27 @@ class AdminVendorViewSet(viewsets.ViewSet):
             return standard_response(True, "Vendor rejected", data=UserSerializer(user).data)
         except Exception as e:
             return standard_response(False, str(e), status_code=400)
+
+
+class CustomerViewSet(viewsets.ModelViewSet):
+    permission_classes = (permissions.IsAuthenticated,)
+    serializer_class = UserSerializer
+
+    def get_queryset(self):
+        # Only admins should access this
+        if not self.request.user.is_admin_role:
+            return User.objects.none()
+        return User.objects.filter(role='client').order_by('-date_joined')
+
+    def create(self, request, *args, **kwargs):
+        if not request.user.is_admin_role:
+            return standard_response(False, "Unauthorized", status_code=403)
+        # Force role to client
+        data = request.data.copy()
+        data['role'] = 'client'
+        # We use RegisterSerializer to handle password creation properly
+        serializer = RegisterSerializer(data=data)
+        if not serializer.is_valid():
+            return standard_response(False, "Validation failed", errors=serializer.errors, status_code=400)
+        user = serializer.save()
+        return standard_response(True, "Customer created", data=UserSerializer(user).data, status_code=201)

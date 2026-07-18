@@ -383,3 +383,60 @@ table.list-table tr.selected {
   padding-top: 76px !important; /* 52px header + 24px padding */
 }
 
+/* Admin Dashboard Specific Layout */
+.admin-erp-layout {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+}
+.admin-erp-sidebar {
+  width: 240px;
+  flex-shrink: 0;
+  background: var(--whitish);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 16px 0;
+  position: sticky;
+  top: 76px;
+  display: flex;
+  flex-direction: column;
+}
+.admin-erp-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 20px;
+  color: var(--blackish);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  border-left: 3px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: none;
+  border-top: none;
+  border-right: none;
+  border-bottom: none;
+  text-align: left;
+  width: 100%;
+}
+.admin-erp-nav-item:hover {
+  background: var(--extra-light);
+}
+.admin-erp-nav-item.active {
+  background: rgba(113, 75, 103, 0.08);
+  color: var(--primary);
+  border-left-color: var(--primary);
+}
+.admin-erp-nav-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 16px 20px 8px 20px;
+}
+.admin-erp-content {
+  flex: 1;
+  min-width: 0;
+}
