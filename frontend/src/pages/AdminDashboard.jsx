@@ -171,7 +171,7 @@ export const AdminDashboard = () => {
   };
 
   return (
-    <div className="fade-in" style={{ padding: '32px', display: 'flex', flexDirection: 'column', gap: '32px' }}>
+    <div className="page fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
       
       <div className="glass-panel" style={{
         display: 'flex',

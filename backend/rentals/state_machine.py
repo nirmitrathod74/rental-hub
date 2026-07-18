@@ -33,6 +33,8 @@ class RentalStateMachine:
         # Apply the state change
         self.order.status = new_status
         self.order.save()
+        from core.audit import AuditService
+        AuditService.record(action='transition', entity=self.order, actor=user, metadata={'from': current_status, 'to': new_status})
         
         # Run post-transition effects
         self._post_transition(current_status, new_status, user)
@@ -74,6 +76,17 @@ class RentalStateMachine:
         if new == 'returned':
             self.order.actual_return_date = timezone.now()
             self.order.save()
+        from notifications.services import NotificationService
+        event_subjects = {
+            'confirmed': 'Rental confirmed', 'picked_up': 'Rental picked up',
+            'overdue': 'Rental overdue', 'returned': 'Rental returned', 'settled': 'Deposit settled',
+        }
+        if new in event_subjects:
+            NotificationService.queue(
+                recipient=self.order.client, event=f'rental.{new}', subject=event_subjects[new],
+                body=f'Rental order #{self.order.id} is now {new.replace("_", " ")}.',
+                payload={'rental_id': str(self.order.public_id)},
+            )
         
         # In a real system, you might trigger background tasks or logging
         # We will use Django signals for asynchronous observers

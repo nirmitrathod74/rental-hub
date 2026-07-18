@@ -1,3 +1,4 @@
+import uuid
 from django.db import models
 from django.conf import settings
 from inventory.models import Product
@@ -18,6 +19,7 @@ class RentalOrder(models.Model):
         ('store_pickup', 'Store Pickup'),
     )
 
+    public_id = models.UUIDField(default=uuid.uuid4, unique=True, editable=False, db_index=True)
     client = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='rentals')
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='draft')
     start_date = models.DateTimeField()

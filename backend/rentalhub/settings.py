@@ -28,6 +28,9 @@ INSTALLED_APPS = [
     'accounts.apps.AccountsConfig',
     'inventory.apps.InventoryConfig',
     'rentals.apps.RentalsConfig',
+    'core.apps.CoreConfig',
+    'finance.apps.FinanceConfig',
+    'notifications.apps.NotificationsConfig',
 ]
 
 MIDDLEWARE = [
@@ -59,7 +62,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'rentalhub.wsgi'
+WSGI_APPLICATION = 'rentalhub.wsgi.application'
 ASGI_APPLICATION = 'rentalhub.asgi.application'
 
 # Database
@@ -124,7 +127,7 @@ CORS_ALLOW_CREDENTIALS = True
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-        'django.contrib.auth.middleware.AuthenticationMiddleware',
+        'rest_framework.authentication.SessionAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
@@ -154,6 +157,12 @@ CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'UTC'
+CELERY_BEAT_SCHEDULE = {
+    'check-overdue-rentals-hourly': {
+        'task': 'rentals.tasks.check_overdue_rentals',
+        'schedule': 3600.0,
+    },
+}
 
 # Redis Cache setup
 CACHES = {

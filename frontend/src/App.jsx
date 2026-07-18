@@ -2,7 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext.jsx';
 import { CartProvider } from './context/CartContext.jsx';
-import { Navbar } from './components/Navbar.jsx';
+import { AppShell } from './components/AppShell.jsx';
 import { Catalog } from './pages/Catalog.jsx';
 import { ProductDetails } from './pages/ProductDetails.jsx';
 import { Cart } from './pages/Cart.jsx';
@@ -34,9 +34,7 @@ const ProtectedRoute = ({ children, roles }) => {
 const AppContent = () => {
   return (
     <Router>
-      <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-        <Navbar />
-        <main style={{ flex: 1 }}>
+      <AppShell>
           <Routes>
             <Route path="/" element={<Catalog />} />
             <Route path="/product/:id" element={<ProductDetails />} />
@@ -65,8 +63,7 @@ const AppContent = () => {
             
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
-        </main>
-      </div>
+      </AppShell>
     </Router>
   );
 };
