@@ -137,7 +137,177 @@ def seed():
         }
     )
     print("Seeded quotation templates.")
+
+    # 6. Mock Orders for Dashboard metrics visibility
+    from rentals.models import RentalOrder, RentalItem, DepositHistory, RentalInspection
+    from django.utils import timezone
+    from datetime import timedelta
+
+    now = timezone.now()
+
+    # Draft / Quotation Order (excavator)
+    if not RentalOrder.objects.filter(status='draft').exists():
+        o1 = RentalOrder.objects.create(
+            client=client_user,
+            status='draft',
+            start_date=now + timedelta(days=2),
+            end_date=now + timedelta(days=5),
+            fulfillment_type='store_pickup',
+            total_rent_amount=Decimal('750.00'),
+            total_deposit_amount=Decimal('3000.00')
+        )
+        RentalItem.objects.create(
+            rental_order=o1,
+            product=p1,
+            quantity=3,
+            unit_price=Decimal('250.00'),
+            deposit_amount=Decimal('1000.00')
+        )
+        print("Seeded draft quotation order.")
+
+    # Confirmed Order (generator)
+    if not RentalOrder.objects.filter(status='confirmed').exists():
+        o2 = RentalOrder.objects.create(
+            client=client_user,
+            status='confirmed',
+            start_date=now + timedelta(days=1),
+            end_date=now + timedelta(days=3),
+            fulfillment_type='delivery',
+            shipping_address='789 Construction Ave, Industrial Zone',
+            total_rent_amount=Decimal('240.00'),
+            total_deposit_amount=Decimal('36.00'),
+            amount_paid=Decimal('240.00'),
+            deposit_paid=Decimal('36.00')
+        )
+        RentalItem.objects.create(
+            rental_order=o2,
+            product=p2,
+            quantity=2,
+            unit_price=Decimal('120.00'),
+            deposit_amount=Decimal('18.00')
+        )
+        DepositHistory.objects.create(
+            rental_order=o2,
+            amount=Decimal('36.00'),
+            transaction_type='collect',
+            notes="Initial deposit collected."
+        )
+        # Update stock manually for seeding
+        p2.available_qty -= 2
+        p2.save()
+        print("Seeded confirmed order.")
+
+    # Active Picked Up Order (scaffolding)
+    if not RentalOrder.objects.filter(status='picked_up').exists():
+        o3 = RentalOrder.objects.create(
+            client=client_user,
+            status='picked_up',
+            start_date=now - timedelta(days=1),
+            end_date=now + timedelta(days=2),
+            fulfillment_type='store_pickup',
+            total_rent_amount=Decimal('225.00'),
+            total_deposit_amount=Decimal('750.00'),
+            amount_paid=Decimal('225.00'),
+            deposit_paid=Decimal('750.00')
+        )
+        RentalItem.objects.create(
+            rental_order=o3,
+            product=p3,
+            quantity=5,
+            unit_price=Decimal('45.00'),
+            deposit_amount=Decimal('150.00')
+        )
+        DepositHistory.objects.create(
+            rental_order=o3,
+            amount=Decimal('750.00'),
+            transaction_type='collect',
+            notes="Initial deposit collected."
+        )
+        p3.available_qty -= 5
+        p3.save()
+        print("Seeded active picked up order.")
+
+    # Overdue Order (scaffolding)
+    if not RentalOrder.objects.filter(status='overdue').exists():
+        o4 = RentalOrder.objects.create(
+            client=client_user,
+            status='overdue',
+            start_date=now - timedelta(days=5),
+            end_date=now - timedelta(days=2),
+            fulfillment_type='store_pickup',
+            total_rent_amount=Decimal('90.00'),
+            total_deposit_amount=Decimal('300.00'),
+            amount_paid=Decimal('90.00'),
+            deposit_paid=Decimal('300.00'),
+            late_fee_charged=Decimal('200.00')
+        )
+        RentalItem.objects.create(
+            rental_order=o4,
+            product=p3,
+            quantity=2,
+            unit_price=Decimal('45.00'),
+            deposit_amount=Decimal('150.00')
+        )
+        DepositHistory.objects.create(
+            rental_order=o4,
+            amount=Decimal('300.00'),
+            transaction_type='collect',
+            notes="Initial deposit collected."
+        )
+        DepositHistory.objects.create(
+            rental_order=o4,
+            amount=Decimal('200.00'),
+            transaction_type='deduct',
+            notes="Late fee deduction calculated."
+        )
+        p3.available_qty -= 2
+        p3.save()
+        print("Seeded overdue order.")
+
+    # Settled Order (excavator)
+    if not RentalOrder.objects.filter(status='settled').exists():
+        o5 = RentalOrder.objects.create(
+            client=client_user,
+            status='settled',
+            start_date=now - timedelta(days=10),
+            end_date=now - timedelta(days=5),
+            actual_return_date=now - timedelta(days=5),
+            fulfillment_type='delivery',
+            shipping_address='101 Skyline Towers Road',
+            total_rent_amount=Decimal('1250.00'),
+            total_deposit_amount=Decimal('5000.00'),
+            amount_paid=Decimal('1250.00'),
+            deposit_paid=Decimal('5000.00'),
+            deposit_refunded=Decimal('5000.00')
+        )
+        RentalItem.objects.create(
+            rental_order=o5,
+            product=p1,
+            quantity=5,
+            unit_price=Decimal('250.00'),
+            deposit_amount=Decimal('1000.00')
+        )
+        DepositHistory.objects.create(
+            rental_order=o5,
+            amount=Decimal('5000.00'),
+            transaction_type='collect',
+            notes="Initial deposit collected."
+        )
+        RentalInspection.objects.create(
+            rental_order=o5,
+            inspector=admin_user,
+            condition_rating='good'
+        )
+        DepositHistory.objects.create(
+            rental_order=o5,
+            amount=Decimal('5000.00'),
+            transaction_type='refund',
+            notes="Refunded full security deposit on-time return."
+        )
+        print("Seeded settled order.")
+
     print("Database seeding completed successfully.")
+
 
 if __name__ == '__main__':
     seed()
