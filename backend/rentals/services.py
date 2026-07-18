@@ -1,7 +1,8 @@
 from decimal import Decimal
 from django.utils import timezone
 from rentals.models import RentalOrder, RentalItem, RentalInspection
-from rentals.repositories import RentalRepository, DepositRepository
+from rentals.repositories import RentalRepository
+from finance.models import Payment, SecurityDeposit
 from rentals.state_machine import RentalStateMachine
 from rentals.strategies import LateFeeCalculator
 
@@ -33,17 +34,27 @@ class RentalService:
         if not order:
             raise ValueError("Order not found")
 
-        order.amount_paid += Decimal(str(amount_paid))
-        order.deposit_paid += Decimal(str(deposit_paid))
-        order.save()
+        if Decimal(str(amount_paid)) > 0:
+            Payment.objects.create(
+                rental_order=order,
+                payment_type='rental',
+                amount=Decimal(str(amount_paid)),
+                status='paid'
+            )
 
         if Decimal(str(deposit_paid)) > 0:
-            DepositRepository.log_transaction(
+            Payment.objects.create(
+                rental_order=order,
+                payment_type='deposit',
+                amount=Decimal(str(deposit_paid)),
+                status='paid'
+            )
+            SecurityDeposit.objects.create(
                 order=order,
                 amount=Decimal(str(deposit_paid)),
-                transaction_type='collect',
-                notes=f"Collected security deposit of ${deposit_paid} during confirmation."
+                status='Held'
             )
+
         return order
 
     @staticmethod
@@ -82,13 +93,11 @@ class RentalService:
         # Calculate late fee using Strategy Pattern
         late_fee = LateFeeCalculator.calculate_order_fees(order, now)
         if late_fee > 0:
-            order.late_fee_charged = late_fee
-            order.save()
-            DepositRepository.log_transaction(
-                order=order,
+            Payment.objects.create(
+                rental_order=order,
+                payment_type='late_fee',
                 amount=late_fee,
-                transaction_type='deduct',
-                notes=f"Late fee deduction of ${late_fee} calculated on return."
+                status='paid'
             )
 
         return order, inspection
@@ -98,21 +107,6 @@ class RentalService:
         order = RentalRepository.get_by_id(order_id)
         if not order:
             raise ValueError("Order not found")
-
-        # Refunding the security deposit (minus late fees)
-        remaining_deposit = order.deposit_paid - order.late_fee_charged
-        refund_amount = max(Decimal('0.00'), remaining_deposit)
-
-        order.deposit_refunded = refund_amount
-        order.save()
-
-        if refund_amount > 0:
-            DepositRepository.log_transaction(
-                order=order,
-                amount=refund_amount,
-                transaction_type='refund',
-                notes=f"Refunded remaining deposit of ${refund_amount} to customer."
-            )
 
         sm = RentalStateMachine(order)
         sm.transition_to('settled')

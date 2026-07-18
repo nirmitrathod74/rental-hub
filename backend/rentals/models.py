@@ -30,21 +30,18 @@ class RentalOrder(models.Model):
     fulfillment_type = models.CharField(max_length=20, choices=FULFILLMENT_CHOICES, default='store_pickup')
     shipping_address = models.TextField(blank=True, null=True)
     
-    # Financial breakdowns
-    total_rent_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-    total_deposit_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-    
-    amount_paid = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-    deposit_paid = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-    deposit_refunded = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-    late_fee_charged = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-    
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    class Meta:
+        indexes = [
+            models.Index(fields=['status', 'start_date']),
+            models.Index(fields=['status', 'end_date']),
+            models.Index(fields=['client', 'status']),
+        ]
+
     def __str__(self):
         return f"Order #{self.id} - {self.client.username} ({self.status})"
-
 
 class RentalItem(models.Model):
     rental_order = models.ForeignKey(RentalOrder, on_delete=models.CASCADE, related_name='items')
@@ -75,23 +72,6 @@ class RentalInspection(models.Model):
 
     def __str__(self):
         return f"Inspection for Order #{self.rental_order.id} ({self.condition_rating})"
-
-
-class DepositHistory(models.Model):
-    TX_TYPE_CHOICES = (
-        ('collect', 'Collection'),
-        ('refund', 'Refund'),
-        ('deduct', 'Deduction'),
-    )
-
-    rental_order = models.ForeignKey(RentalOrder, on_delete=models.CASCADE, related_name='deposit_history')
-    amount = models.DecimalField(max_digits=10, decimal_places=2)
-    transaction_type = models.CharField(max_length=20, choices=TX_TYPE_CHOICES)
-    created_at = models.DateTimeField(auto_now_add=True)
-    notes = models.TextField(blank=True, null=True)
-
-    def __str__(self):
-        return f"{self.transaction_type.upper()}: ${self.amount} for Order #{self.rental_order.id}"
 
 
 class QuotationTemplate(models.Model):

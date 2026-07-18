@@ -20,6 +20,8 @@ export const Catalog = () => {
     const q = params.get('q');
     if (q !== null) {
       setSearchTerm(q);
+    } else {
+      setSearchTerm('');
     }
   }, [location.search]);
 
@@ -49,17 +51,19 @@ export const Catalog = () => {
   // Filter states
   const [selectedDuration, setSelectedDuration] = useState('All Duration');
   const [selectedColor, setSelectedColor] = useState('');
-  const [selectedBrands, setSelectedBrands] = useState([]); // Or categories
+  const [selectedCategories, setSelectedCategories] = useState([]);
   const [minPrice, setMinPrice] = useState(0);
   const [maxPrice, setMaxPrice] = useState(10000);
 
   const filteredProducts = products.filter(p => {
-    const matchesSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          p.sku.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = (p.name && p.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                          (p.sku && p.sku.toLowerCase().includes(searchTerm.toLowerCase()));
     const price = parseFloat(p.calculated_price) || parseFloat(p.base_price) || 0;
     const matchesPrice = price >= minPrice && price <= maxPrice;
     
-    return matchesSearch && matchesPrice;
+    const matchesCategory = selectedCategories.length === 0 || selectedCategories.includes(p.category_detail?.name);
+    
+    return matchesSearch && matchesPrice && matchesCategory;
   });
 
   const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
@@ -119,9 +123,20 @@ export const Catalog = () => {
             </div>
             
             <div className="filter-block-title">Categories</div>
-            {['Heavy Machinery', 'Electronics', 'Vehicles', 'Event Gear', 'Tools & Equipment'].map((cat, idx) => (
+            {[...new Set(products.map(p => p.category_detail?.name).filter(Boolean))].map((cat, idx) => (
               <label key={idx} className="filter-checkbox">
-                <input type="checkbox" />
+                <input 
+                  type="checkbox" 
+                  checked={selectedCategories.includes(cat)}
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      setSelectedCategories([...selectedCategories, cat]);
+                    } else {
+                      setSelectedCategories(selectedCategories.filter(c => c !== cat));
+                    }
+                    setCurrentPage(1);
+                  }}
+                />
                 <span>{cat}</span>
               </label>
             ))}
@@ -158,14 +173,6 @@ export const Catalog = () => {
               <option value="Weekly">Weekly</option>
               <option value="Monthly">Monthly</option>
             </select>
-            
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '14px', fontWeight: 500, color: 'hsl(var(--text-secondary))' }}>
-              <div>1 Month</div>
-              <div>6 Month</div>
-              <div>1 Year</div>
-              <div>2 Years</div>
-              <div>3 Years</div>
-            </div>
           </div>
 
           <div className="filter-block">
@@ -176,35 +183,37 @@ export const Catalog = () => {
                 <span>${minPrice}</span>
                 <span>${maxPrice}</span>
               </div>
-              <div className="price-slider-track">
-                <div className="price-slider-fill" style={{ left: `${(minPrice / 10000) * 100}%`, right: `${100 - (maxPrice / 10000) * 100}%` }} />
-                <div className="price-slider-thumb left" style={{ left: `${(minPrice / 10000) * 100}%` }} />
-                <div className="price-slider-thumb right" style={{ right: `${100 - (maxPrice / 10000) * 100}%` }} />
+              <div style={{ position: 'relative', height: '4px', margin: '14px 12px 24px 12px' }}>
+                <div className="price-slider-track" style={{ margin: 0 }}>
+                  <div className="price-slider-fill" style={{ left: `${(minPrice / 10000) * 100}%`, right: `${100 - (maxPrice / 10000) * 100}%` }} />
+                  <div className="price-slider-thumb left" style={{ left: `${(minPrice / 10000) * 100}%` }} />
+                  <div className="price-slider-thumb right" style={{ right: `${100 - (maxPrice / 10000) * 100}%` }} />
+                </div>
+                <input 
+                  type="range" 
+                  min={0} 
+                  max={10000} 
+                  step={10}
+                  value={minPrice} 
+                  onChange={(e) => {
+                    const val = Math.min(Number(e.target.value), maxPrice - 10);
+                    setMinPrice(val);
+                    setCurrentPage(1);
+                  }}
+                />
+                <input 
+                  type="range" 
+                  min={0} 
+                  max={10000} 
+                  step={10}
+                  value={maxPrice} 
+                  onChange={(e) => {
+                    const val = Math.max(Number(e.target.value), minPrice + 10);
+                    setMaxPrice(val);
+                    setCurrentPage(1);
+                  }}
+                />
               </div>
-              <input 
-                type="range" 
-                min={0} 
-                max={10000} 
-                step={10}
-                value={minPrice} 
-                onChange={(e) => {
-                  const val = Math.min(Number(e.target.value), maxPrice - 10);
-                  setMinPrice(val);
-                  setCurrentPage(1);
-                }}
-              />
-              <input 
-                type="range" 
-                min={0} 
-                max={10000} 
-                step={10}
-                value={maxPrice} 
-                onChange={(e) => {
-                  const val = Math.max(Number(e.target.value), minPrice + 10);
-                  setMaxPrice(val);
-                  setCurrentPage(1);
-                }}
-              />
             </div>
           </div>
         </div>

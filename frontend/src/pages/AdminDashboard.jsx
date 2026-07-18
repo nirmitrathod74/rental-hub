@@ -1,21 +1,38 @@
 import React, { useEffect, useState } from 'react';
-import { api } from '../api/index.js';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext.jsx';
+import { api, getMediaUrl, API_ROOT } from '../api/index.js';
 import {
   BarChart, Activity, AlertOctagon, Wallet, CircleDollarSign, CheckSquare,
   Wrench, FilePlus2, Package2, ShieldAlert, Sparkles, User, Calendar, X,
   LayoutDashboard, Tags, Clock, Users, ShoppingBag, FileText, Receipt,
-  CreditCard, ShieldCheck, Truck, CornerDownLeft, Settings, UserCircle, Plus, Edit
+  CreditCard, ShieldCheck, Truck, CornerDownLeft, Settings, UserCircle, Plus, Edit,
+  Boxes, ChevronDown, LogOut, UserRound, Heart, ShoppingCart, Bell, QrCode, Download,
+  Search, AlignJustify, LayoutGrid, CircleUserRound
 } from 'lucide-react';
+
+
 import {
   Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend
 } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
 import { validateRequired } from '../utils/validation.js';
+import RentalScheduler from '../components/RentalScheduler.jsx';
+import { OrderModal } from '../components/OrderModal.jsx';
+import { InvoiceModal } from '../components/InvoiceModal.jsx';
+import { QuotationTemplateView } from '../components/QuotationTemplateView.jsx';
+import { GlobalSettingsView } from '../components/GlobalSettingsView.jsx';
+import { UserProfileView } from '../components/UserProfileView.jsx';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 export const AdminDashboard = () => {
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [ordersViewMode, setOrdersViewMode] = useState('list');
+  const [dropdownOpen, setDropdownOpen] = useState(false);
   const [metrics, setMetrics] = useState(null);
   const [orders, setOrders] = useState([]);
   const [products, setProducts] = useState([]);
@@ -31,8 +48,22 @@ export const AdminDashboard = () => {
   
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [selectedQrProduct, setSelectedQrProduct] = useState(null);
+
+  const handleDownloadQr = (product) => {
+    if (!product) return;
+    const url = `${API_ROOT}/api/inventory/products/${product.id}/qr/download/`;
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${product.product_code}.png`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
 
   const [selectedOrder, setSelectedOrder] = useState(null);
+  const [invoiceModalOpen, setInvoiceModalOpen] = useState(false);
   const [inspectionRating, setInspectionRating] = useState('good');
   const [damageNotes, setDamageNotes] = useState('');
   const [missingAccs, setMissingAccs] = useState('');
@@ -436,41 +467,106 @@ export const AdminDashboard = () => {
   ];
 
   return (
-    <div className="page fade-in admin-erp-layout">
-      
-      {/* Sidebar Navigation */}
-      <nav className="admin-erp-sidebar">
-        <span className="admin-erp-nav-label">Main</span>
-        {sidebarMenu.slice(0, 1).map(item => (
-          <button key={item.id} className={`admin-erp-nav-item ${activeTab === item.id ? 'active' : ''}`} onClick={() => setActiveTab(item.id)}>
-            <item.icon size={16} /> {item.label}
-          </button>
-        ))}
+    <div className="admin-dashboard-container" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: 'var(--background)' }}>
+      <header className="erp-navbar">
+        <div className="erp-navbar-left">
+          <Link className="erp-brand" to="/">
+            <div className="erp-brand-icon"><Boxes size={18} color="white" /></div>
+            RentalHub ERP
+          </Link>
+          <nav className="erp-nav-links">
+            <div className="erp-nav-item">
+              Sales
+              <div className="erp-dropdown-menu">
+                <button className="erp-dropdown-item" onClick={() => setActiveTab('orders')}>All Orders</button>
+                <button className="erp-dropdown-item" onClick={() => setActiveTab('invoices')}>Invoices</button>
+                <button className="erp-dropdown-item" onClick={() => setActiveTab('customers')}>Customers</button>
+              </div>
+            </div>
+
+            <div className="erp-nav-item">
+              Operations
+              <div className="erp-dropdown-menu">
+                <button className="erp-dropdown-item" onClick={() => setActiveTab('schedule')}>Schedule</button>
+                <button className="erp-dropdown-item" onClick={() => setActiveTab('pickup')}>Pickups</button>
+                <button className="erp-dropdown-item" onClick={() => setActiveTab('return')}>Returns</button>
+              </div>
+            </div>
+
+            <div className="erp-nav-item">
+              Catalog
+              <div className="erp-dropdown-menu">
+                <button className="erp-dropdown-item" onClick={() => setActiveTab('products')}>Products</button>
+                <button className="erp-dropdown-item" onClick={() => setActiveTab('categories')}>Product Attributes</button>
+                <button className="erp-dropdown-item" onClick={() => setActiveTab('pricelists')}>Pricelists</button>
+                <button className="erp-dropdown-item" onClick={() => setActiveTab('rental_periods')}>Rental Periods</button>
+              </div>
+            </div>
+
+            <div className="erp-nav-item">
+              Reports
+            </div>
+
+            <div className="erp-nav-item">
+              Settings
+              <div className="erp-dropdown-menu">
+                <button className="erp-dropdown-item" onClick={() => setActiveTab('configuration')}>General Settings</button>
+                <button className="erp-dropdown-item" onClick={() => setActiveTab('user_profile')}>Users & Roles</button>
+                <button className="erp-dropdown-item" onClick={() => setActiveTab('quotations')}>Quotation Templates</button>
+              </div>
+            </div>
+          </nav>
+        </div>
+
+        <div className="erp-search-container">
+          <input type="text" placeholder="Search..." className="erp-search-input" />
+        </div>
+
+        <div className="erp-actions">
+          <Heart size={20} className="erp-action-icon" />
+          <ShoppingCart size={20} className="erp-action-icon" />
+          <Bell size={20} className="erp-action-icon" />
+          
+          <div className="erp-divider"></div>
+
+          {user && (
+            <div style={{ position: 'relative' }}>
+              <div className="erp-profile" onClick={() => setDropdownOpen(!dropdownOpen)}>
+                <div className="erp-profile-avatar">
+                  {user.avatar ? (
+                    <img src={getMediaUrl(user.avatar)} alt="" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+                  ) : (
+                    <span>{user.username ? user.username.charAt(0).toUpperCase() : 'A'}</span>
+                  )}
+                </div>
+                <div className="erp-profile-text">
+                  <span className="erp-profile-name">{user.username || 'Admin'}</span>
+                  <span className="erp-profile-role">Admin</span>
+                </div>
+                <ChevronDown size={14} color="white" />
+              </div>
+              
+              {dropdownOpen && (
+                <div className="erp-dropdown-menu" style={{ display: 'flex', top: '100%', right: 0, left: 'auto', transform: 'none', marginTop: '12px' }}>
+                  <button className="erp-dropdown-item text-danger" onClick={() => { logout(); navigate('/login'); }} style={{ color: 'var(--danger)' }}>
+                    <LogOut size={16} /> Sign out
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </header>
+
+      <div className="page fade-in admin-erp-layout" style={{ display: 'block', padding: '24px', flex: 1, maxWidth: '1400px', margin: '0 auto', width: '100%' }}>
         
-        <span className="admin-erp-nav-label">Inventory</span>
-        {sidebarMenu.slice(1, 5).map(item => (
-          <button key={item.id} className={`admin-erp-nav-item ${activeTab === item.id ? 'active' : ''}`} onClick={() => setActiveTab(item.id)}>
-            <item.icon size={16} /> {item.label}
-          </button>
-        ))}
+        {/* SCHEDULE TAB */}
+        {activeTab === 'schedule' && (
+          <div className="fade-in" style={{ height: 'calc(100vh - 120px)' }}>
+            <RentalScheduler setActiveTab={setActiveTab} />
+          </div>
+        )}
 
-        <span className="admin-erp-nav-label">Sales & Operations</span>
-        {sidebarMenu.slice(5, 12).map(item => (
-          <button key={item.id} className={`admin-erp-nav-item ${activeTab === item.id ? 'active' : ''}`} onClick={() => setActiveTab(item.id)}>
-            <item.icon size={16} /> {item.label}
-          </button>
-        ))}
-
-        <span className="admin-erp-nav-label">Settings</span>
-        {sidebarMenu.slice(12, 14).map(item => (
-          <button key={item.id} className={`admin-erp-nav-item ${activeTab === item.id ? 'active' : ''}`} onClick={() => setActiveTab(item.id)}>
-            <item.icon size={16} /> {item.label}
-          </button>
-        ))}
-      </nav>
-
-      <div className="admin-erp-content">
-        
         {/* DASHBOARD TAB */}
         {activeTab === 'dashboard' && (
           <div className="fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
@@ -670,7 +766,9 @@ export const AdminDashboard = () => {
                   <div key={p.id} className="glass-panel" style={{ padding: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div>
                       <h4 style={{ fontSize: '15px', fontWeight: 700 }}>{p.name}</h4>
-                      <span style={{ fontSize: '11px', color: 'hsl(var(--text-muted))' }}>SKU: {p.sku} | Strategy: {p.late_fee_type} | Penalty: ${p.late_fee_rate}</span>
+                      <span style={{ fontSize: '11px', color: 'hsl(var(--text-muted))' }}>
+                        Code: <strong style={{ color: 'hsl(var(--primary))' }}>{p.product_code}</strong> | SKU: {p.sku} | Strategy: {p.late_fee_type} | Penalty: ${p.late_fee_rate}
+                      </span>
                     </div>
                     <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
                       <div style={{ textAlign: 'right' }}>
@@ -678,12 +776,14 @@ export const AdminDashboard = () => {
                         <span className="badge badge-picked_up" style={{ fontSize: '9px' }}>Active</span>
                       </div>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                        <button onClick={() => setSelectedQrProduct(p)} className="btn btn-secondary" style={{ padding: '4px 8px', fontSize: '12px', color: 'hsl(var(--primary))' }} title="Generate QR"><QrCode size={14} /></button>
                         <button onClick={() => setEditingProduct(p)} className="btn btn-secondary" style={{ padding: '4px 8px', fontSize: '12px' }}><Edit size={14} /></button>
                         <button onClick={() => handleDeleteProduct(p.id)} className="btn btn-secondary" style={{ padding: '4px 8px', fontSize: '12px', border: '1px solid var(--danger)', color: 'var(--danger)' }}><X size={14} /></button>
                       </div>
                     </div>
                   </div>
                 ))}
+
               </div>
             </div>
           </div>
@@ -836,76 +936,152 @@ export const AdminDashboard = () => {
         {/* ORDERS TAB */}
         {activeTab === 'orders' && (
           <div className="fade-in glass-panel" style={{ padding: '32px', overflowX: 'auto' }}>
-            <h3 style={{ fontSize: '20px', marginBottom: '20px' }}>Rental Orders</h3>
-            <table className="list-table">
-              <thead>
-                <tr>
-                  <th>Order ID</th>
-                  <th>Client</th>
-                  <th>Dates</th>
-                  <th>Paid Rent</th>
-                  <th>Status</th>
-                  <th style={{ textAlign: 'right' }}>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {orders.filter(o => o.status !== 'draft').map(order => (
-                  <tr key={order.id}>
-                    <td><strong>#{order.id}</strong></td>
-                    <td>{order.client_details?.username}</td>
-                    <td>{new Date(order.start_date).toLocaleDateString()} - {new Date(order.end_date).toLocaleDateString()}</td>
-                    <td>${parseFloat(order.amount_paid).toFixed(2)}</td>
-                    <td><span className={`badge badge-${order.status}`}>{order.status}</span></td>
-                    <td style={{ textAlign: 'right' }}>
-                      <button onClick={() => setSelectedOrder(order)} className="btn-secondary" style={{ padding: '4px 8px', fontSize: '12px' }}>Audit</button>
-                    </td>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+              <h3 style={{ fontSize: '20px', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}>
+                Rental Orders <Settings size={18} color="hsl(var(--text-secondary))" />
+              </h3>
+              <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+                <div className="erp-search-container" style={{ margin: 0, width: '200px' }}>
+                   <input type="text" placeholder="Search orders..." className="erp-search-input" style={{ background: 'var(--extra-light)', color: 'var(--text-primary)' }} />
+                </div>
+                <button className="btn btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><Plus size={16}/> New</button>
+                <div className="admin-view-switcher">
+                  <div className="admin-view-switcher-buttons">
+                    <button className={ordersViewMode === 'list' ? 'active' : ''} onClick={() => setOrdersViewMode('list')}><AlignJustify size={16} /></button>
+                    <button className={ordersViewMode === 'kanban' ? 'active' : ''} onClick={() => setOrdersViewMode('kanban')}><LayoutGrid size={16} /></button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="admin-filters-row">
+              <div className="admin-filter-chip">
+                <span>{metrics?.rentals_due_today || 0}</span>
+                <span>Today</span>
+              </div>
+              <div className="admin-filter-chip">
+                <span>{metrics?.upcoming_pickups || 0}</span>
+                <span>Pickup</span>
+              </div>
+              <div className="admin-filter-chip">
+                <span>0</span>
+                <span>Return</span>
+              </div>
+              <div className="admin-filter-chip">
+                <span>{metrics?.overdue_rentals || 0}</span>
+                <span>Late</span>
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'var(--whitish)', border: '1px solid var(--border)', padding: '8px 16px', borderRadius: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: 500, color: 'var(--blackish)' }}>
+                <Calendar size={14} color="hsl(var(--primary))" /> Last 7 Days <ChevronDown size={14} />
+              </div>
+
+              <div className="admin-stats">
+                <div className="admin-stat-item">
+                  <span className="admin-stat-label">Sales</span>
+                  <span className="admin-stat-value">${parseFloat(metrics?.revenue_this_month || '0').toFixed(2)}</span>
+                </div>
+                <div className="admin-stat-item">
+                  <span className="admin-stat-label">Late Fees</span>
+                  <span className="admin-stat-value">${parseFloat(metrics?.late_fee_collection || '0').toFixed(2)}</span>
+                </div>
+                <div className="admin-stat-item">
+                  <span className="admin-stat-label">Deposit</span>
+                  <span className="admin-stat-value">${parseFloat(metrics?.security_deposits_held || '0').toFixed(2)}</span>
+                </div>
+              </div>
+            </div>
+
+            {ordersViewMode === 'list' ? (
+              <table className="list-table">
+                <thead>
+                  <tr>
+                    <th style={{ width: '40px', paddingLeft: '20px' }}><input type="checkbox" /></th>
+                    <th>Order Reference</th>
+                    <th>Customer</th>
+                    <th>Status</th>
+                    <th>Pickup Date</th>
+                    <th>Return Date</th>
+                    <th>Total</th>
+                    <th>Invoice Status</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {orders.filter(o => o.status !== 'draft').map(order => {
+                    let invoiceBadge = 'badge-draft';
+                    let invoiceText = 'Nothing to Invoice';
+                    if (order.status === 'confirmed') { invoiceBadge = 'badge-confirmed'; invoiceText = 'Confirmed'; }
+                    else if (['picked_up', 'returned', 'settled'].includes(order.status)) { invoiceBadge = 'badge-picked_up'; invoiceText = 'Invoiced'; }
+
+                    return (
+                      <tr key={order.id} onClick={() => setSelectedOrder(order)} style={{ cursor: 'pointer' }}>
+                        <td style={{ paddingLeft: '20px' }}><input type="checkbox" onClick={(e) => e.stopPropagation()} /></td>
+                        <td><strong>S000{order.id}</strong></td>
+                        <td>{order.client_details?.username}</td>
+                        <td><span className={`badge badge-${order.status}`}>{order.status}</span></td>
+                        <td>{new Date(order.start_date).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}</td>
+                        <td>{new Date(order.end_date).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}</td>
+                        <td>${parseFloat(order.amount_paid || order.total_rent_amount || 0).toFixed(0)}</td>
+                        <td><span className={`badge ${invoiceBadge}`}>{invoiceText}</span></td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            ) : (
+              <div className="kanban-board">
+                {['draft', 'confirmed', 'picked_up', 'returned', 'cancelled'].map(statusKey => {
+                   const statusOrders = orders.filter(o => o.status === statusKey);
+                   let title = '';
+                   if (statusKey === 'draft') title = 'Quotations';
+                   else if (statusKey === 'confirmed') title = 'Reserved';
+                   else if (statusKey === 'picked_up') title = 'Active / Picked Up';
+                   else if (statusKey === 'returned') title = 'Completed';
+                   else if (statusKey === 'cancelled') title = 'Cancelled';
+                   
+                   return (
+                     <div key={statusKey} className="kanban-column">
+                       <div className="kanban-column-header">
+                         {title}
+                         <span className="kanban-column-count">{statusOrders.length}</span>
+                       </div>
+                       <div className="kanban-column-content">
+                         {statusOrders.map(order => {
+                           let invoiceBadge = 'badge-draft';
+                           let invoiceText = 'Nothing to Invoice';
+                           if (order.status === 'confirmed') { invoiceBadge = 'badge-confirmed'; invoiceText = 'Confirmed'; }
+                           else if (['picked_up', 'returned', 'settled'].includes(order.status)) { invoiceBadge = 'badge-picked_up'; invoiceText = 'Invoiced'; }
+                           
+                           return (
+                             <div key={order.id} className="kanban-card" onClick={() => setSelectedOrder(order)}>
+                               <div className="kanban-card-header">
+                                 <span className="kanban-card-id">S000{order.id}</span>
+                                 <span className={`badge badge-${order.status}`}>{order.status}</span>
+                               </div>
+                               <div className="kanban-card-customer">{order.client_details?.username}</div>
+                               <div className="kanban-card-dates">
+                                 <Calendar size={12} />
+                                 {new Date(order.start_date).toLocaleDateString()} - {new Date(order.end_date).toLocaleDateString()}
+                               </div>
+                               <div className="kanban-card-footer">
+                                 <span className={`badge ${invoiceBadge}`}>{invoiceText}</span>
+                                 <span className="kanban-card-amount">${parseFloat(order.amount_paid || order.total_rent_amount || 0).toFixed(0)}</span>
+                               </div>
+                             </div>
+                           );
+                         })}
+                       </div>
+                     </div>
+                   );
+                })}
+              </div>
+            )}
           </div>
         )}
 
         {/* QUOTATIONS TAB */}
         {activeTab === 'quotations' && (
-          <div className="fade-in glass-panel" style={{ padding: '32px', overflowX: 'auto' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-              <h3 style={{ fontSize: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <FileText size={20} style={{ color: 'hsl(var(--primary))' }} /> Pending Quotations
-              </h3>
-              <button className="btn btn-primary" onClick={() => alert('Quotation creation flow via Cart')}><Plus size={16}/> Create Quotation</button>
-            </div>
-            <table className="list-table">
-              <thead>
-                <tr>
-                  <th>Quotation No.</th>
-                  <th>Customer</th>
-                  <th>Total Amount</th>
-                  <th>Created Date</th>
-                  <th>Status</th>
-                  <th style={{ textAlign: 'right' }}>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {orders.filter(o => o.status === 'draft').map(order => (
-                  <tr key={order.id}>
-                    <td><strong>#{order.id}</strong></td>
-                    <td>{order.client_details?.username}</td>
-                    <td>${parseFloat(order.total_rent_amount).toFixed(2)}</td>
-                    <td>{new Date(order.created_at).toLocaleDateString()}</td>
-                    <td><span className="badge badge-draft">Draft</span></td>
-                    <td style={{ textAlign: 'right', display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-                      <button onClick={() => handleGenerateQuotation(order.id)} className="btn btn-outline" style={{ padding: '4px 8px', fontSize: '12px' }}>View PDF</button>
-                      <button onClick={() => handleStateChange(order.id, 'confirm')} className="btn btn-primary" style={{ padding: '4px 8px', fontSize: '12px' }}>Confirm</button>
-                    </td>
-                  </tr>
-                ))}
-                {orders.filter(o => o.status === 'draft').length === 0 && (
-                  <tr><td colSpan="6" style={{ textAlign: 'center', padding: '20px', color: 'var(--text-muted)' }}>No pending quotations.</td></tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+          <QuotationTemplateView />
         )}
 
         {/* INVOICES TAB */}
@@ -1088,6 +1264,16 @@ export const AdminDashboard = () => {
           </div>
         )}
 
+        {/* CONFIGURATION TAB */}
+        {activeTab === 'configuration' && (
+          <GlobalSettingsView setActiveTab={setActiveTab} />
+        )}
+
+        {/* USER PROFILE TAB */}
+        {activeTab === 'user_profile' && (
+          <UserProfileView />
+        )}
+
         {/* VENDORS TAB */}
         {activeTab === 'vendors' && (
           <div className="fade-in glass-panel" style={{ padding: '32px' }}>
@@ -1120,74 +1306,20 @@ export const AdminDashboard = () => {
 
       </div>
 
-      {/* AUDIT MODAL */}
-      {selectedOrder && (
-        <div style={{
-          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-          backgroundColor: 'rgba(33,37,43,0.5)', backdropFilter: 'blur(5px)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 999, padding: '20px'
-        }}>
-          <div className="glass-panel" style={{ width: '100%', maxWidth: '650px', maxHeight: '90vh', overflowY: 'auto', padding: '32px', position: 'relative', display: 'flex', flexDirection: 'column', gap: '24px' }}>
-            <button onClick={() => { setSelectedOrder(null); fetchAdminData(); }} style={{ position: 'absolute', top: '20px', right: '20px', background: 'none', border: 'none', cursor: 'pointer' }}><X size={20} /></button>
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <h3 style={{ fontSize: '22px', fontWeight: 800 }}>Audit Order #{selectedOrder.id}</h3>
-                <span className={`badge badge-${selectedOrder.status}`}>{selectedOrder.status}</span>
-              </div>
-              <div style={{ display: 'flex', gap: '16px', fontSize: '13px', color: 'hsl(var(--text-secondary))', marginTop: '6px' }}>
-                <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><User size={13} /> {selectedOrder.client_details?.username}</span>
-                <span>Fulfillment: <strong>{selectedOrder.fulfillment_type}</strong></span>
-              </div>
-            </div>
-            
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', border: '1px solid hsl(var(--border-glass))', borderRadius: '12px', padding: '20px' }}>
-              <span style={{ fontSize: '13px', fontWeight: 700, color: 'hsl(var(--primary))' }}>State transition controller</span>
-              <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-                {selectedOrder.status === 'draft' && <button onClick={() => handleStateChange(selectedOrder.id, 'confirm')} className="btn btn-primary">Confirm Booking Quotation</button>}
-                {selectedOrder.status === 'confirmed' && <button onClick={() => handleStateChange(selectedOrder.id, 'pickup')} className="btn btn-success btn">Verify & Confirm Pickup</button>}
-                {selectedOrder.status === 'returned' && <button onClick={() => handleStateChange(selectedOrder.id, 'settle')} className="btn btn-primary">Settle Security Deposit</button>}
-                {selectedOrder.status === 'settled' && <span style={{ fontSize: '13px', color: 'hsl(var(--text-muted))' }}>Order is settled and closed. Ledger is locked.</span>}
-                {selectedOrder.status === 'cancelled' && <span style={{ fontSize: '13px', color: 'hsl(var(--text-muted))' }}>Order is cancelled.</span>}
-              </div>
-            </div>
-
-            {(selectedOrder.status === 'picked_up' || selectedOrder.status === 'overdue') && (
-              <form onSubmit={(e) => handleInspectionSubmit(e, selectedOrder.id)} className="glass-panel" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                <span style={{ fontSize: '13px', fontWeight: 700, color: 'hsl(var(--primary))', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                  <CheckSquare size={14} /> Log Return quality inspection
-                </span>
-                <div style={{ display: 'flex', gap: '16px' }}>
-                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                    <label style={{ fontSize: '11px', color: 'hsl(var(--text-secondary))' }}>Condition Rating</label>
-                    <select className="glass-input" value={inspectionRating} onChange={e => setInspectionRating(e.target.value)}>
-                      <option value="good">Good (No deduction)</option>
-                      <option value="needs_repair">Needs Repair (Notify service dept)</option>
-                      <option value="damaged">Severely Damaged</option>
-                    </select>
-                  </div>
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                  <label style={{ fontSize: '11px', color: 'hsl(var(--text-secondary))' }}>Damage Notes (if any)</label>
-                  <input type="text" className="glass-input" value={damageNotes} onChange={e => setDamageNotes(e.target.value)} />
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                  <label style={{ fontSize: '11px', color: 'hsl(var(--text-secondary))' }}>Missing Accessories Checklist</label>
-                  <input type="text" className="glass-input" value={missingAccs} onChange={e => setMissingAccs(e.target.value)} />
-                </div>
-                <button type="submit" className="btn btn-success" style={{ width: '100%', padding: '10px' }}>
-                  Submit return inspection checklist & Settle late penalties
-                </button>
-              </form>
-            )}
-
-            {selectedOrder.status === 'returned' && (
-              <div className="glass-panel" style={{ padding: '16px', backgroundColor: '#dff3e4', fontSize: '12px', color: 'var(--blackish)', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Wrench size={16} style={{ color: '#10b981' }} />
-                <span>The inspection has been submitted. Click "Settle Security Deposit" above to release the remaining deposit.</span>
-              </div>
-            )}
-          </div>
-        </div>
+      {/* ORDER AND INVOICE MODALS */}
+      {selectedOrder && !invoiceModalOpen && (
+        <OrderModal 
+          order={selectedOrder}
+          onClose={() => { setSelectedOrder(null); fetchAdminData(); }}
+          onCreateInvoice={() => setInvoiceModalOpen(true)}
+        />
+      )}
+      
+      {selectedOrder && invoiceModalOpen && (
+        <InvoiceModal 
+          order={selectedOrder}
+          onClose={() => setInvoiceModalOpen(false)}
+        />
       )}
       
       {/* EDIT CATEGORY MODAL */}
@@ -1397,6 +1529,69 @@ export const AdminDashboard = () => {
         </div>
       )}
 
+      {selectedQrProduct && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0,0,0,0.6)',
+          backdropFilter: 'blur(4px)',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          zIndex: 1000
+        }}>
+          <div className="glass-panel" style={{
+            padding: '32px',
+            maxWidth: '360px',
+            width: '100%',
+            textAlign: 'center',
+            borderRadius: '16px',
+            position: 'relative',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '16px',
+            backgroundColor: 'rgba(255, 255, 255, 0.85)',
+            boxShadow: '0 20px 40px rgba(0,0,0,0.2)'
+          }}>
+            <button onClick={() => setSelectedQrProduct(null)} style={{
+              position: 'absolute',
+              top: '16px',
+              right: '16px',
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              color: 'hsl(var(--text-secondary))'
+            }}><X size={20} /></button>
+            <h3 style={{ fontSize: '20px', fontWeight: 800 }}>Product QR Code</h3>
+            <p style={{ color: 'hsl(var(--text-secondary))', fontSize: '13px' }}>
+              Product: <strong>{selectedQrProduct.name}</strong><br />
+              Reference Code: <strong style={{ color: 'hsl(var(--primary))' }}>{selectedQrProduct.product_code}</strong>
+            </p>
+            <div style={{
+              border: '1px solid hsl(var(--border-glass))',
+              borderRadius: '12px',
+              padding: '16px',
+              backgroundColor: 'white',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
+            }}>
+              <img
+                src={`${API_ROOT}/api/inventory/products/${selectedQrProduct.id}/qr/`}
+                alt="QR Code"
+                style={{ width: '180px', height: '180px', display: 'block' }}
+              />
+            </div>
+            <button onClick={() => handleDownloadQr(selectedQrProduct)} className="btn btn-primary" style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '12px' }}>
+              <Download size={16} /> Download PNG
+            </button>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };
+
