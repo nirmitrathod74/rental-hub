@@ -32,25 +32,31 @@ export const AppShell = ({ children }) => {
 
   return <div className="app-shell">
     <header className="topbar">
-      <Link className="brand" to="/"><span className="brand-mark"><Boxes size={17} /></span>RentalHub ERP</Link>
+      <Link className="brand" to="/" style={{ marginRight: '24px' }}>
+        <span className="brand-mark"><Boxes size={17} /></span>RentalHub ERP
+      </Link>
       
-      <div className="topbar-links" style={{ display: 'flex', gap: '20px', marginLeft: '16px', fontSize: '13px', whiteSpace: 'nowrap', textDecoration: 'none' }}>
-        <Link to="/" style={{ textDecoration: 'none', color: '#fff' }}>Products</Link>
-        <Link to="/terms" style={{ textDecoration: 'none', color: '#fff' }}>Terms & Condition</Link>
-        <Link to="/about" style={{ textDecoration: 'none', color: '#fff' }}>About us</Link>
-        <Link to="/contact" style={{ textDecoration: 'none', color: '#fff' }}>Contact Us</Link>
+      <div className="topbar-links" style={{ display: 'flex', gap: '24px', marginRight: '32px', fontSize: '14px', fontWeight: 500, whiteSpace: 'nowrap' }}>
+        <Link to="/" style={{ textDecoration: 'none', color: '#fff', padding: '6px 8px', borderRadius: '4px', transition: 'background 0.2s' }} onMouseOver={e => e.target.style.background = 'rgba(255,255,255,0.1)'} onMouseOut={e => e.target.style.background = 'transparent'}>Products</Link>
+        <Link to="/terms" style={{ textDecoration: 'none', color: '#fff', padding: '6px 8px', borderRadius: '4px', transition: 'background 0.2s' }} onMouseOver={e => e.target.style.background = 'rgba(255,255,255,0.1)'} onMouseOut={e => e.target.style.background = 'transparent'}>Terms & Condition</Link>
+        <Link to="/about" style={{ textDecoration: 'none', color: '#fff', padding: '6px 8px', borderRadius: '4px', transition: 'background 0.2s' }} onMouseOver={e => e.target.style.background = 'rgba(255,255,255,0.1)'} onMouseOut={e => e.target.style.background = 'transparent'}>About us</Link>
+        <Link to="/contact" style={{ textDecoration: 'none', color: '#fff', padding: '6px 8px', borderRadius: '4px', transition: 'background 0.2s' }} onMouseOver={e => e.target.style.background = 'rgba(255,255,255,0.1)'} onMouseOut={e => e.target.style.background = 'transparent'}>Contact Us</Link>
       </div>
 
-      <form className="topbar-search" onSubmit={handleSearch}>
-        <input 
-          aria-label="Global search" 
-          placeholder="Search equipment, rentals, customers…" 
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-        />
+      <form className="topbar-search" onSubmit={handleSearch} style={{ flex: '0 1 480px', margin: '0 auto', marginRight: '32px' }}>
+        <div style={{ position: 'relative' }}>
+          <Search size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)' }} />
+          <input 
+            aria-label="Global search" 
+            placeholder="Search equipment, rentals, customers…" 
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            style={{ width: '100%', height: '38px', padding: '0 16px 0 36px', border: 'none', borderRadius: '8px', outline: 'none', color: 'var(--text-primary)', background: '#ffffff', boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.1)', fontSize: '14px' }}
+          />
+        </div>
       </form>
 
-      <div className="topbar-actions">
+      <div className="topbar-actions" style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '16px' }}>
         {user && (
           <div style={{ position: 'relative' }}>
             <button 
@@ -151,10 +157,10 @@ export const AppShell = ({ children }) => {
             )}
           </div>
         ) : (
-          <>
-            <Link className="btn-secondary" to="/login">Sign in</Link>
-            <Link className="btn btn-primary" to="/signup">Start now</Link>
-          </>
+          <div style={{ display: 'flex', gap: '12px' }}>
+            <Link className="btn-secondary" to="/login" style={{ padding: '8px 16px', fontWeight: 600, background: '#fff', color: '#6B4668', border: '1px solid #e2e8f0', textDecoration: 'none', borderRadius: '6px' }}>Sign in</Link>
+            <Link className="btn btn-primary" to="/signup" style={{ padding: '8px 16px', fontWeight: 600, background: '#6B4668', color: '#fff', border: 'none', textDecoration: 'none', borderRadius: '6px' }}>Start now</Link>
+          </div>
         )}
       </div>
     </header>
