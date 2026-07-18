@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { api } from '../api/index.js';
+import { api, API_ROOT } from '../api/index.js';
 import {
   BarChart, Activity, AlertOctagon, Wallet, CircleDollarSign, CheckSquare,
   Wrench, FilePlus2, Package2, ShieldAlert, Sparkles, User, Calendar, X,
   LayoutDashboard, Tags, Clock, Users, ShoppingBag, FileText, Receipt,
-  CreditCard, ShieldCheck, Truck, CornerDownLeft, Settings, UserCircle, Plus, Edit
+  CreditCard, ShieldCheck, Truck, CornerDownLeft, Settings, UserCircle, Plus, Edit, QrCode, Download
 } from 'lucide-react';
+
 import {
   Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend
 } from 'chart.js';
@@ -31,6 +32,19 @@ export const AdminDashboard = () => {
   
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [selectedQrProduct, setSelectedQrProduct] = useState(null);
+
+  const handleDownloadQr = (product) => {
+    if (!product) return;
+    const url = `${API_ROOT}/api/inventory/products/${product.id}/qr/download/`;
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${product.product_code}.png`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
 
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [inspectionRating, setInspectionRating] = useState('good');
@@ -670,7 +684,9 @@ export const AdminDashboard = () => {
                   <div key={p.id} className="glass-panel" style={{ padding: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div>
                       <h4 style={{ fontSize: '15px', fontWeight: 700 }}>{p.name}</h4>
-                      <span style={{ fontSize: '11px', color: 'hsl(var(--text-muted))' }}>SKU: {p.sku} | Strategy: {p.late_fee_type} | Penalty: ${p.late_fee_rate}</span>
+                      <span style={{ fontSize: '11px', color: 'hsl(var(--text-muted))' }}>
+                        Code: <strong style={{ color: 'hsl(var(--primary))' }}>{p.product_code}</strong> | SKU: {p.sku} | Strategy: {p.late_fee_type} | Penalty: ${p.late_fee_rate}
+                      </span>
                     </div>
                     <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
                       <div style={{ textAlign: 'right' }}>
@@ -678,12 +694,14 @@ export const AdminDashboard = () => {
                         <span className="badge badge-picked_up" style={{ fontSize: '9px' }}>Active</span>
                       </div>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                        <button onClick={() => setSelectedQrProduct(p)} className="btn btn-secondary" style={{ padding: '4px 8px', fontSize: '12px', color: 'hsl(var(--primary))' }} title="Generate QR"><QrCode size={14} /></button>
                         <button onClick={() => setEditingProduct(p)} className="btn btn-secondary" style={{ padding: '4px 8px', fontSize: '12px' }}><Edit size={14} /></button>
                         <button onClick={() => handleDeleteProduct(p.id)} className="btn btn-secondary" style={{ padding: '4px 8px', fontSize: '12px', border: '1px solid var(--danger)', color: 'var(--danger)' }}><X size={14} /></button>
                       </div>
                     </div>
                   </div>
                 ))}
+
               </div>
             </div>
           </div>
@@ -1397,6 +1415,69 @@ export const AdminDashboard = () => {
         </div>
       )}
 
+      {selectedQrProduct && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0,0,0,0.6)',
+          backdropFilter: 'blur(4px)',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          zIndex: 1000
+        }}>
+          <div className="glass-panel" style={{
+            padding: '32px',
+            maxWidth: '360px',
+            width: '100%',
+            textAlign: 'center',
+            borderRadius: '16px',
+            position: 'relative',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '16px',
+            backgroundColor: 'rgba(255, 255, 255, 0.85)',
+            boxShadow: '0 20px 40px rgba(0,0,0,0.2)'
+          }}>
+            <button onClick={() => setSelectedQrProduct(null)} style={{
+              position: 'absolute',
+              top: '16px',
+              right: '16px',
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              color: 'hsl(var(--text-secondary))'
+            }}><X size={20} /></button>
+            <h3 style={{ fontSize: '20px', fontWeight: 800 }}>Product QR Code</h3>
+            <p style={{ color: 'hsl(var(--text-secondary))', fontSize: '13px' }}>
+              Product: <strong>{selectedQrProduct.name}</strong><br />
+              Reference Code: <strong style={{ color: 'hsl(var(--primary))' }}>{selectedQrProduct.product_code}</strong>
+            </p>
+            <div style={{
+              border: '1px solid hsl(var(--border-glass))',
+              borderRadius: '12px',
+              padding: '16px',
+              backgroundColor: 'white',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
+            }}>
+              <img
+                src={`${API_ROOT}/api/inventory/products/${selectedQrProduct.id}/qr/`}
+                alt="QR Code"
+                style={{ width: '180px', height: '180px', display: 'block' }}
+              />
+            </div>
+            <button onClick={() => handleDownloadQr(selectedQrProduct)} className="btn btn-primary" style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '12px' }}>
+              <Download size={16} /> Download PNG
+            </button>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };
+

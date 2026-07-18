@@ -26,11 +26,12 @@ class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = (
-            'id', 'category', 'category_detail', 'name', 'sku', 'description', 'image', 'base_price',
+            'id', 'product_code', 'category', 'category_detail', 'name', 'sku', 'description', 'image', 'base_price',
             'security_deposit_type', 'security_deposit_value', 'stock_qty',
             'available_qty', 'late_fee_type', 'late_fee_rate', 'grace_period_hours',
             'variants', 'calculated_price', 'calculated_deposit'
         )
+
 
     def get_calculated_price(self, obj):
         # We can extract pricelist_id from the context if passed

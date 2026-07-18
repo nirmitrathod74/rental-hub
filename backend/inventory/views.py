@@ -95,6 +95,81 @@ class ProductViewSet(viewsets.ModelViewSet):
             'attribute_value': variant.attribute_value
         }, status=status.HTTP_201_CREATED)
 
+    @action(detail=True, methods=['get'])
+    def qr(self, request, pk=None):
+        product = self.get_object()
+        if not product.product_code:
+            return Response({'error': 'Product code not generated yet.'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        import qrcode
+        from io import BytesIO
+        from django.http import HttpResponse
+        from django.conf import settings
+
+        frontend_url = getattr(settings, 'FRONTEND_URL', 'http://localhost:3000')
+        qr_url = f"{frontend_url.rstrip('/')}/scan/{product.product_code}"
+        
+        qr = qrcode.QRCode(
+            version=1,
+            error_correction=qrcode.constants.ERROR_CORRECT_L,
+            box_size=10,
+            border=4,
+        )
+        qr.add_data(qr_url)
+        qr.make(fit=True)
+
+        img = qr.make_image(fill_color="black", back_color="white")
+        
+        buffer = BytesIO()
+        img.save(buffer, format="PNG")
+        buffer.seek(0)
+        
+        return HttpResponse(buffer.getvalue(), content_type="image/png")
+
+    @action(detail=True, methods=['get'], url_path='qr/download')
+    def download_qr(self, request, pk=None):
+        product = self.get_object()
+        if not product.product_code:
+            return Response({'error': 'Product code not generated yet.'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        import qrcode
+        from io import BytesIO
+        from django.http import HttpResponse
+        from django.conf import settings
+
+        frontend_url = getattr(settings, 'FRONTEND_URL', 'http://localhost:3000')
+        qr_url = f"{frontend_url.rstrip('/')}/scan/{product.product_code}"
+        
+        qr = qrcode.QRCode(
+            version=1,
+            error_correction=qrcode.constants.ERROR_CORRECT_L,
+            box_size=10,
+            border=4,
+        )
+        qr.add_data(qr_url)
+        qr.make(fit=True)
+
+        img = qr.make_image(fill_color="black", back_color="white")
+        
+        buffer = BytesIO()
+        img.save(buffer, format="PNG")
+        buffer.seek(0)
+        
+        response = HttpResponse(buffer.getvalue(), content_type="image/png")
+        response['Content-Disposition'] = f'attachment; filename="{product.product_code}.png"'
+        return response
+
+    @action(detail=False, methods=['get'], url_path='by-code/(?P<product_code>[a-zA-Z0-9-]+)')
+    def by_code(self, request, product_code=None):
+        try:
+            product = Product.objects.get(product_code=product_code)
+        except Product.DoesNotExist:
+            return Response({'error': 'Product not found'}, status=status.HTTP_404_NOT_FOUND)
+        
+        serializer = self.get_serializer(product)
+        return Response(serializer.data)
+
+
 
 class PriceListViewSet(viewsets.ModelViewSet):
     queryset = PriceList.objects.all().order_by('id')

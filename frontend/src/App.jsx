@@ -18,6 +18,8 @@ import { About } from './pages/About.jsx';
 import { Terms } from './pages/Terms.jsx';
 import { Contact } from './pages/Contact.jsx';
 import { ResetPassword } from './pages/ResetPassword.jsx';
+import { ScanRedirect } from './pages/ScanRedirect.jsx';
+
 
 // Protected Route components
 const ProtectedRoute = ({ children, roles }) => {
@@ -31,7 +33,7 @@ const ProtectedRoute = ({ children, roles }) => {
     return <Navigate to="/login" replace />;
   }
 
-  if (roles && !roles.includes(user.role)) {
+  if (roles && !roles.includes(user.role?.toLowerCase())) {
     return <Navigate to="/" replace />;
   }
 
@@ -55,6 +57,8 @@ const AppContent = () => {
             <Routes>
               <Route path="/" element={<Catalog />} />
               <Route path="/product/:id" element={<ProductDetails />} />
+              <Route path="/scan/:product_code" element={<ScanRedirect />} />
+
               <Route path="/cart" element={<Cart />} />
               <Route path="/about" element={<About />} />
               <Route path="/terms" element={<Terms />} />

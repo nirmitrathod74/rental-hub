@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
-import { api, getMediaUrl } from '../api/index.js';
+import { api, getMediaUrl, API_ROOT } from '../api/index.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useCart } from '../context/CartContext.jsx';
 import { useWishlist } from '../context/WishlistContext.jsx';
-import { ShieldCheck, Info, CheckCircle2, ChevronLeft, CalendarClock, Heart } from 'lucide-react';
+import { ShieldCheck, Info, CheckCircle2, ChevronLeft, CalendarClock, Heart, QrCode, Download, X } from 'lucide-react';
+
 
 export const ProductDetails = () => {
   const { id } = useParams();
@@ -21,6 +22,19 @@ export const ProductDetails = () => {
   const [quantity, setQuantity] = useState(1);
   const [selectedVariants, setSelectedVariants] = useState({});
   const [successMsg, setSuccessMsg] = useState('');
+  const [showQrModal, setShowQrModal] = useState(false);
+
+  const handleDownloadQr = () => {
+    if (!product) return;
+    const url = `${API_ROOT}/api/inventory/products/${product.id}/qr/download/`;
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${product.product_code}.png`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -157,7 +171,20 @@ export const ProductDetails = () => {
               PRODUCT DETAIL
             </span>
             <h1 style={{ fontSize: '36px', fontWeight: 800, marginTop: '4px' }}>{product.name}</h1>
-            <p style={{ color: 'hsl(var(--text-muted))', fontSize: '13px', marginTop: '2px' }}>SKU: {product.sku}</p>
+            <p style={{ color: 'hsl(var(--text-muted))', fontSize: '13px', marginTop: '2px' }}>
+              SKU: {product.sku} {product.product_code && `| Code: ${product.product_code}`}
+            </p>
+            {user?.role?.toLowerCase() === 'admin' && (
+              <div style={{ display: 'flex', gap: '12px', marginTop: '12px' }}>
+                <button onClick={() => setShowQrModal(true)} className="btn-secondary" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '13px', padding: '6px 12px', cursor: 'pointer' }}>
+                  <QrCode size={14} /> Generate QR
+                </button>
+                <button onClick={handleDownloadQr} className="btn-secondary" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '13px', padding: '6px 12px', cursor: 'pointer' }}>
+                  <Download size={14} /> Download QR
+                </button>
+              </div>
+            )}
+
           </div>
 
           <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap' }}>
@@ -288,6 +315,68 @@ export const ProductDetails = () => {
           </div>
         </div>
       </div>
+
+      {showQrModal && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0,0,0,0.6)',
+          backdropFilter: 'blur(4px)',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          zIndex: 1000
+        }}>
+          <div className="glass-panel" style={{
+            padding: '32px',
+            maxWidth: '360px',
+            width: '100%',
+            textAlign: 'center',
+            borderRadius: '16px',
+            position: 'relative',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '16px',
+            backgroundColor: 'rgba(255, 255, 255, 0.85)',
+            boxShadow: '0 20px 40px rgba(0,0,0,0.2)'
+          }}>
+            <button onClick={() => setShowQrModal(false)} style={{
+              position: 'absolute',
+              top: '16px',
+              right: '16px',
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              color: 'hsl(var(--text-secondary))'
+            }}><X size={20} /></button>
+            <h3 style={{ fontSize: '20px', fontWeight: 800 }}>Product QR Code</h3>
+            <p style={{ color: 'hsl(var(--text-secondary))', fontSize: '13px' }}>
+              Reference Code: <strong style={{ color: 'hsl(var(--primary))' }}>{product.product_code}</strong>
+            </p>
+            <div style={{
+              border: '1px solid hsl(var(--border-glass))',
+              borderRadius: '12px',
+              padding: '16px',
+              backgroundColor: 'white',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
+            }}>
+              <img
+                src={`${API_ROOT}/api/inventory/products/${product.id}/qr/`}
+                alt="QR Code"
+                style={{ width: '180px', height: '180px', display: 'block' }}
+              />
+            </div>
+            <button onClick={handleDownloadQr} className="btn btn-primary" style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '12px' }}>
+              <Download size={16} /> Download PNG
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
+
