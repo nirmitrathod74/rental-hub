@@ -130,7 +130,7 @@ export const Catalog = () => {
             </div>
             
             <div className="filter-block-title">Categories</div>
-            {categories.map((cat, idx) => (
+            {categories.filter(cat => products.some(p => p.category_detail?.name === cat.name)).map((cat, idx) => (
               <label key={idx} className="filter-checkbox">
                 <input 
                   type="checkbox" 
