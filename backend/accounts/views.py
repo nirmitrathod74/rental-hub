@@ -189,3 +189,43 @@ class VerifyEmailView(APIView):
         else:
             return redirect(f"{settings.FRONTEND_URL}/login?verified=false")
 
+
+class ContactMessageView(APIView):
+    permission_classes = (permissions.AllowAny,)
+
+    def post(self, request, *args, **kwargs):
+        name = request.data.get('name', '')
+        email = request.data.get('email', '')
+        subject = request.data.get('subject', '')
+        message = request.data.get('message', '')
+
+        if not name or not email or not subject or not message:
+            return standard_response(False, "Missing required fields", status_code=400)
+
+        recipient = settings.EMAIL_HOST_USER or settings.DEFAULT_FROM_EMAIL
+        
+        email_subject = f"Contact Message: {subject}"
+        email_message = f"""
+You have received a new contact message from your website.
+
+Sender Name: {name}
+Sender Email: {email}
+Subject: {subject}
+
+Message:
+{message}
+"""
+        from django.core.mail import send_mail
+        try:
+            send_mail(
+                email_subject,
+                email_message,
+                settings.DEFAULT_FROM_EMAIL,
+                [recipient],
+                fail_silently=False,
+            )
+            return standard_response(True, "Your message has been sent successfully.")
+        except Exception as e:
+            return standard_response(False, f"Failed to send email: {str(e)}", status_code=500)
+
+
