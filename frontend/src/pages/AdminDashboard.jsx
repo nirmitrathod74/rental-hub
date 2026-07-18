@@ -16,7 +16,11 @@ export const AdminDashboard = () => {
   const [metrics, setMetrics] = useState(null);
   const [orders, setOrders] = useState([]);
   const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [pricelists, setPricelists] = useState([]);
+  const [rentalPeriods, setRentalPeriods] = useState([]);
+  const [quotationTemplates, setQuotationTemplates] = useState([]);
+  const [vendors, setVendors] = useState([]);
   
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -28,6 +32,7 @@ export const AdminDashboard = () => {
   
   const [newProdName, setNewProdName] = useState('');
   const [newProdSku, setNewProdSku] = useState('');
+  const [newProdCat, setNewProdCat] = useState('');
   const [newProdDesc, setNewProdDesc] = useState('');
   const [newProdPrice, setNewProdPrice] = useState('');
   const [newProdDepVal, setNewProdDepVal] = useState('');
@@ -48,10 +53,22 @@ export const AdminDashboard = () => {
       setOrders(orderRes);
 
       const productRes = await api.get('/inventory/products/');
-      setProducts(productRes);
+      setProducts(productRes.data || productRes);
+
+      const categoryRes = await api.get('/inventory/categories/');
+      setCategories(categoryRes.data || categoryRes);
 
       const priceRes = await api.get('/inventory/pricelists/');
-      setPricelists(priceRes);
+      setPricelists(priceRes.data || priceRes);
+
+      const periodRes = await api.get('/inventory/periods/');
+      setRentalPeriods(periodRes.data || periodRes);
+
+      const templateRes = await api.get('/rentals/templates/');
+      setQuotationTemplates(templateRes.data || templateRes);
+
+      const vendorRes = await api.get('/accounts/vendors/pending/');
+      setVendors(vendorRes.data || vendorRes);
     } catch (err) {
       setError(err.message || 'Error occurred fetching ERP dashboard data.');
     } finally {
@@ -62,6 +79,24 @@ export const AdminDashboard = () => {
   useEffect(() => {
     fetchAdminData();
   }, []);
+
+  const handleApproveVendor = async (id) => {
+    try {
+      await api.post(`/accounts/vendors/${id}/approve/`, {});
+      setVendors(prev => prev.filter(v => v.id !== id));
+    } catch (err) {
+      alert(err.message || 'Failed to approve vendor');
+    }
+  };
+
+  const handleRejectVendor = async (id) => {
+    try {
+      await api.post(`/accounts/vendors/${id}/reject/`, {});
+      setVendors(prev => prev.filter(v => v.id !== id));
+    } catch (err) {
+      alert(err.message || 'Failed to reject vendor');
+    }
+  };
 
   const handleStateChange = async (orderId, actionName) => {
     try {
@@ -112,6 +147,7 @@ export const AdminDashboard = () => {
       const payload = {
         name: newProdName,
         sku: newProdSku,
+        category: newProdCat || null,
         description: newProdDesc,
         base_price: newProdPrice,
         security_deposit_type: newProdDepType,
@@ -129,6 +165,7 @@ export const AdminDashboard = () => {
       
       setNewProdName('');
       setNewProdSku('');
+      setNewProdCat('');
       setNewProdDesc('');
       setNewProdPrice('');
       setNewProdDepVal('');
@@ -210,11 +247,18 @@ export const AdminDashboard = () => {
             Inventory ({products.length})
           </button>
           <button
-            onClick={() => setActiveTab('pricelists')}
-            className={activeTab === 'pricelists' ? 'btn btn-primary' : 'btn-secondary btn'}
+            onClick={() => setActiveTab('config')}
+            className={activeTab === 'config' ? 'btn btn-primary' : 'btn-secondary btn'}
             style={{ padding: '8px 16px', fontSize: '13px' }}
           >
-            PriceLists
+            Config
+          </button>
+          <button
+            onClick={() => setActiveTab('vendors')}
+            className={activeTab === 'vendors' ? 'btn btn-primary' : 'btn-secondary btn'}
+            style={{ padding: '8px 16px', fontSize: '13px' }}
+          >
+            Vendor Approvals {vendors.length > 0 && `(${vendors.length})`}
           </button>
         </div>
       </div>
@@ -403,6 +447,15 @@ export const AdminDashboard = () => {
                 <label style={{ fontSize: '12px', color: 'hsl(var(--text-secondary))' }}>SKU (Unique)</label>
                 <input type="text" className="glass-input" value={newProdSku} onChange={e => setNewProdSku(e.target.value)} placeholder="e.g. CON-MIX" required />
               </div>
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <label style={{ fontSize: '12px', color: 'hsl(var(--text-secondary))' }}>Category</label>
+                <select className="glass-input" value={newProdCat} onChange={e => setNewProdCat(e.target.value)} required>
+                  <option value="">Select Category</option>
+                  {categories.map(c => (
+                    <option key={c.id} value={c.id}>{c.name}</option>
+                  ))}
+                </select>
+              </div>
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
@@ -491,33 +544,70 @@ export const AdminDashboard = () => {
         </div>
       )}
 
-      {activeTab === 'pricelists' && (
-        <div className="fade-in glass-panel" style={{ padding: '32px' }}>
-          <h3 style={{ fontSize: '20px', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Sparkles size={20} style={{ color: 'hsl(var(--warning))' }} /> Organization Pricelists (Discounts modifiers)
-          </h3>
+      {activeTab === 'config' && (
+        <div className="fade-in" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '24px' }}>
           
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-            {pricelists.map(pl => (
-              <div key={pl.id} className="glass-panel" style={{ padding: '24px' }}>
-                <h4 style={{ fontSize: '18px', fontWeight: 700, color: 'hsl(var(--primary))' }}>{pl.name}</h4>
-                <p style={{ fontSize: '12px', color: 'hsl(var(--text-secondary))', marginTop: '2px' }}>
-                  Modifiers Active dates: {pl.start_date ? new Date(pl.start_date).toLocaleDateString() : 'Continuous'} - {pl.end_date ? new Date(pl.end_date).toLocaleDateString() : 'Continuous'}
-                </p>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '16px' }}>
-                  {pl.items.map(item => (
-                    <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', padding: '8px', backgroundColor: 'var(--extra-light)', borderRadius: '4px' }}>
-                      <span>{item.product_name} ({item.product_sku})</span>
-                      <span style={{ fontWeight: 'bold', color: 'var(--success)' }}>Promo rate: ${item.custom_price}/day</span>
-                    </div>
-                  ))}
-                  {pl.items.length === 0 && <span style={{ fontSize: '12px', color: 'hsl(var(--text-muted))' }}>No promo override rules mapped.</span>}
+          <div className="glass-panel" style={{ padding: '24px' }}>
+            <h3 style={{ fontSize: '18px', fontWeight: 800, color: 'hsl(var(--primary))', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Package2 size={18} /> Categories ({categories.length})
+            </h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '16px' }}>
+              {categories.map(c => (
+                <div key={c.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '12px', backgroundColor: 'var(--extra-light)', borderRadius: '6px' }}>
+                  <span style={{ fontWeight: 'bold' }}>{c.name}</span>
+                  <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{c.description || 'No description'}</span>
                 </div>
-              </div>
-            ))}
-            {pricelists.length === 0 && <div style={{ color: 'hsl(var(--text-muted))' }}>No promotional pricelists configured in backend.</div>}
+              ))}
+              {categories.length === 0 && <span style={{ fontSize: '12px', color: 'hsl(var(--text-muted))' }}>No categories configured.</span>}
+            </div>
           </div>
+
+          <div className="glass-panel" style={{ padding: '24px' }}>
+            <h3 style={{ fontSize: '18px', fontWeight: 800, color: 'hsl(var(--primary))', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Calendar size={18} /> Rental Periods ({rentalPeriods.length})
+            </h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '16px' }}>
+              {rentalPeriods.map(rp => (
+                <div key={rp.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '12px', backgroundColor: 'var(--extra-light)', borderRadius: '6px' }}>
+                  <span style={{ fontWeight: 'bold' }}>{rp.name}</span>
+                  <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{rp.duration_days} Days</span>
+                </div>
+              ))}
+              {rentalPeriods.length === 0 && <span style={{ fontSize: '12px', color: 'hsl(var(--text-muted))' }}>No rental periods configured.</span>}
+            </div>
+          </div>
+
+          <div className="glass-panel" style={{ padding: '24px' }}>
+            <h3 style={{ fontSize: '18px', fontWeight: 800, color: 'hsl(var(--primary))', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <FilePlus2 size={18} /> Quotation Templates ({quotationTemplates.length})
+            </h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '16px' }}>
+              {quotationTemplates.map(qt => (
+                <div key={qt.id} style={{ display: 'flex', flexDirection: 'column', padding: '12px', backgroundColor: 'var(--extra-light)', borderRadius: '6px' }}>
+                  <span style={{ fontWeight: 'bold', marginBottom: '4px' }}>{qt.name}</span>
+                  <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>Header: {qt.header_text}</span>
+                  <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>Footer: {qt.footer_text}</span>
+                </div>
+              ))}
+              {quotationTemplates.length === 0 && <span style={{ fontSize: '12px', color: 'hsl(var(--text-muted))' }}>No templates configured.</span>}
+            </div>
+          </div>
+
+          <div className="glass-panel" style={{ padding: '24px' }}>
+            <h3 style={{ fontSize: '18px', fontWeight: 800, color: 'hsl(var(--warning))', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Sparkles size={18} /> PriceLists ({pricelists.length})
+            </h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '16px' }}>
+              {pricelists.map(pl => (
+                <div key={pl.id} style={{ display: 'flex', flexDirection: 'column', padding: '12px', backgroundColor: 'var(--extra-light)', borderRadius: '6px' }}>
+                  <span style={{ fontWeight: 'bold', marginBottom: '4px' }}>{pl.name} {pl.is_default && <span className="badge badge-picked_up" style={{ fontSize: '10px' }}>Default</span>}</span>
+                  <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>{pl.items.length} modifiers</span>
+                </div>
+              ))}
+              {pricelists.length === 0 && <span style={{ fontSize: '12px', color: 'hsl(var(--text-muted))' }}>No pricelists configured.</span>}
+            </div>
+          </div>
+          
         </div>
       )}
 
@@ -658,6 +748,40 @@ export const AdminDashboard = () => {
                   The inspection has been submitted. Click "Settle Security Deposit" above to release the remaining deposit (${parseFloat(selectedOrder.deposit_paid) - parseFloat(selectedOrder.late_fee_charged)}) to the customer and lock the transaction ledger.
                 </span>
               </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'vendors' && (
+        <div className="fade-in glass-panel" style={{ padding: '32px' }}>
+          <h3 style={{ fontSize: '20px', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <User size={20} style={{ color: 'hsl(var(--primary))' }} /> Pending Vendor Approvals
+          </h3>
+          
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            {vendors.length === 0 ? (
+              <p style={{ color: 'hsl(var(--text-muted))' }}>No pending vendors to approve.</p>
+            ) : (
+              vendors.map(vendor => (
+                <div key={vendor.id} className="glass-panel" style={{ padding: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div>
+                    <h4 style={{ fontSize: '16px', fontWeight: 'bold' }}>{vendor.business_name || vendor.username}</h4>
+                    <p style={{ fontSize: '13px', color: 'hsl(var(--text-secondary))', margin: '4px 0' }}>
+                      {vendor.first_name} {vendor.last_name} | {vendor.email} | {vendor.phone_number}
+                    </p>
+                    <p style={{ fontSize: '12px', color: 'hsl(var(--text-muted))' }}>{vendor.address}</p>
+                  </div>
+                  <div style={{ display: 'flex', gap: '12px' }}>
+                    <button onClick={() => handleApproveVendor(vendor.id)} className="btn btn-primary" style={{ padding: '8px 16px', fontSize: '12px' }}>
+                      Approve
+                    </button>
+                    <button onClick={() => handleRejectVendor(vendor.id)} className="btn-secondary" style={{ padding: '8px 16px', fontSize: '12px', border: '1px solid var(--danger)', color: 'var(--danger)' }}>
+                      Reject
+                    </button>
+                  </div>
+                </div>
+              ))
             )}
           </div>
         </div>

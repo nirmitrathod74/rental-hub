@@ -1,7 +1,13 @@
 from rest_framework import serializers
-from inventory.models import Product, ProductVariant, PriceList, PriceListItem, RentalPeriod
+from inventory.models import Category, Product, ProductVariant, PriceList, PriceListItem, RentalPeriod
 from inventory.services import InventoryService
 from inventory.repositories import PriceListRepository
+
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = ('id', 'name', 'description')
+
 
 class ProductVariantSerializer(serializers.ModelSerializer):
     class Meta:
@@ -10,13 +16,17 @@ class ProductVariantSerializer(serializers.ModelSerializer):
 
 class ProductSerializer(serializers.ModelSerializer):
     variants = ProductVariantSerializer(many=True, read_only=True)
+    category_detail = CategorySerializer(source='category', read_only=True)
+    category = serializers.PrimaryKeyRelatedField(
+        queryset=Category.objects.all(), write_only=True, required=False, allow_null=True
+    )
     calculated_price = serializers.SerializerMethodField()
     calculated_deposit = serializers.SerializerMethodField()
 
     class Meta:
         model = Product
         fields = (
-            'id', 'name', 'sku', 'description', 'image', 'base_price',
+            'id', 'category', 'category_detail', 'name', 'sku', 'description', 'image', 'base_price',
             'security_deposit_type', 'security_deposit_value', 'stock_qty',
             'available_qty', 'late_fee_type', 'late_fee_rate', 'grace_period_hours',
             'variants', 'calculated_price', 'calculated_deposit'

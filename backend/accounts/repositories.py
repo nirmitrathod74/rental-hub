@@ -25,6 +25,10 @@ class UserRepository:
         return user
 
     @staticmethod
+    def get_pending_vendors():
+        return User.objects.filter(role='vendor', vendor_status='pending').order_by('-date_joined')
+
+    @staticmethod
     def update_profile(user, **fields):
         for field, value in fields.items():
             if hasattr(user, field):

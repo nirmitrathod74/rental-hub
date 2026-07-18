@@ -1,9 +1,9 @@
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from inventory.models import Product, ProductVariant, PriceList, PriceListItem, RentalPeriod
+from inventory.models import Category, Product, ProductVariant, PriceList, PriceListItem, RentalPeriod
 from inventory.serializers import (
-    ProductSerializer, PriceListSerializer, PriceListItemSerializer, RentalPeriodSerializer
+    CategorySerializer, ProductSerializer, PriceListSerializer, PriceListItemSerializer, RentalPeriodSerializer
 )
 from inventory.repositories import ProductRepository
 from inventory.services import InventoryService
@@ -12,7 +12,14 @@ class IsAdminOrReadOnly(permissions.BasePermission):
     def has_permission(self, request, view):
         if request.method in permissions.SAFE_METHODS:
             return True
-        return request.user and request.user.is_authenticated and request.user.is_admin_role
+        return request.user and request.user.is_authenticated and getattr(request.user, 'is_admin_role', False)
+
+
+class CategoryViewSet(viewsets.ModelViewSet):
+    queryset = Category.objects.all().order_by('name')
+    serializer_class = CategorySerializer
+    permission_classes = (IsAdminOrReadOnly,)
+
 
 class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all().order_by('id')
