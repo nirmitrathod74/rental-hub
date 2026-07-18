@@ -1,0 +1,115 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: rentalhub_db
+    environment:
+      POSTGRES_DB: rentalhub
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - rentalhub_net
+
+  redis:
+    image: redis:7-alpine
+    container_name: rentalhub_redis
+    ports:
+      - "6379:6379"
+    networks:
+      - rentalhub_net
+
+  backend:
+    build: ./backend
+    container_name: rentalhub_backend
+    command: sh -c "python manage.py migrate && python seed_data.py && python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - ./backend:/app
+    ports:
+      - "8000:8000"
+    environment:
+      - DEBUG=True
+      - SECRET_KEY=django-insecure-rental-hub-secret-key-1234567890
+      - DB_ENGINE=django.db.backends.postgresql
+      - DB_NAME=rentalhub
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_HOST=db
+      - DB_PORT=5432
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    depends_on:
+      - db
+      - redis
+    networks:
+      - rentalhub_net
+
+  celery:
+    build: ./backend
+    container_name: rentalhub_celery
+    command: celery -A rentalhub worker -l info
+    volumes:
+      - ./backend:/app
+    environment:
+      - DEBUG=True
+      - SECRET_KEY=django-insecure-rental-hub-secret-key-1234567890
+      - DB_ENGINE=django.db.backends.postgresql
+      - DB_NAME=rentalhub
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_HOST=db
+      - DB_PORT=5432
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    depends_on:
+      - db
+      - redis
+    networks:
+      - rentalhub_net
+
+  celery-beat:
+    build: ./backend
+    container_name: rentalhub_celery_beat
+    command: celery -A rentalhub beat -l info
+    volumes:
+      - ./backend:/app
+    environment:
+      - DEBUG=True
+      - SECRET_KEY=django-insecure-rental-hub-secret-key-1234567890
+      - DB_ENGINE=django.db.backends.postgresql
+      - DB_NAME=rentalhub
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_HOST=db
+      - DB_PORT=5432
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    depends_on:
+      - db
+      - redis
+    networks:
+      - rentalhub_net
+
+  frontend:
+    build: ./frontend
+    container_name: rentalhub_frontend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    networks:
+      - rentalhub_net
+
+volumes:
+  postgres_data:
+
+networks:
+  rentalhub_net:
+    driver: bridge

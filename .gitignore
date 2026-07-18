@@ -1,0 +1,28 @@
+# Python/Django
+__pycache__/
+*.py[cod]
+*$py.class
+db.sqlite3
+media/invoices/
+media/quotations/
+media/products/
+staticfiles/
+
+# Node/React
+node_modules/
+dist/
+dist-ssr/
+*.local
+.env
+.env.local
+.env.production
+.env.staging
+
+# OS/IDEs
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+.project
+.pydevproject
+.settings/
