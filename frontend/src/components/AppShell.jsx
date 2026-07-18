@@ -20,7 +20,7 @@ export const AppShell = ({ children }) => {
       <div className="topbar-actions">
         {user && <Link className="topbar-icon" to="/cart" aria-label="Cart"><ShoppingCart size={18} />{cartCount > 0 && <span className="counter">{cartCount}</span>}</Link>}
         {user && <button className="topbar-icon" aria-label="Notifications"><Bell size={18} /></button>}
-        {user ? <div className="account-menu"><span className="avatar">{user.avatar ? <img src={`http://localhost:8000${user.avatar}`} alt="" /> : user.username.slice(0, 1).toUpperCase()}</span><span className="account-copy">{user.username}<small>{user.role}</small></span><button className="topbar-icon" onClick={signOut} aria-label="Sign out"><LogOut size={17} /></button></div> : <><Link className="btn-secondary" to="/login">Sign in</Link><Link className="btn btn-primary" to="/signup">Start now</Link></>}
+        {user ? <div className="account-menu"><span className="avatar">{user.avatar ? <img src={`http://localhost:8000${user.avatar}`} alt="" /> : user.username?.slice(0, 1).toUpperCase()}</span><span className="account-copy">{user.username}<small>{user.role}</small></span><button className="topbar-icon" onClick={signOut} aria-label="Sign out"><LogOut size={17} /></button></div> : <><Link className="btn-secondary" to="/login">Sign in</Link><Link className="btn btn-primary" to="/signup">Start now</Link></>}
       </div>
     </header>
     {user && <aside className="sidebar"><nav className="sidebar-nav">

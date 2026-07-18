@@ -10,7 +10,7 @@ export const AuthProvider = ({ children }) => {
   const fetchProfile = async () => {
     try {
       const data = await api.get('/accounts/profile/');
-      setUser(data);
+      setUser(data.data || data);
     } catch {
       logout();
     } finally {
@@ -58,8 +58,8 @@ export const AuthProvider = ({ children }) => {
 
   const updateProfile = async (data) => {
     const updated = await api.put('/accounts/profile/', data);
-    setUser(updated);
-    return updated;
+    setUser(updated.data || updated);
+    return updated.data || updated;
   };
 
   return (
