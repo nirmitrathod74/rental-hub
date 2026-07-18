@@ -3,7 +3,8 @@ import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { api, getMediaUrl } from '../api/index.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useCart } from '../context/CartContext.jsx';
-import { ShieldCheck, Info, CheckCircle2, ChevronLeft, CalendarClock } from 'lucide-react';
+import { useWishlist } from '../context/WishlistContext.jsx';
+import { ShieldCheck, Info, CheckCircle2, ChevronLeft, CalendarClock, Heart } from 'lucide-react';
 
 export const ProductDetails = () => {
   const { id } = useParams();
@@ -12,6 +13,7 @@ export const ProductDetails = () => {
   const navigate = useNavigate();
   const { addToCart } = useCart();
   const { user } = useAuth();
+  const { toggleWishlist, isInWishlist } = useWishlist();
 
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -108,6 +110,7 @@ export const ProductDetails = () => {
       }}>
         <div className="glass-panel" style={{
           height: '400px',
+          position: 'relative',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -124,6 +127,28 @@ export const ProductDetails = () => {
           ) : (
             <span style={{ fontSize: '120px' }}>⚙️</span>
           )}
+
+          <button 
+            onClick={(e) => { e.preventDefault(); toggleWishlist(product); }}
+            style={{
+              position: 'absolute',
+              top: '16px',
+              right: '16px',
+              background: 'rgba(255, 255, 255, 0.9)',
+              border: 'none',
+              borderRadius: '50%',
+              width: '40px',
+              height: '40px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+              zIndex: 10
+            }}
+          >
+            <Heart size={20} color={isInWishlist(product.id) ? 'var(--danger)' : 'var(--text-muted)'} fill={isInWishlist(product.id) ? 'var(--danger)' : 'none'} />
+          </button>
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
