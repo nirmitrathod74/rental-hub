@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext.jsx';
 import { api } from '../api/index.js';
 import { User, FileText, X, Clock, MapPin, Phone, Mail } from 'lucide-react';
+import { validatePhone } from '../utils/validation.js';
 
 export const Profile = () => {
   const { user, updateProfile } = useAuth();
@@ -75,74 +76,83 @@ export const Profile = () => {
             <User size={20} style={{ color: 'hsl(var(--primary))' }} /> Profile Information
           </h2>
 
-          <form onSubmit={handleProfileSave} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-              <div style={{
-                width: '60px',
-                height: '60px',
-                borderRadius: '50%',
-                backgroundColor: '#f1e7ee',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: 'var(--primary)',
-                fontSize: '24px',
-                border: '1px solid var(--border)'
-              }}>
-                👤
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              const phoneError = validatePhone(phone, false);
+              if (phoneError) {
+                setEditSuccess('');
+                alert(phoneError); // Simple alert or you could add state for field error
+                return;
+              }
+              handleProfileSave(e);
+            }} noValidate style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                <div style={{
+                  width: '60px',
+                  height: '60px',
+                  borderRadius: '50%',
+                  backgroundColor: '#f1e7ee',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: 'var(--primary)',
+                  fontSize: '24px',
+                  border: '1px solid var(--border)'
+                }}>
+                  👤
+                </div>
+                <div>
+                  <h4 style={{ fontSize: '18px', fontWeight: 700 }}>{user?.username}</h4>
+                  <span className="badge badge-draft" style={{ fontSize: '10px' }}>{user?.role}</span>
+                </div>
               </div>
-              <div>
-                <h4 style={{ fontSize: '18px', fontWeight: 700 }}>{user?.username}</h4>
-                <span className="badge badge-draft" style={{ fontSize: '10px' }}>{user?.role}</span>
-              </div>
-            </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-              <label style={{ fontSize: '12px', color: 'hsl(var(--text-secondary))', fontWeight: 600 }}>Email Address</label>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'hsl(var(--text-muted))', fontSize: '14px' }}>
-                <Mail size={14} /> {user?.email}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <label style={{ fontSize: '12px', color: 'hsl(var(--text-secondary))', fontWeight: 600 }}>Email Address</label>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'hsl(var(--text-muted))', fontSize: '14px' }}>
+                  <Mail size={14} /> {user?.email}
+                </div>
               </div>
-            </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-              <label style={{ fontSize: '12px', fontWeight: 600, color: 'hsl(var(--text-secondary))' }}>Phone Number</label>
-              <div style={{ position: 'relative' }}>
-                <input
-                  type="text"
-                  className="glass-input"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  style={{ paddingLeft: '38px' }}
-                />
-                <Phone size={14} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'hsl(var(--text-muted))' }} />
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <label style={{ fontSize: '12px', fontWeight: 600, color: 'hsl(var(--text-secondary))' }}>Phone Number</label>
+                <div style={{ position: 'relative' }}>
+                  <input
+                    type="tel"
+                    className="glass-input"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    style={{ paddingLeft: '38px' }}
+                  />
+                  <Phone size={14} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'hsl(var(--text-muted))' }} />
+                </div>
               </div>
-            </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-              <label style={{ fontSize: '12px', fontWeight: 600, color: 'hsl(var(--text-secondary))' }}>Default Shipping Address</label>
-              <div style={{ position: 'relative' }}>
-                <textarea
-                  className="glass-input"
-                  value={address}
-                  onChange={(e) => setAddress(e.target.value)}
-                  style={{ paddingLeft: '38px', resize: 'vertical' }}
-                  rows={2}
-                />
-                <MapPin size={14} style={{ position: 'absolute', left: '12px', top: '16px', color: 'hsl(var(--text-muted))' }} />
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <label style={{ fontSize: '12px', fontWeight: 600, color: 'hsl(var(--text-secondary))' }}>Default Shipping Address</label>
+                <div style={{ position: 'relative' }}>
+                  <textarea
+                    className="glass-input"
+                    value={address}
+                    onChange={(e) => setAddress(e.target.value)}
+                    style={{ paddingLeft: '38px', resize: 'vertical' }}
+                    rows={2}
+                  />
+                  <MapPin size={14} style={{ position: 'absolute', left: '12px', top: '16px', color: 'hsl(var(--text-muted))' }} />
+                </div>
               </div>
-            </div>
 
-            {editSuccess && (
-              <div style={{ color: 'hsl(var(--success))', fontSize: '13px', fontWeight: 600 }}>
-                {editSuccess}
-              </div>
-            )}
+              {editSuccess && (
+                <div style={{ color: 'hsl(var(--success))', fontSize: '13px', fontWeight: 600 }}>
+                  {editSuccess}
+                </div>
+              )}
 
-            <button type="submit" className="btn btn-primary" style={{ width: '100%', padding: '10px' }}>
-              Update Profile Details
-            </button>
-          </form>
-        </div>
+              <button type="submit" className="btn btn-primary" style={{ width: '100%', padding: '10px' }}>
+                Update Profile Details
+              </button>
+            </form>
+          </div>
 
         <div className="glass-panel" style={{ padding: '32px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
           <h2 style={{ fontSize: '20px', fontWeight: 800 }}>Account Operations</h2>

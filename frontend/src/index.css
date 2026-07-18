@@ -293,14 +293,8 @@ table.list-table tr.selected {
 
 .auth-backdrop {
   position: relative;
-  background: url('https://images.unsplash.com/photo-1504307651254-35680f356dfd?q=80&w=2070&auto=format&fit=crop') center/cover no-repeat;
+  background: linear-gradient(135deg, #714b67 0%, #21252b 100%);
   display: block;
-}
-.auth-backdrop::after {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: linear-gradient(135deg, rgba(113,75,103,0.92) 0%, rgba(33,37,43,0.85) 100%);
 }
 
 .auth-intro {
@@ -426,6 +420,18 @@ table.list-table tr.selected {
 .auth-field input:focus {
   border-color: var(--auth-accent);
   box-shadow: 0 0 0 3px rgba(113,75,103,0.15);
+}
+.field-error {
+  color: var(--danger);
+  font-size: 11.5px;
+  margin-top: 4px;
+  font-weight: 500;
+}
+.auth-field input.input-error, .auth-field select.input-error {
+  border-color: var(--danger);
+}
+.auth-field input.input-error:focus, .auth-field select.input-error:focus {
+  box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.15);
 }
 
 .auth-form-tools {
