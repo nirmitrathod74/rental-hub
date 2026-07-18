@@ -25,6 +25,9 @@ export const AdminDashboard = () => {
   const [quotationTemplates, setQuotationTemplates] = useState([]);
   const [vendors, setVendors] = useState([]);
   const [customers, setCustomers] = useState([]);
+  const [securityDeposits, setSecurityDeposits] = useState([]);
+  const [pickups, setPickups] = useState([]);
+  const [pickupDateFilter, setPickupDateFilter] = useState(new Date().toISOString().split('T')[0]);
   
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -33,6 +36,19 @@ export const AdminDashboard = () => {
   const [inspectionRating, setInspectionRating] = useState('good');
   const [damageNotes, setDamageNotes] = useState('');
   const [missingAccs, setMissingAccs] = useState('');
+  
+  const [showPricelistModal, setShowPricelistModal] = useState(false);
+  const [editingPricelist, setEditingPricelist] = useState(null);
+  const [pricelistName, setPricelistName] = useState('');
+  const [pricelistDefault, setPricelistDefault] = useState(false);
+  const [pricelistStart, setPricelistStart] = useState('');
+  const [pricelistEnd, setPricelistEnd] = useState('');
+
+  const [showPeriodModal, setShowPeriodModal] = useState(false);
+  const [editingPeriod, setEditingPeriod] = useState(null);
+  const [periodName, setPeriodName] = useState('');
+  const [periodDuration, setPeriodDuration] = useState(1);
+  const [periodUnit, setPeriodUnit] = useState('Days');
   
   const [newProdName, setNewProdName] = useState('');
   const [newProdSku, setNewProdSku] = useState('');
@@ -79,6 +95,12 @@ export const AdminDashboard = () => {
 
       const customerRes = await api.get('/accounts/customers/');
       setCustomers(customerRes.data || customerRes);
+      
+      const depositRes = await api.get('/security-deposits/');
+      setSecurityDeposits(depositRes.data || depositRes);
+
+      const pickupRes = await api.get('/pickups/');
+      setPickups(pickupRes.data || pickupRes);
     } catch (err) {
       setError(err.message || 'Error occurred fetching ERP dashboard data.');
     } finally {
@@ -252,6 +274,95 @@ export const AdminDashboard = () => {
       // Optionally re-fetch products to reflect null categories
       const productRes = await api.get('/inventory/products/');
       setProducts(productRes.data || productRes);
+    } catch (err) { alert(err.message); }
+  };
+
+  const openCreatePricelistModal = () => {
+    setEditingPricelist(null);
+    setPricelistName('');
+    setPricelistDefault(false);
+    setPricelistStart('');
+    setPricelistEnd('');
+    setShowPricelistModal(true);
+  };
+
+  const openEditPricelistModal = (pl) => {
+    setEditingPricelist(pl);
+    setPricelistName(pl.name || '');
+    setPricelistDefault(pl.is_default || false);
+    setPricelistStart(pl.start_date ? pl.start_date.split('T')[0] : '');
+    setPricelistEnd(pl.end_date ? pl.end_date.split('T')[0] : '');
+    setShowPricelistModal(true);
+  };
+
+  const handleSavePricelist = async (e) => {
+    e.preventDefault();
+    const payload = {
+      name: pricelistName,
+      is_default: pricelistDefault,
+      start_date: pricelistStart || null,
+      end_date: pricelistEnd || null
+    };
+    try {
+      if (editingPricelist) {
+        const res = await api.put(`/inventory/pricelists/${editingPricelist.id}/`, payload);
+        setPricelists(pricelists.map(p => p.id === editingPricelist.id ? res : p));
+      } else {
+        const res = await api.post('/inventory/pricelists/', payload);
+        setPricelists([...pricelists, res]);
+      }
+      setShowPricelistModal(false);
+    } catch (err) { alert(err.message); }
+  };
+
+  const handleDeletePricelist = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this pricelist?")) return;
+    try {
+      await api.delete(`/inventory/pricelists/${id}/`);
+      setPricelists(pricelists.filter(p => p.id !== id));
+    } catch (err) { alert(err.message); }
+  };
+
+  const openCreatePeriodModal = () => {
+    setEditingPeriod(null);
+    setPeriodName('');
+    setPeriodDuration(1);
+    setPeriodUnit('Days');
+    setShowPeriodModal(true);
+  };
+
+  const openEditPeriodModal = (rp) => {
+    setEditingPeriod(rp);
+    setPeriodName(rp.name || '');
+    setPeriodDuration(rp.duration || 1);
+    setPeriodUnit(rp.unit || 'Days');
+    setShowPeriodModal(true);
+  };
+
+  const handleSavePeriod = async (e) => {
+    e.preventDefault();
+    const payload = {
+      name: periodName,
+      duration: parseInt(periodDuration, 10),
+      unit: periodUnit
+    };
+    try {
+      if (editingPeriod) {
+        const res = await api.put(`/inventory/periods/${editingPeriod.id}/`, payload);
+        setRentalPeriods(rentalPeriods.map(rp => rp.id === editingPeriod.id ? res : rp));
+      } else {
+        const res = await api.post('/inventory/periods/', payload);
+        setRentalPeriods([...rentalPeriods, res]);
+      }
+      setShowPeriodModal(false);
+    } catch (err) { alert(err.message); }
+  };
+
+  const handleDeletePeriod = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this rental period?")) return;
+    try {
+      await api.delete(`/inventory/periods/${id}/`);
+      setRentalPeriods(rentalPeriods.filter(rp => rp.id !== id));
     } catch (err) { alert(err.message); }
   };
 
@@ -620,14 +731,31 @@ export const AdminDashboard = () => {
         {/* PRICELISTS TAB */}
         {activeTab === 'pricelists' && (
           <div className="glass-panel" style={{ padding: '24px' }}>
-            <h3 style={{ fontSize: '18px', fontWeight: 800, color: 'hsl(var(--warning))', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <CircleDollarSign size={18} /> PriceLists ({pricelists.length})
-            </h3>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h3 style={{ fontSize: '18px', fontWeight: 800, color: 'hsl(var(--warning))', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <CircleDollarSign size={18} /> PriceLists ({pricelists.length})
+              </h3>
+              <button onClick={openCreatePricelistModal} style={{ backgroundColor: '#6B4668', color: '#ffffff', padding: '8px 16px', borderRadius: '6px', border: 'none', display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 600, cursor: 'pointer', fontSize: '13px' }}>
+                <Plus size={16} /> Create Pricelist
+              </button>
+            </div>
+            
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '16px' }}>
               {pricelists.map(pl => (
-                <div key={pl.id} style={{ display: 'flex', flexDirection: 'column', padding: '12px', backgroundColor: 'var(--extra-light)', borderRadius: '6px' }}>
-                  <span style={{ fontWeight: 'bold', marginBottom: '4px' }}>{pl.name} {pl.is_default && <span className="badge badge-picked_up" style={{ fontSize: '10px' }}>Default</span>}</span>
-                  <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>{pl.items.length} modifiers</span>
+                <div key={pl.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px', backgroundColor: 'var(--extra-light)', borderRadius: '6px' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column' }}>
+                    <span style={{ fontWeight: 'bold', marginBottom: '4px' }}>{pl.name} {pl.is_default && <span className="badge badge-picked_up" style={{ fontSize: '10px' }}>Default</span>}</span>
+                    <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{pl.modifiers_count} modifiers</span>
+                    <span style={{ fontSize: '11px', color: 'gray', marginTop: '2px' }}>
+                      {pl.start_date && pl.end_date 
+                        ? `${new Date(pl.start_date).toLocaleDateString()} - ${new Date(pl.end_date).toLocaleDateString()}` 
+                        : 'Default / Always Active'}
+                    </span>
+                  </div>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <button onClick={() => openEditPricelistModal(pl)} className="btn btn-secondary" style={{ padding: '4px 8px', fontSize: '12px', color: '#6B4668' }}><Edit size={14} /></button>
+                    <button onClick={() => handleDeletePricelist(pl.id)} className="btn btn-secondary" style={{ padding: '4px 8px', fontSize: '12px', border: '1px solid var(--danger)', color: 'var(--danger)' }}><X size={14} /></button>
+                  </div>
                 </div>
               ))}
               {pricelists.length === 0 && <span style={{ fontSize: '12px', color: 'hsl(var(--text-muted))' }}>No pricelists configured.</span>}
@@ -638,14 +766,25 @@ export const AdminDashboard = () => {
         {/* RENTAL PERIODS TAB */}
         {activeTab === 'rental_periods' && (
           <div className="glass-panel" style={{ padding: '24px' }}>
-            <h3 style={{ fontSize: '18px', fontWeight: 800, color: 'hsl(var(--primary))', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Clock size={18} /> Rental Periods ({rentalPeriods.length})
-            </h3>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h3 style={{ fontSize: '18px', fontWeight: 800, color: 'hsl(var(--primary))', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Clock size={18} /> Rental Periods ({rentalPeriods.length})
+              </h3>
+              <button onClick={openCreatePeriodModal} style={{ backgroundColor: '#6B4668', color: '#ffffff', padding: '8px 16px', borderRadius: '6px', border: 'none', display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 600, cursor: 'pointer', fontSize: '13px' }}>
+                <Plus size={16} /> Create Rental Period
+              </button>
+            </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '16px' }}>
               {rentalPeriods.map(rp => (
-                <div key={rp.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '12px', backgroundColor: 'var(--extra-light)', borderRadius: '6px' }}>
+                <div key={rp.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px', backgroundColor: 'var(--extra-light)', borderRadius: '6px' }}>
                   <span style={{ fontWeight: 'bold' }}>{rp.name}</span>
-                  <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{rp.duration_days} Days</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <span style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>{rp.duration} {rp.unit}</span>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <button onClick={() => openEditPeriodModal(rp)} className="btn btn-secondary" style={{ padding: '4px 8px', fontSize: '12px', color: '#6B4668' }}><Edit size={14} /></button>
+                      <button onClick={() => handleDeletePeriod(rp.id)} className="btn btn-secondary" style={{ padding: '4px 8px', fontSize: '12px', border: '1px solid var(--danger)', color: 'var(--danger)' }}><X size={14} /></button>
+                    </div>
+                  </div>
                 </div>
               ))}
               {rentalPeriods.length === 0 && <span style={{ fontSize: '12px', color: 'hsl(var(--text-muted))' }}>No rental periods configured.</span>}
@@ -801,6 +940,151 @@ export const AdminDashboard = () => {
                 ))}
               </tbody>
             </table>
+          </div>
+        )}
+
+        {/* SECURITY DEPOSITS TAB */}
+        {activeTab === 'deposits' && (
+          <div className="fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
+              <div className="glass-panel" style={{ flex: '1 1 250px', padding: '24px', backgroundColor: '#ffffff' }}>
+                <span style={{ fontSize: '13px', color: 'hsl(var(--text-secondary))', fontWeight: 600, textTransform: 'uppercase' }}>Total Deposits Held</span>
+                <div style={{ fontSize: '28px', fontWeight: 800, marginTop: '8px', color: '#10b981' }}>
+                  ${securityDeposits.filter(d => d.status === 'Held').reduce((acc, d) => acc + parseFloat(d.amount), 0).toFixed(2)}
+                </div>
+              </div>
+              <div className="glass-panel" style={{ flex: '1 1 250px', padding: '24px', backgroundColor: '#ffffff' }}>
+                <span style={{ fontSize: '13px', color: 'hsl(var(--text-secondary))', fontWeight: 600, textTransform: 'uppercase' }}>Total Penalties Deducted</span>
+                <div style={{ fontSize: '28px', fontWeight: 800, marginTop: '8px', color: '#f43f5e' }}>
+                  ${securityDeposits.reduce((acc, d) => acc + parseFloat(d.penalty_deducted), 0).toFixed(2)}
+                </div>
+              </div>
+              <div className="glass-panel" style={{ flex: '1 1 250px', padding: '24px', backgroundColor: '#ffffff' }}>
+                <span style={{ fontSize: '13px', color: 'hsl(var(--text-secondary))', fontWeight: 600, textTransform: 'uppercase' }}>Total Refunded</span>
+                <div style={{ fontSize: '28px', fontWeight: 800, marginTop: '8px', color: '#3b82f6' }}>
+                  ${securityDeposits.filter(d => ['Refunded', 'Partial Deduction'].includes(d.status)).reduce((acc, d) => acc + (parseFloat(d.amount) - parseFloat(d.penalty_deducted)), 0).toFixed(2)}
+                </div>
+              </div>
+            </div>
+
+            <div className="glass-panel" style={{ padding: '32px', overflowX: 'auto', backgroundColor: '#ffffff' }}>
+              <h3 style={{ fontSize: '20px', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '24px' }}>
+                <ShieldCheck size={20} style={{ color: '#6B4668' }} /> Deposit History
+              </h3>
+              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+                <thead>
+                  <tr style={{ borderBottom: '2px solid #f1f5f9', color: '#6B4668', fontSize: '13px', textTransform: 'uppercase' }}>
+                    <th style={{ padding: '12px' }}>Customer Name</th>
+                    <th style={{ padding: '12px' }}>Order ID</th>
+                    <th style={{ padding: '12px' }}>Deposit Amount</th>
+                    <th style={{ padding: '12px' }}>Penalty Amount</th>
+                    <th style={{ padding: '12px' }}>Status</th>
+                    <th style={{ padding: '12px', textAlign: 'right' }}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {securityDeposits.map(deposit => (
+                    <tr key={deposit.id} style={{ borderBottom: '1px solid #f8fafc', transition: 'background-color 0.2s' }}>
+                      <td style={{ padding: '16px 12px', fontWeight: 600, fontSize: '14px' }}>{deposit.customer_name}</td>
+                      <td style={{ padding: '16px 12px', fontSize: '14px', color: 'gray' }}>#{deposit.order_number}</td>
+                      <td style={{ padding: '16px 12px', fontSize: '14px', fontWeight: 600 }}>${parseFloat(deposit.amount).toFixed(2)}</td>
+                      <td style={{ padding: '16px 12px', fontSize: '14px', color: deposit.penalty_deducted > 0 ? '#f43f5e' : 'gray' }}>
+                        ${parseFloat(deposit.penalty_deducted).toFixed(2)}
+                      </td>
+                      <td style={{ padding: '16px 12px' }}>
+                        <span style={{
+                          padding: '4px 10px', borderRadius: '999px', fontSize: '12px', fontWeight: 600,
+                          backgroundColor: deposit.status === 'Refunded' ? '#d1fae5' : (deposit.status === 'Held' ? '#fef3c7' : '#ffedd5'),
+                          color: deposit.status === 'Refunded' ? '#065f46' : (deposit.status === 'Held' ? '#92400e' : '#9a3412')
+                        }}>
+                          {deposit.status}
+                        </span>
+                      </td>
+                      <td style={{ padding: '16px 12px', textAlign: 'right' }}>
+                        {deposit.status === 'Held' && (
+                          <button 
+                            onClick={() => alert(`Initiate refund process for Order #${deposit.order_number}`)}
+                            style={{ backgroundColor: '#6B4668', color: '#ffffff', padding: '6px 12px', borderRadius: '4px', border: 'none', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}
+                          >
+                            Process Refund / Settle
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                  {securityDeposits.length === 0 && (
+                    <tr>
+                      <td colSpan="6" style={{ padding: '24px', textAlign: 'center', color: 'gray', fontSize: '14px' }}>
+                        No security deposits found.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* PICKUPS TAB */}
+        {activeTab === 'pickup' && (
+          <div className="fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            <div className="glass-panel" style={{ padding: '24px', backgroundColor: '#ffffff', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
+                <h3 style={{ fontSize: '20px', color: '#6B4668', display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}>
+                  <Truck size={24} /> Pickup Operations
+                </h3>
+                <input 
+                  type="date" 
+                  value={pickupDateFilter}
+                  onChange={(e) => setPickupDateFilter(e.target.value)}
+                  style={{ padding: '8px 12px', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '14px', outline: 'none' }}
+                />
+              </div>
+              <button style={{ backgroundColor: '#6B4668', color: '#ffffff', padding: '10px 16px', borderRadius: '6px', border: 'none', fontSize: '14px', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                + Scan Barcode
+              </button>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              {pickups.filter(p => p.start_date && p.start_date.startsWith(pickupDateFilter)).length === 0 ? (
+                <div className="glass-panel" style={{ padding: '32px', textAlign: 'center', backgroundColor: '#ffffff', color: 'gray' }}>
+                  No pending pickups scheduled for {pickupDateFilter}.
+                </div>
+              ) : (
+                pickups.filter(p => p.start_date && p.start_date.startsWith(pickupDateFilter)).map(order => (
+                  <div key={order.id} className="glass-panel" style={{ padding: '20px', backgroundColor: '#ffffff', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px', borderLeft: '4px solid #6B4668' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+                        <span style={{ fontWeight: 800, fontSize: '16px', color: '#1e293b' }}>Order #{order.id}</span>
+                        <span style={{ fontSize: '14px', color: '#64748b', fontWeight: 500 }}>•</span>
+                        <span style={{ fontSize: '14px', color: '#475569', fontWeight: 600 }}>{order.client_details?.username}</span>
+                        <span style={{ fontSize: '12px', padding: '2px 8px', backgroundColor: '#fef08a', color: '#854d0e', borderRadius: '999px', fontWeight: 600 }}>{order.status}</span>
+                      </div>
+                      <div style={{ fontSize: '14px', color: '#475569' }}>
+                        <strong>Items:</strong> {order.items?.map(i => `${i.product_details?.name} (x${i.quantity})`).join(', ')}
+                      </div>
+                      <div style={{ fontSize: '13px', color: '#64748b', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <Calendar size={14} /> Scheduled: {new Date(order.start_date).toLocaleString()}
+                      </div>
+                    </div>
+                    <button 
+                      onClick={async () => {
+                        try {
+                          await api.post(`/rentals/orders/${order.id}/pickup/`);
+                          alert(`Pickup confirmed for Order #${order.id}`);
+                          setPickups(prev => prev.filter(p => p.id !== order.id));
+                        } catch(e) {
+                          alert('Error confirming pickup: ' + (e.response?.data?.error || e.message));
+                        }
+                      }}
+                      style={{ backgroundColor: '#6B4668', color: '#ffffff', padding: '10px 16px', borderRadius: '6px', border: 'none', fontSize: '14px', fontWeight: 600, cursor: 'pointer', transition: 'background-color 0.2s', alignSelf: 'flex-start' }}
+                    >
+                      Confirm Pickup
+                    </button>
+                  </div>
+                ))
+              )}
+            </div>
           </div>
         )}
 
@@ -1031,6 +1315,84 @@ export const AdminDashboard = () => {
             </div>
 
             <button type="submit" className="btn btn-primary" style={{ width: '100%', padding: '12px' }}>Save Product Changes</button>
+          </form>
+        </div>
+      )}
+
+      {/* PRICELIST MODAL */}
+      {showPricelistModal && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          backgroundColor: 'rgba(33,37,43,0.5)', backdropFilter: 'blur(5px)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 999, padding: '20px'
+        }}>
+          <form onSubmit={handleSavePricelist} className="glass-panel" style={{ width: '100%', maxWidth: '400px', padding: '32px', position: 'relative', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <button type="button" onClick={() => setShowPricelistModal(false)} style={{ position: 'absolute', top: '20px', right: '20px', background: 'none', border: 'none', cursor: 'pointer' }}><X size={20} /></button>
+            <h3 style={{ fontSize: '18px', fontWeight: 800 }}>{editingPricelist ? 'Edit Pricelist' : 'Create Pricelist'}</h3>
+            
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+              <label style={{ fontSize: '12px', color: 'hsl(var(--text-secondary))' }}>Name</label>
+              <input type="text" className="glass-input" value={pricelistName} onChange={e => setPricelistName(e.target.value)} required />
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <input type="checkbox" id="pl-default" checked={pricelistDefault} onChange={e => setPricelistDefault(e.target.checked)} />
+              <label htmlFor="pl-default" style={{ fontSize: '12px', color: 'hsl(var(--text-secondary))' }}>Is Default (Always active fallback)</label>
+            </div>
+
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <label style={{ fontSize: '12px', color: 'hsl(var(--text-secondary))' }}>Start Date</label>
+                <input type="date" className="glass-input" value={pricelistStart} onChange={e => setPricelistStart(e.target.value)} />
+              </div>
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <label style={{ fontSize: '12px', color: 'hsl(var(--text-secondary))' }}>End Date</label>
+                <input type="date" className="glass-input" value={pricelistEnd} onChange={e => setPricelistEnd(e.target.value)} />
+              </div>
+            </div>
+
+            <button type="submit" className="btn btn-primary" style={{ padding: '10px', marginTop: '8px', backgroundColor: '#6B4668', color: '#fff', border: 'none' }}>
+              {editingPricelist ? 'Save Changes' : 'Create Pricelist'}
+            </button>
+          </form>
+        </div>
+      )}
+
+      {/* RENTAL PERIOD MODAL */}
+      {showPeriodModal && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          backgroundColor: 'rgba(33,37,43,0.5)', backdropFilter: 'blur(5px)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 999, padding: '20px'
+        }}>
+          <form onSubmit={handleSavePeriod} className="glass-panel" style={{ width: '100%', maxWidth: '400px', padding: '32px', position: 'relative', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <button type="button" onClick={() => setShowPeriodModal(false)} style={{ position: 'absolute', top: '20px', right: '20px', background: 'none', border: 'none', cursor: 'pointer' }}><X size={20} /></button>
+            <h3 style={{ fontSize: '18px', fontWeight: 800 }}>{editingPeriod ? 'Edit Rental Period' : 'Create Rental Period'}</h3>
+            
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+              <label style={{ fontSize: '12px', color: 'hsl(var(--text-secondary))' }}>Name (e.g. Daily Rental)</label>
+              <input type="text" className="glass-input" value={periodName} onChange={e => setPeriodName(e.target.value)} required />
+            </div>
+
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <label style={{ fontSize: '12px', color: 'hsl(var(--text-secondary))' }}>Duration</label>
+                <input type="number" className="glass-input" value={periodDuration} onChange={e => setPeriodDuration(e.target.value)} required min="1" />
+              </div>
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <label style={{ fontSize: '12px', color: 'hsl(var(--text-secondary))' }}>Unit</label>
+                <select className="glass-input" value={periodUnit} onChange={e => setPeriodUnit(e.target.value)}>
+                  <option value="Hours">Hours</option>
+                  <option value="Days">Days</option>
+                  <option value="Weeks">Weeks</option>
+                  <option value="Months">Months</option>
+                </select>
+              </div>
+            </div>
+
+            <button type="submit" className="btn btn-primary" style={{ padding: '10px', marginTop: '8px', backgroundColor: '#6B4668', color: '#fff', border: 'none' }}>
+              {editingPeriod ? 'Save Changes' : 'Create Rental Period'}
+            </button>
           </form>
         </div>
       )}

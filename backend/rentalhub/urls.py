@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from rentals.views import PickupOperationsAPIView
 
 urlpatterns = [
     path('api/', include('core.urls')),
@@ -9,6 +10,8 @@ urlpatterns = [
     path('api/accounts/', include('accounts.urls')),
     path('api/inventory/', include('inventory.urls')),
     path('api/rentals/', include('rentals.urls')),
+    path('api/security-deposits/', include('finance.urls')),
+    path('api/pickups/', PickupOperationsAPIView.as_view(), name='pickups_list'),
 ]
 
 if settings.DEBUG:

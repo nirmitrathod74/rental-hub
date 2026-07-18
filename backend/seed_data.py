@@ -54,7 +54,7 @@ def seed():
         ('Monthly Rental', 30)
     ]
     for name, days in periods:
-        RentalPeriod.objects.get_or_create(name=name, defaults={'duration_days': days})
+        RentalPeriod.objects.get_or_create(name=name, defaults={'duration': days, 'unit': 'Days'})
     print("Seeded rental periods.")
 
     # 3. Products

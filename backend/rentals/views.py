@@ -1,4 +1,4 @@
-from rest_framework import viewsets, permissions, status
+from rest_framework import viewsets, permissions, status, generics
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.utils import timezone
@@ -9,7 +9,6 @@ from rentals.serializers import (
 from rentals.services import RentalService
 from rentals.repositories import RentalRepository
 from rentals.dashboard import DashboardService
-from rentals.document_factory import DocumentFactory
 from inventory.models import Product
 from decimal import Decimal
 
@@ -168,6 +167,10 @@ class RentalOrderViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['get'])
     def invoice(self, request, pk=None):
         order = self.get_object()
+
+    @action(detail=True, methods=['get'])
+    def invoice(self, request, pk=None):
+        order = self.get_object()
         # Returns invoice link
         invoice_url = DocumentFactory.generate_pdf_invoice(order)
         # Add host prefix in real scenario, we'll return full url path
@@ -206,3 +209,16 @@ class QuotationTemplateViewSet(viewsets.ModelViewSet):
     queryset = QuotationTemplate.objects.all().order_by('id')
     serializer_class = QuotationTemplateSerializer
     permission_classes = (permissions.IsAuthenticated,)
+
+
+from rentals.document_factory import DocumentFactory
+
+class PickupOperationsAPIView(generics.ListAPIView):
+    serializer_class = RentalOrderSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        # Return orders scheduled for pickup today or pending in the future
+        return RentalOrder.objects.filter(
+            status='confirmed'
+        ).order_by('start_date')

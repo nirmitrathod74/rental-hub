@@ -62,6 +62,10 @@ class PriceList(models.Model):
     start_date = models.DateTimeField(blank=True, null=True)
     end_date = models.DateTimeField(blank=True, null=True)
 
+    @property
+    def modifiers_count(self):
+        return self.items.count()
+
     def __str__(self):
         return self.name
 
@@ -79,8 +83,15 @@ class PriceListItem(models.Model):
 
 
 class RentalPeriod(models.Model):
+    UNIT_CHOICES = (
+        ('Hours', 'Hours'),
+        ('Days', 'Days'),
+        ('Weeks', 'Weeks'),
+        ('Months', 'Months'),
+    )
     name = models.CharField(max_length=100)
-    duration_days = models.IntegerField()
+    duration = models.IntegerField(default=1)
+    unit = models.CharField(max_length=20, choices=UNIT_CHOICES, default='Days')
 
     def __str__(self):
-        return f"{self.name} ({self.duration_days} Days)"
+        return f"{self.name} ({self.duration} {self.unit})"

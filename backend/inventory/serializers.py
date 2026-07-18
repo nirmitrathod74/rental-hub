@@ -56,13 +56,14 @@ class PriceListItemSerializer(serializers.ModelSerializer):
 
 class PriceListSerializer(serializers.ModelSerializer):
     items = PriceListItemSerializer(many=True, read_only=True)
+    modifiers_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = PriceList
-        fields = ('id', 'name', 'is_default', 'start_date', 'end_date', 'items')
+        fields = ('id', 'name', 'is_default', 'start_date', 'end_date', 'items', 'modifiers_count')
 
 
 class RentalPeriodSerializer(serializers.ModelSerializer):
     class Meta:
         model = RentalPeriod
-        fields = ('id', 'name', 'duration_days')
+        fields = ('id', 'name', 'duration', 'unit')

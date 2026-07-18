@@ -27,3 +27,20 @@ class Invoice(models.Model):
     status = models.CharField(max_length=16, choices=STATUS, default='draft')
     issued_at = models.DateTimeField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
+
+
+class SecurityDeposit(models.Model):
+    STATUS_CHOICES = (
+        ('Held', 'Held'),
+        ('Refunded', 'Refunded'),
+        ('Partial Deduction', 'Partial Deduction')
+    )
+    order = models.ForeignKey(RentalOrder, on_delete=models.PROTECT, related_name='security_deposits')
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Held')
+    penalty_deducted = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Deposit for Order {self.order.order_number} - {self.status}"
+
