@@ -34,7 +34,7 @@ RentalHub Team
         message,
         settings.DEFAULT_FROM_EMAIL,
         [user.email],
-        fail_silently=False,
+        fail_silently=True,
     )
 
 
@@ -68,5 +68,5 @@ RentalHub Team
         message,
         settings.DEFAULT_FROM_EMAIL,
         [user.email],
-        fail_silently=False,
+        fail_silently=True,
     )
