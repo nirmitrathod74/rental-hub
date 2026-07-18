@@ -44,8 +44,7 @@ export const Signup = () => {
     const username = form.email.split('@')[0].replace(/[^a-zA-Z0-9_.-]/g, '').slice(0, 150); 
     try { 
       await register({ username, first_name: form.firstName, last_name: form.lastName, email: form.email, password: form.password, phone_number: form.phone, role: 'client' }); 
-      await login(username, form.password); 
-      navigate('/'); 
+      navigate('/login?registered=true'); 
     } catch (err) { 
       setError(err.message || 'We could not create that account. Try another email address.'); 
     } finally { 

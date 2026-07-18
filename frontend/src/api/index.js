@@ -18,43 +18,63 @@ const getHeaders = () => {
   return headers;
 };
 
+const handleResponse = async (response) => {
+  if (!response.ok) {
+    const err = await response.json().catch(() => ({}));
+    let errorMessage = err.detail || err.error || err.message;
+    if (err.errors && typeof err.errors === 'object') {
+      const firstField = Object.keys(err.errors)[0];
+      const fieldError = err.errors[firstField];
+      if (Array.isArray(fieldError) && fieldError.length > 0) {
+        errorMessage = `${firstField}: ${fieldError[0]}`;
+      } else if (typeof fieldError === 'string') {
+        errorMessage = `${firstField}: ${fieldError}`;
+      }
+    }
+    if (!errorMessage && Object.keys(err).length) {
+      errorMessage = JSON.stringify(err);
+    }
+    throw new Error(errorMessage || 'API Request Failed');
+  }
+  return response.json();
+};
+
 export const api = {
   get: async (endpoint) => {
     const response = await fetch(`${BASE_URL}${endpoint}`, {
       method: 'GET',
       headers: getHeaders(),
     });
-    if (!response.ok) {
-      const err = await response.json().catch(() => ({}));
-      throw new Error(err.detail || err.error || 'API Request Failed');
-    }
-    return response.json();
+    return handleResponse(response);
   },
 
   post: async (endpoint, body) => {
+    const isFormData = body instanceof FormData;
+    const headers = getHeaders();
+    if (isFormData) {
+      delete headers['Content-Type'];
+    }
+    
     const response = await fetch(`${BASE_URL}${endpoint}`, {
       method: 'POST',
-      headers: getHeaders(),
-      body: JSON.stringify(body),
+      headers: headers,
+      body: isFormData ? body : JSON.stringify(body),
     });
-    if (!response.ok) {
-      const err = await response.json().catch(() => ({}));
-      throw new Error(err.detail || err.error || 'API Request Failed');
-    }
-    return response.json();
+    return handleResponse(response);
   },
 
   put: async (endpoint, body) => {
+    const isFormData = body instanceof FormData;
+    const headers = getHeaders();
+    if (isFormData) {
+      delete headers['Content-Type'];
+    }
     const response = await fetch(`${BASE_URL}${endpoint}`, {
       method: 'PUT',
-      headers: getHeaders(),
-      body: JSON.stringify(body),
+      headers: headers,
+      body: isFormData ? body : JSON.stringify(body),
     });
-    if (!response.ok) {
-      const err = await response.json().catch(() => ({}));
-      throw new Error(err.detail || err.error || 'API Request Failed');
-    }
-    return response.json();
+    return handleResponse(response);
   },
 
   delete: async (endpoint) => {
@@ -62,10 +82,6 @@ export const api = {
       method: 'DELETE',
       headers: getHeaders(),
     });
-    if (!response.ok) {
-      const err = await response.json().catch(() => ({}));
-      throw new Error(err.detail || err.error || 'API Request Failed');
-    }
-    return response.json();
+    return handleResponse(response);
   },
 };

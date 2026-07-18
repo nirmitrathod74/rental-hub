@@ -15,6 +15,17 @@ class InventoryService:
         return product
 
     @staticmethod
+    def update_product(product, product_data):
+        for key, value in product_data.items():
+            setattr(product, key, value)
+        product.save()
+        return product
+        
+    @staticmethod
+    def delete_product(product):
+        product.delete()
+
+    @staticmethod
     def get_product_details(product_id, pricelist_id=None):
         product = ProductRepository.get_by_id(product_id)
         if not product:

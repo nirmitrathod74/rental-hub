@@ -65,7 +65,7 @@ export const VendorSignup = () => {
             <div className="auth-card-heading">
               <PackageCheck size={32} style={{ color: 'var(--primary)', marginBottom: '16px' }} />
               <h2>Registration Received</h2>
-              <p>Your vendor account is currently pending admin approval. You will receive an email once approved.</p>
+              <p>We have sent a verification link to your email. Please verify your email address first, then your vendor account will be pending admin approval.</p>
             </div>
             <Link to="/login" className="auth-submit" style={{ textDecoration: 'none', textAlign: 'center' }}>Return to Login</Link>
           </div>
