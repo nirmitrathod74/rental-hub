@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext.jsx';
 import { CartProvider } from './context/CartContext.jsx';
 import { Navbar } from './components/Navbar.jsx';
@@ -10,6 +10,8 @@ import { Checkout } from './pages/Checkout.jsx';
 import { Profile } from './pages/Profile.jsx';
 import { Login } from './pages/Login.jsx';
 import { Signup } from './pages/Signup.jsx';
+import { VendorSignup } from './pages/VendorSignup.jsx';
+import { ForgotPassword } from './pages/ForgotPassword.jsx';
 import { AdminDashboard } from './pages/AdminDashboard.jsx';
 
 // Protected Route components
@@ -31,11 +33,13 @@ const ProtectedRoute = ({ children, roles }) => {
   return <>{children}</>;
 };
 
-const AppContent = () => {
+const AppShell = () => {
+  const location = useLocation();
+  const isAuthPage = ['/login', '/signup', '/vendor-signup', '/forgot-password'].includes(location.pathname);
+
   return (
-    <Router>
       <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-        <Navbar />
+        {!isAuthPage && <Navbar />}
         <main style={{ flex: 1 }}>
           <Routes>
             <Route path="/" element={<Catalog />} />
@@ -43,6 +47,8 @@ const AppContent = () => {
             <Route path="/cart" element={<Cart />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
+            <Route path="/vendor-signup" element={<VendorSignup />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
             
             {/* Authenticated Client Routes */}
             <Route path="/checkout" element={
@@ -51,7 +57,7 @@ const AppContent = () => {
               </ProtectedRoute>
             } />
             <Route path="/profile" element={
-              <ProtectedRoute roles={['client', 'admin']}>
+              <ProtectedRoute roles={['client', 'vendor', 'admin']}>
                 <Profile />
               </ProtectedRoute>
             } />
@@ -67,6 +73,13 @@ const AppContent = () => {
           </Routes>
         </main>
       </div>
+  );
+};
+
+const AppContent = () => {
+  return (
+    <Router>
+      <AppShell />
     </Router>
   );
 };
