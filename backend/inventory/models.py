@@ -11,7 +11,7 @@ class Category(models.Model):
         return self.name
 
 
-class Product(models.Model):
+class RentalPolicy(models.Model):
     DEPOSIT_TYPE_CHOICES = (
         ('fixed', 'Fixed Amount'),
         ('percentage', 'Percentage of Rent'),
@@ -22,27 +22,34 @@ class Product(models.Model):
         ('weekly', 'Weekly'),
         ('monthly', 'Monthly'),
     )
-    
+    name = models.CharField(max_length=100)
+    security_deposit_type = models.CharField(max_length=20, choices=DEPOSIT_TYPE_CHOICES, default='fixed')
+    security_deposit_value = models.DecimalField(max_digits=10, decimal_places=2)
+    late_fee_type = models.CharField(max_length=20, choices=LATE_FEE_TYPE_CHOICES, default='daily')
+    late_fee_rate = models.DecimalField(max_digits=10, decimal_places=2)
+    grace_period_hours = models.IntegerField(default=0)
+
+    def __str__(self):
+        return self.name
+
+class Product(models.Model):
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True, related_name='products')
     product_code = models.CharField(max_length=50, unique=True, db_index=True, null=True, blank=True)
+    rental_policy = models.ForeignKey(RentalPolicy, on_delete=models.SET_NULL, null=True, blank=True, related_name='products')
     name = models.CharField(max_length=200)
-    sku = models.CharField(max_length=50, unique=True)
+    sku = models.CharField(max_length=50, unique=True, db_index=True)
     description = models.TextField(blank=True, null=True)
     image = models.ImageField(upload_to='products/', blank=True, null=True)
     base_price = models.DecimalField(max_digits=10, decimal_places=2)
     
-    # Security Deposit
-    security_deposit_type = models.CharField(max_length=20, choices=DEPOSIT_TYPE_CHOICES, default='fixed')
-    security_deposit_value = models.DecimalField(max_digits=10, decimal_places=2)
-    
-    # Inventory
+    # Inventory (strict 3NF: available_qty removed)
     stock_qty = models.IntegerField(default=0)
-    available_qty = models.IntegerField(default=0)
     
-    # Late Return Penalty Rules
-    late_fee_type = models.CharField(max_length=20, choices=LATE_FEE_TYPE_CHOICES, default='daily')
-    late_fee_rate = models.DecimalField(max_digits=10, decimal_places=2)
-    grace_period_hours = models.IntegerField(default=0)
+    class Meta:
+        indexes = [
+            models.Index(fields=['category']),
+            models.Index(fields=['base_price']),
+        ]
 
     def save(self, *args, **kwargs):
         if self.pk:

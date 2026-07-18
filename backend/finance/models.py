@@ -13,8 +13,14 @@ class Payment(models.Model):
     status = models.CharField(max_length=16, choices=STATUS, default='pending')
     provider = models.CharField(max_length=40, default='manual')
     provider_reference = models.CharField(max_length=128, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    settled_at = models.DateTimeField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+    settled_at = models.DateTimeField(blank=True, null=True, db_index=True)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['rental_order', 'status']),
+            models.Index(fields=['payment_type', 'status', 'created_at']),
+        ]
 
 
 class Invoice(models.Model):
@@ -40,6 +46,11 @@ class SecurityDeposit(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Held')
     penalty_deducted = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['order', 'status']),
+        ]
 
     def __str__(self):
         return f"Deposit for Order {self.order.order_number} - {self.status}"

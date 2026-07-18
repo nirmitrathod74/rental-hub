@@ -35,9 +35,9 @@ class InventoryService:
         price = PriceListRepository.get_product_price(product, pricelist_id)
         
         # Calculate deposit
-        deposit = product.security_deposit_value
-        if product.security_deposit_type == 'percentage':
-            deposit = (product.security_deposit_value / 100) * price
+        deposit = product.rental_policy.security_deposit_value if product.rental_policy else 0
+        if product.rental_policy and product.rental_policy.security_deposit_type == 'percentage':
+            deposit = (product.rental_policy.security_deposit_value / 100) * price
 
         return {
             'product': product,
@@ -47,4 +47,4 @@ class InventoryService:
 
     @staticmethod
     def is_available(product, quantity=1):
-        return product.available_qty >= quantity
+        return product.stock_qty >= quantity

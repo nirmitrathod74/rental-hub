@@ -28,6 +28,34 @@ class RentalOrderViewSet(viewsets.ModelViewSet):
             return RentalOrder.objects.all().order_by('-created_at')
         return RentalOrder.objects.filter(client=user).order_by('-created_at')
 
+    @action(detail=False, methods=['get'])
+    def schedule_data(self, request):
+        if not request.user.is_admin_role:
+            return Response({'error': 'Unauthorized'}, status=status.HTTP_403_FORBIDDEN)
+        
+        # We need orders that are confirmed, picked_up, or overdue
+        active_statuses = ['confirmed', 'picked_up', 'overdue']
+        orders = RentalOrder.objects.filter(status__in=active_statuses).select_related('client').prefetch_related('items__product')
+        
+        data = []
+        for order in orders:
+            for item in order.items.all():
+                # Get availability info.
+                availability = "Available" if item.product.stock_qty >= item.quantity else "Unavailable"
+                data.append({
+                    "order_id": order.id,
+                    "order_public_id": str(order.public_id),
+                    "client_name": order.client.get_full_name() or order.client.username,
+                    "product_name": item.product.name,
+                    "quantity": item.quantity,
+                    "start_date": order.start_date.isoformat() if order.start_date else None,
+                    "end_date": order.end_date.isoformat() if order.end_date else None,
+                    "status": order.status,
+                    "product_availability": availability
+                })
+                
+        return Response(data)
+
     def create(self, request, *args, **kwargs):
         # Allow client or admin to create order
         client = request.user

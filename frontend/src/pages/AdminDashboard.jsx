@@ -17,6 +17,7 @@ import {
 } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
 import { validateRequired } from '../utils/validation.js';
+import RentalScheduler from '../components/RentalScheduler.jsx';
 import { OrderModal } from '../components/OrderModal.jsx';
 import { InvoiceModal } from '../components/InvoiceModal.jsx';
 import { QuotationTemplateView } from '../components/QuotationTemplateView.jsx';
@@ -486,7 +487,7 @@ export const AdminDashboard = () => {
             <div className="erp-nav-item">
               Operations
               <div className="erp-dropdown-menu">
-                <button className="erp-dropdown-item" onClick={() => setActiveTab('dashboard')}>Schedule</button>
+                <button className="erp-dropdown-item" onClick={() => setActiveTab('schedule')}>Schedule</button>
                 <button className="erp-dropdown-item" onClick={() => setActiveTab('pickup')}>Pickups</button>
                 <button className="erp-dropdown-item" onClick={() => setActiveTab('return')}>Returns</button>
               </div>
@@ -559,6 +560,13 @@ export const AdminDashboard = () => {
 
       <div className="page fade-in admin-erp-layout" style={{ display: 'block', padding: '24px', flex: 1, maxWidth: '1400px', margin: '0 auto', width: '100%' }}>
         
+        {/* SCHEDULE TAB */}
+        {activeTab === 'schedule' && (
+          <div className="fade-in" style={{ height: 'calc(100vh - 120px)' }}>
+            <RentalScheduler setActiveTab={setActiveTab} />
+          </div>
+        )}
+
         {/* DASHBOARD TAB */}
         {activeTab === 'dashboard' && (
           <div className="fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
