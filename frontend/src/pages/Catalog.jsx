@@ -37,7 +37,7 @@ export const Catalog = () => {
   );
 
   return (
-    <div className="fade-in" style={{ padding: '32px' }}>
+    <div className="page fade-in">
       <div style={{
         display: 'flex',
         justifyContent: 'space-between',

@@ -28,6 +28,9 @@ INSTALLED_APPS = [
     'accounts.apps.AccountsConfig',
     'inventory.apps.InventoryConfig',
     'rentals.apps.RentalsConfig',
+    'core.apps.CoreConfig',
+    'finance.apps.FinanceConfig',
+    'notifications.apps.NotificationsConfig',
 ]
 
 MIDDLEWARE = [
@@ -154,6 +157,12 @@ CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'UTC'
+CELERY_BEAT_SCHEDULE = {
+    'check-overdue-rentals-hourly': {
+        'task': 'rentals.tasks.check_overdue_rentals',
+        'schedule': 3600.0,
+    },
+}
 
 # Redis Cache setup
 CACHES = {

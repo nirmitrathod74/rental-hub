@@ -8,6 +8,7 @@ from rentals.serializers import (
 )
 from rentals.services import RentalService
 from rentals.repositories import RentalRepository
+from rentals.dashboard import DashboardService
 from rentals.document_factory import DocumentFactory
 from inventory.models import Product
 from decimal import Decimal
@@ -159,6 +160,12 @@ class RentalOrderViewSet(viewsets.ModelViewSet):
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=True, methods=['get'])
+    def qr(self, request, pk=None):
+        """Stable scan payload. Clients encode this UUID into a QR image."""
+        order = self.get_object()
+        return Response({'rental_id': str(order.public_id), 'order_id': order.id, 'status': order.status})
+
+    @action(detail=True, methods=['get'])
     def invoice(self, request, pk=None):
         order = self.get_object()
         # Returns invoice link
@@ -192,27 +199,7 @@ class DashboardViewSet(viewsets.ViewSet):
         if not request.user.is_admin_role:
             return Response({'error': 'Unauthorized'}, status=status.HTTP_403_FORBIDDEN)
 
-        # Gather metrics from Repository Layer
-        active_rentals = RentalRepository.get_active_rentals().count()
-        overdue_rentals = RentalRepository.get_overdue_rentals().count()
-        due_today = RentalRepository.get_rentals_due_today().count()
-        upcoming_pickups = RentalRepository.get_upcoming_pickups().count()
-        upcoming_returns = RentalRepository.get_upcoming_returns().count()
-        
-        revenue = RentalRepository.get_revenue_sum()
-        deposits_held = RentalRepository.get_deposits_held_sum()
-        late_fees = RentalRepository.get_late_fees_collected_sum()
-
-        return Response({
-            'active_rentals': active_rentals,
-            'overdue_rentals': overdue_rentals,
-            'rentals_due_today': due_today,
-            'upcoming_pickups': upcoming_pickups,
-            'upcoming_returns': upcoming_returns,
-            'revenue': revenue,
-            'security_deposits_held': deposits_held,
-            'late_fee_collection': late_fees
-        }, status=status.HTTP_200_OK)
+        return Response(DashboardService.metrics(), status=status.HTTP_200_OK)
 
 
 class QuotationTemplateViewSet(viewsets.ModelViewSet):

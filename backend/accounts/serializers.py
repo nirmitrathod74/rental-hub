@@ -7,16 +7,16 @@ User = get_user_model()
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('id', 'username', 'email', 'role', 'phone_number', 'address', 'avatar')
+        fields = ('id', 'username', 'first_name', 'last_name', 'email', 'role', 'phone_number', 'address', 'business_name', 'avatar')
         read_only_fields = ('role',)
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
-    role = serializers.ChoiceField(choices=User.ROLE_CHOICES, default='client')
+    role = serializers.ChoiceField(choices=(('client', 'Client'), ('vendor', 'Vendor')), default='client')
 
     class Meta:
         model = User
-        fields = ('id', 'username', 'password', 'email', 'role', 'phone_number', 'address')
+        fields = ('id', 'username', 'first_name', 'last_name', 'password', 'email', 'role', 'phone_number', 'address', 'business_name')
 
     def create(self, validated_data):
         from accounts.repositories import UserRepository

@@ -37,12 +37,12 @@ class RentalOrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = RentalOrder
         fields = (
-            'id', 'client', 'client_details', 'status', 'start_date', 'end_date', 'actual_return_date',
+            'id', 'public_id', 'client', 'client_details', 'status', 'start_date', 'end_date', 'actual_return_date',
             'fulfillment_type', 'shipping_address', 'total_rent_amount', 'total_deposit_amount',
             'amount_paid', 'deposit_paid', 'deposit_refunded', 'late_fee_charged',
             'items', 'deposit_history', 'inspections', 'created_at', 'updated_at'
         )
-        read_only_fields = ('status', 'total_rent_amount', 'total_deposit_amount', 'amount_paid', 'deposit_paid', 'deposit_refunded', 'late_fee_charged')
+        read_only_fields = ('public_id', 'status', 'total_rent_amount', 'total_deposit_amount', 'amount_paid', 'deposit_paid', 'deposit_refunded', 'late_fee_charged')
 
 
 class QuotationTemplateSerializer(serializers.ModelSerializer):

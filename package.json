@@ -1,0 +1,11 @@
+{
+  "name": "rentalhub",
+  "private": true,
+  "scripts": {
+    "dev": "npm --prefix frontend run dev",
+    "build": "npm --prefix frontend run build",
+    "frontend:install": "npm --prefix frontend install",
+    "backend:check": "docker compose exec -T backend python manage.py check",
+    "test": "docker compose exec -T backend python manage.py test rentals"
+  }
+}
