@@ -20,6 +20,8 @@ export const Catalog = () => {
     const q = params.get('q');
     if (q !== null) {
       setSearchTerm(q);
+    } else {
+      setSearchTerm('');
     }
   }, [location.search]);
 
@@ -54,8 +56,8 @@ export const Catalog = () => {
   const [maxPrice, setMaxPrice] = useState(10000);
 
   const filteredProducts = products.filter(p => {
-    const matchesSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          p.sku.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = (p.name && p.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                          (p.sku && p.sku.toLowerCase().includes(searchTerm.toLowerCase()));
     const price = parseFloat(p.calculated_price) || parseFloat(p.base_price) || 0;
     const matchesPrice = price >= minPrice && price <= maxPrice;
     
@@ -168,35 +170,37 @@ export const Catalog = () => {
                 <span>${minPrice}</span>
                 <span>${maxPrice}</span>
               </div>
-              <div className="price-slider-track">
-                <div className="price-slider-fill" style={{ left: `${(minPrice / 10000) * 100}%`, right: `${100 - (maxPrice / 10000) * 100}%` }} />
-                <div className="price-slider-thumb left" style={{ left: `${(minPrice / 10000) * 100}%` }} />
-                <div className="price-slider-thumb right" style={{ right: `${100 - (maxPrice / 10000) * 100}%` }} />
+              <div style={{ position: 'relative', height: '4px', margin: '14px 0 24px 0' }}>
+                <div className="price-slider-track" style={{ margin: 0 }}>
+                  <div className="price-slider-fill" style={{ left: `${(minPrice / 10000) * 100}%`, right: `${100 - (maxPrice / 10000) * 100}%` }} />
+                  <div className="price-slider-thumb left" style={{ left: `${(minPrice / 10000) * 100}%` }} />
+                  <div className="price-slider-thumb right" style={{ right: `${100 - (maxPrice / 10000) * 100}%` }} />
+                </div>
+                <input 
+                  type="range" 
+                  min={0} 
+                  max={10000} 
+                  step={10}
+                  value={minPrice} 
+                  onChange={(e) => {
+                    const val = Math.min(Number(e.target.value), maxPrice - 10);
+                    setMinPrice(val);
+                    setCurrentPage(1);
+                  }}
+                />
+                <input 
+                  type="range" 
+                  min={0} 
+                  max={10000} 
+                  step={10}
+                  value={maxPrice} 
+                  onChange={(e) => {
+                    const val = Math.max(Number(e.target.value), minPrice + 10);
+                    setMaxPrice(val);
+                    setCurrentPage(1);
+                  }}
+                />
               </div>
-              <input 
-                type="range" 
-                min={0} 
-                max={10000} 
-                step={10}
-                value={minPrice} 
-                onChange={(e) => {
-                  const val = Math.min(Number(e.target.value), maxPrice - 10);
-                  setMinPrice(val);
-                  setCurrentPage(1);
-                }}
-              />
-              <input 
-                type="range" 
-                min={0} 
-                max={10000} 
-                step={10}
-                value={maxPrice} 
-                onChange={(e) => {
-                  const val = Math.max(Number(e.target.value), minPrice + 10);
-                  setMaxPrice(val);
-                  setCurrentPage(1);
-                }}
-              />
             </div>
           </div>
         </div>
