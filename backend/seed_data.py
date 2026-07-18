@@ -7,7 +7,7 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'rentalhub.settings')
 django.setup()
 
 from django.contrib.auth import get_user_model
-from inventory.models import Product, ProductVariant, PriceList, PriceListItem, RentalPeriod
+from inventory.models import Product, ProductVariant, PriceList, PriceListItem, RentalPeriod, Category
 from rentals.models import QuotationTemplate
 from decimal import Decimal
 
@@ -59,45 +59,46 @@ def seed():
         RentalPeriod.objects.get_or_create(name=name, defaults={'duration': days, 'unit': 'Days'})
     print("Seeded rental periods.")
 
-    # 3. Products
-    p1, _ = Product.objects.get_or_create(
-        sku='EXC-001',
-        defaults={
-            'name': 'Heavy Duty Excavator',
-            'description': 'Industrial excavator for massive building construction and excavation works.',
-            'base_price': Decimal('250.00'),
-            'stock_qty': 5,
-            'grace_period_hours': 2
-        }
-    )
-    ProductVariant.objects.get_or_create(product=p1, attribute_name='Manufacturer', attribute_value='Caterpillar')
-    ProductVariant.objects.get_or_create(product=p1, attribute_name='Color', attribute_value='Yellow')
+    # 3. Categories and Products
+    cat_heavy, _ = Category.objects.get_or_create(name='Heavy Machinery')
+    cat_power, _ = Category.objects.get_or_create(name='Power Equipment')
+    cat_access, _ = Category.objects.get_or_create(name='Access Equipment')
+    cat_tools, _ = Category.objects.get_or_create(name='Power Tools')
 
-    p2, _ = Product.objects.get_or_create(
-        sku='GEN-50K',
-        defaults={
-            'name': '50kW Silent Diesel Generator',
-            'description': 'Super silent diesel backup power generator with output of 50 kilowatts.',
-            'base_price': Decimal('120.00'),
-            'security_deposit_value': Decimal('15.00'), # 15% of rental price
-            'stock_qty': 10,
-            'grace_period_hours': 1
-        }
-    )
-    ProductVariant.objects.get_or_create(product=p2, attribute_name='Brand', attribute_value='Cummins')
+    products_data = [
+        ('EXC-001', 'Heavy Duty Excavator', 'Industrial excavator for massive building construction and excavation works.', Decimal('250.00'), 5, cat_heavy, 'Yellow', '#f3752e'),
+        ('GEN-50K', '50kW Silent Diesel Generator', 'Super silent diesel backup power generator with output of 50 kilowatts.', Decimal('120.00'), 10, cat_power, 'Cummins', '#0b4e54'),
+        ('SCA-05', 'Aluminium Scaffolding Set', 'Mobile tower aluminium scaffolding for painters, plasterers, and electricians.', Decimal('45.00'), 20, cat_access, 'Height 5m', '#8c7df7'),
+        ('BLD-01', 'Bulldozer D8', 'Heavy bulldozer for earthmoving and grading.', Decimal('300.00'), 2, cat_heavy, 'Caterpillar', '#f3752e'),
+        ('LOD-02', 'Wheel Loader', 'Front-end wheel loader with high capacity bucket.', Decimal('210.00'), 4, cat_heavy, 'Volvo', '#0b4e54'),
+        ('GEN-10K', '10kW Portable Generator', 'Compact gasoline generator for small sites.', Decimal('40.00'), 15, cat_power, 'Honda', '#6c431b'),
+        ('SCA-10', 'High Reach Scaffolding 10m', 'Double height mobile tower scaffolding.', Decimal('85.00'), 12, cat_access, 'Height 10m', '#8c7df7'),
+        ('BOM-45', '45ft Articulating Boom Lift', 'Aerial work platform for high reach access.', Decimal('180.00'), 6, cat_access, 'Genie', '#f3752e'),
+        ('DRL-01', 'Heavy Duty Jackhammer', 'Pneumatic demolition hammer for concrete breaking.', Decimal('35.00'), 25, cat_tools, 'Bosch', '#0b4e54'),
+        ('SAW-01', 'Concrete Saw', 'Gas powered walk-behind concrete saw.', Decimal('65.00'), 8, cat_tools, 'Husqvarna', '#f3752e'),
+        ('WLD-01', 'Industrial Welder 300A', 'Multi-process welding machine for structural steel.', Decimal('75.00'), 10, cat_tools, 'Lincoln Electric', '#8c7df7'),
+        ('CMP-01', 'Plate Compactor', 'Heavy duty vibratory plate compactor for soil.', Decimal('55.00'), 14, cat_heavy, 'Wacker Neuson', '#6c431b'),
+    ]
 
-    p3, _ = Product.objects.get_or_create(
-        sku='SCA-05',
-        defaults={
-            'name': 'Aluminium Scaffolding Set',
-            'description': 'Mobile tower aluminium scaffolding for painters, plasterers, and electricians.',
-            'base_price': Decimal('45.00'),
-            'stock_qty': 20,
-            'grace_period_hours': 6
-        }
-    )
-    ProductVariant.objects.get_or_create(product=p3, attribute_name='Size', attribute_value='Height 5 Meters')
-    print("Seeded rental products and variants.")
+    for sku, name, desc, price, qty, cat, var_val, color_code in products_data:
+        p, _ = Product.objects.get_or_create(
+            sku=sku,
+            defaults={
+                'name': name,
+                'description': desc,
+                'base_price': price,
+                'stock_qty': qty,
+                'category': cat
+            }
+        )
+        ProductVariant.objects.get_or_create(product=p, attribute_name='Feature', attribute_value=var_val)
+        if color_code:
+            ProductVariant.objects.get_or_create(product=p, attribute_name='Color', attribute_value=color_code)
+
+    p1 = Product.objects.get(sku='EXC-001')
+    p2 = Product.objects.get(sku='GEN-50K')
+    p3 = Product.objects.get(sku='SCA-05')
+    print("Seeded rental products, categories, and variants.")
 
     # 4. Pricelist
     pl, _ = PriceList.objects.get_or_create(

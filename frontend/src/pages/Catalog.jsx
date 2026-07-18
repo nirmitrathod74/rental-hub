@@ -6,6 +6,7 @@ import { useWishlist } from '../context/WishlistContext.jsx';
 
 export const Catalog = () => {
   const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [pricelists, setPricelists] = useState([]);
   const [selectedPricelist, setSelectedPricelist] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
@@ -30,6 +31,9 @@ export const Catalog = () => {
     try {
       const plData = await api.get('/inventory/pricelists/');
       setPricelists(plData);
+      
+      const catData = await api.get('/inventory/categories/');
+      setCategories(catData);
       
       const query = selectedPricelist ? `?pricelist_id=${selectedPricelist}` : '';
       const prodData = await api.get(`/inventory/products/${query}`);
@@ -63,7 +67,10 @@ export const Catalog = () => {
     
     const matchesCategory = selectedCategories.length === 0 || selectedCategories.includes(p.category_detail?.name);
     
-    return matchesSearch && matchesPrice && matchesCategory;
+    const productColor = p.variants?.find(v => v.attribute_name === 'Color')?.attribute_value;
+    const matchesColor = !selectedColor || productColor === selectedColor;
+    
+    return matchesSearch && matchesPrice && matchesCategory && matchesColor;
   });
 
   const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
@@ -123,21 +130,21 @@ export const Catalog = () => {
             </div>
             
             <div className="filter-block-title">Categories</div>
-            {[...new Set(products.map(p => p.category_detail?.name).filter(Boolean))].map((cat, idx) => (
+            {categories.map((cat, idx) => (
               <label key={idx} className="filter-checkbox">
                 <input 
                   type="checkbox" 
-                  checked={selectedCategories.includes(cat)}
+                  checked={selectedCategories.includes(cat.name)}
                   onChange={(e) => {
                     if (e.target.checked) {
-                      setSelectedCategories([...selectedCategories, cat]);
+                      setSelectedCategories([...selectedCategories, cat.name]);
                     } else {
-                      setSelectedCategories(selectedCategories.filter(c => c !== cat));
+                      setSelectedCategories(selectedCategories.filter(c => c !== cat.name));
                     }
                     setCurrentPage(1);
                   }}
                 />
-                <span>{cat}</span>
+                <span>{cat.name}</span>
               </label>
             ))}
           </div>
