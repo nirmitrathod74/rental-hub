@@ -990,6 +990,201 @@ input.input-error:focus, select.input-error:focus, textarea.input-error:focus, .
 }
 .cart-actions {
   display: flex;
+  justify-content: center;
+  border: 1px solid var(--odoo-border);
+  background: var(--odoo-surface);
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--odoo-text);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.pagination-btn:hover:not(:disabled) {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+.pagination-btn.active {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+}
+.pagination-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+@media (max-width: 900px) {
+  .catalog-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Price Slider */
+.price-slider-wrap {
+  position: relative;
+  width: 100%;
+  padding: 10px 0 20px;
+}
+.price-slider-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+.price-slider-track {
+  position: relative;
+  width: 100%;
+  height: 2px;
+  background: var(--odoo-border);
+  border-radius: 2px;
+}
+.price-slider-fill {
+  position: absolute;
+  height: 100%;
+  background: var(--primary);
+  border-radius: 2px;
+  left: 0;
+  right: 0; /* Adjust dynamically */
+}
+.price-slider-thumb {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid var(--primary);
+  background: #fff;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+.price-slider-thumb.left { left: 0; }
+.price-slider-thumb.right { right: 0; }
+
+.dual-range input[type="range"] {
+  position: absolute;
+  top: 15px; /* Adjust based on track position */
+  left: 0;
+  width: 100%;
+  appearance: none;
+  background: transparent;
+  pointer-events: none;
+  z-index: 5;
+  margin: 0;
+  outline: none;
+}
+.dual-range input[type="range"]::-webkit-slider-thumb {
+  pointer-events: auto;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  cursor: pointer;
+  background: transparent;
+}
+.dual-range input[type="range"]::-moz-range-thumb {
+  pointer-events: auto;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+}
+
+/* Checkout and Cart Layout Utilities */
+.checkout-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 32px;
+}
+.checkout-breadcrumb {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 24px;
+}
+.checkout-breadcrumb span.active {
+  color: var(--primary);
+}
+.checkout-grid {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 32px;
+  align-items: start;
+}
+@media (max-width: 900px) {
+  .checkout-grid {
+    grid-template-columns: 1fr;
+  }
+}
+.checkout-summary-box {
+  background: var(--whitish);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 24px;
+  position: sticky;
+  top: 90px;
+}
+.checkout-item-row {
+  display: flex;
+  gap: 16px;
+  padding: 20px 0;
+  border-bottom: 1px dashed var(--border);
+}
+.checkout-item-row:last-child {
+  border-bottom: none;
+}
+.checkout-item-img {
+  width: 80px;
+  height: 80px;
+  border-radius: 8px;
+  background: var(--extra-light);
+  object-fit: cover;
+  border: 1px solid var(--border);
+}
+.checkout-radio-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.checkout-radio-card:hover {
+  border-color: var(--primary);
+  background: #fdfafc;
+}
+.checkout-radio-card.active {
+  border-color: var(--primary);
+  background: #f8f4f7;
+  box-shadow: 0 0 0 1px var(--primary);
+}
+.checkout-radio-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 15px;
+  font-weight: 600;
+}
+.checkout-radio-left input[type="radio"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--primary);
+}
+.checkout-field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.cart-actions {
+  display: flex;
   gap: 12px;
   margin-top: 12px;
   font-size: 12px;
@@ -1007,75 +1202,179 @@ input.input-error:focus, select.input-error:focus, textarea.input-error:focus, .
   color: var(--primary);
 }
 
-/* Admin Horizontal Navbar */
-.admin-navbar {
+/* ERP Navbar */
+.erp-navbar {
+  background-color: var(--primary);
+  color: white;
   display: flex;
   align-items: center;
-  gap: 16px;
-  background-color: #111;
-  padding: 12px 24px;
-  border-radius: 12px;
-  border: 1px solid #333;
-  margin-bottom: 24px;
-  flex-wrap: wrap;
+  justify-content: space-between;
+  padding: 0 24px;
+  height: 64px;
+  width: 100%;
 }
 
-.admin-nav-item {
-  position: relative;
-  color: #fff;
+.erp-navbar-left {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+}
+
+.erp-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: white;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.erp-brand-icon {
+  background: rgba(255,255,255,0.15);
+  padding: 6px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.erp-nav-links {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.erp-nav-item {
+  color: white;
   font-size: 14px;
   font-weight: 500;
-  padding: 8px 16px;
-  border: 1px solid #444;
-  border-radius: 8px;
   cursor: pointer;
+  position: relative;
+  padding: 22px 0;
   user-select: none;
-  background: transparent;
-  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.erp-nav-item:hover {
+  opacity: 0.8;
 }
 
-.admin-nav-item:hover, .admin-nav-item.active {
-  background: #222;
-  border-color: #666;
-}
-
-.admin-dropdown-menu {
+.erp-dropdown-menu {
   position: absolute;
   top: 100%;
   left: 0;
-  margin-top: 8px;
-  background: #111;
-  border: 1px solid #444;
+  background: var(--whitish);
+  border: 1px solid var(--border);
   border-radius: 8px;
   min-width: 180px;
   display: none;
   flex-direction: column;
-  z-index: 100;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-  overflow: hidden;
+  z-index: 1000;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.1);
 }
 
-.admin-nav-item:hover .admin-dropdown-menu {
+.erp-nav-item:hover .erp-dropdown-menu {
   display: flex;
 }
 
-.admin-dropdown-item {
+.erp-dropdown-item {
   padding: 12px 16px;
-  color: #fff;
+  color: var(--text-muted);
   font-size: 13px;
   cursor: pointer;
-  border-bottom: 1px solid #333;
+  border-bottom: 1px solid var(--odoo-border);
   background: transparent;
   text-align: left;
   border-left: none;
   border-right: none;
   border-top: none;
+  transition: all 0.2s;
 }
 
-.admin-dropdown-item:last-child {
+.erp-dropdown-item:first-child {
+  border-radius: 8px 8px 0 0;
+}
+
+.erp-dropdown-item:last-child {
   border-bottom: none;
+  border-radius: 0 0 8px 8px;
 }
 
-.admin-dropdown-item:hover {
-  background: #222;
+.erp-dropdown-item:hover {
+  background: var(--extra-light);
+  color: var(--primary);
+}
+
+/* ERP Search */
+.erp-search-container {
+  flex: 1;
+  max-width: 400px;
+  margin: 0 24px;
+}
+.erp-search-input {
+  width: 100%;
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: none;
+  outline: none;
+  font-size: 14px;
+}
+
+/* ERP Right Actions */
+.erp-actions {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.erp-action-icon {
+  color: white;
+  cursor: pointer;
+  opacity: 0.9;
+}
+.erp-action-icon:hover {
+  opacity: 1;
+}
+
+.erp-divider {
+  width: 1px;
+  height: 24px;
+  background: rgba(255,255,255,0.2);
+}
+
+.erp-profile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+}
+.erp-profile-avatar {
+  width: 32px;
+  height: 32px;
+  background: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary);
+  font-weight: 700;
+  font-size: 14px;
+}
+.erp-profile-text {
+  display: flex;
+  flex-direction: column;
+  color: white;
+  text-align: left;
+}
+.erp-profile-name {
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.1;
+  margin-bottom: 2px;
+}
+.erp-profile-role {
+  font-size: 11px;
+  opacity: 0.8;
+  line-height: 1;
 }

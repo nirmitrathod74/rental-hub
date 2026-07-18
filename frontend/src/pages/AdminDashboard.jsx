@@ -7,7 +7,7 @@ import {
   Wrench, FilePlus2, Package2, ShieldAlert, Sparkles, User, Calendar, X,
   LayoutDashboard, Tags, Clock, Users, ShoppingBag, FileText, Receipt,
   CreditCard, ShieldCheck, Truck, CornerDownLeft, Settings, UserCircle, Plus, Edit,
-  Boxes, ChevronDown, LogOut, UserRound
+  Boxes, ChevronDown, LogOut, UserRound, Heart, ShoppingCart, Bell
 } from 'lucide-react';
 import {
   Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend
@@ -443,65 +443,85 @@ export const AdminDashboard = () => {
   ];
 
   return (
-    <div className="admin-dashboard-container" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-      <header className="topbar" style={{ backgroundColor: '#111', borderBottom: '1px solid #333' }}>
-        <Link className="brand" to="/" style={{ color: '#fff' }}><span className="brand-mark" style={{ background: 'transparent' }}><Boxes size={17} /></span>Your Logo</Link>
-        
-        <nav className="admin-navbar" style={{ margin: 0, padding: 0, border: 'none', background: 'transparent' }}>
-          <div className="admin-nav-item" style={{ border: 'none' }}>
-            Orders
-            <div className="admin-dropdown-menu">
-              <button className="admin-dropdown-item" onClick={() => setActiveTab('invoices')}>Invoice</button>
-              <button className="admin-dropdown-item" onClick={() => setActiveTab('customers')}>Customer</button>
-              <button className="admin-dropdown-item" onClick={() => setActiveTab('orders')}>All Orders</button>
+    <div className="admin-dashboard-container" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: 'var(--background)' }}>
+      <header className="erp-navbar">
+        <div className="erp-navbar-left">
+          <Link className="erp-brand" to="/">
+            <div className="erp-brand-icon"><Boxes size={18} color="white" /></div>
+            RentalHub ERP
+          </Link>
+          
+          <nav className="erp-nav-links">
+            <div className="erp-nav-item">
+              Orders
+              <div className="erp-dropdown-menu">
+              <button className="erp-dropdown-item" onClick={() => setActiveTab('invoices')}>Invoice</button>
+              <button className="erp-dropdown-item" onClick={() => setActiveTab('customers')}>Customer</button>
+              <button className="erp-dropdown-item" onClick={() => setActiveTab('orders')}>All Orders</button>
             </div>
           </div>
 
-          <div className="admin-nav-item" onClick={() => setActiveTab('dashboard')} style={Object.assign({ border: 'none' }, activeTab === 'dashboard' ? {background: '#222', borderColor: '#666'} : {})}>
+          <div className="erp-nav-item" onClick={() => setActiveTab('dashboard')} style={activeTab === 'dashboard' ? {opacity: 1} : {}}>
             Schedule
           </div>
 
-          <div className="admin-nav-item" style={{ border: 'none' }}>
+          <div className="erp-nav-item">
             Products
-            <div className="admin-dropdown-menu">
-              <button className="admin-dropdown-item" onClick={() => setActiveTab('products')}>Product</button>
-              <button className="admin-dropdown-item" onClick={() => setActiveTab('pricelists')}>Price list</button>
-              <button className="admin-dropdown-item" onClick={() => setActiveTab('categories')}>Attribute</button>
-              <button className="admin-dropdown-item" onClick={() => setActiveTab('rental_periods')}>Rental Period</button>
+            <div className="erp-dropdown-menu">
+              <button className="erp-dropdown-item" onClick={() => setActiveTab('products')}>Product</button>
+              <button className="erp-dropdown-item" onClick={() => setActiveTab('pricelists')}>Price list</button>
+              <button className="erp-dropdown-item" onClick={() => setActiveTab('categories')}>Attribute</button>
+              <button className="erp-dropdown-item" onClick={() => setActiveTab('rental_periods')}>Rental Period</button>
             </div>
           </div>
 
-          <div className="admin-nav-item" style={{ border: 'none' }}>
+          <div className="erp-nav-item">
             Reports
           </div>
 
-          <div className="admin-nav-item" style={{ border: 'none' }}>
+          <div className="erp-nav-item">
             Settings
-            <div className="admin-dropdown-menu">
-              <button className="admin-dropdown-item" onClick={() => setActiveTab('configuration')}>Setting</button>
-              <button className="admin-dropdown-item" onClick={() => setActiveTab('vendors')}>User</button>
-              <button className="admin-dropdown-item" onClick={() => setActiveTab('quotations')}>Quotation Template</button>
-              <button className="admin-dropdown-item" onClick={() => setActiveTab('configuration')}>Header/Footer</button>
+            <div className="erp-dropdown-menu">
+              <button className="erp-dropdown-item" onClick={() => setActiveTab('configuration')}>Setting</button>
+              <button className="erp-dropdown-item" onClick={() => setActiveTab('vendors')}>User</button>
+              <button className="erp-dropdown-item" onClick={() => setActiveTab('quotations')}>Quotation Template</button>
+              <button className="erp-dropdown-item" onClick={() => setActiveTab('configuration')}>Header/Footer</button>
             </div>
           </div>
         </nav>
+        </div>
 
-        <div className="topbar-actions" style={{ marginLeft: 'auto' }}>
+        <div className="erp-search-container">
+          <input type="text" placeholder="Search..." className="erp-search-input" />
+        </div>
+
+        <div className="erp-actions">
+          <Heart size={20} className="erp-action-icon" />
+          <ShoppingCart size={20} className="erp-action-icon" />
+          <Bell size={20} className="erp-action-icon" />
+          
+          <div className="erp-divider"></div>
+
           {user && (
             <div style={{ position: 'relative' }}>
-              <div className="account-menu" style={{ cursor: 'pointer', border: '1px solid #444', borderRadius: '24px', padding: '4px 12px', background: 'transparent' }} onClick={() => setDropdownOpen(!dropdownOpen)}>
-                <span className="account-copy" style={{ color: '#fff' }}>
-                  {user.first_name || user.username}
-                </span>
-                <span className="avatar" style={{ width: '28px', height: '28px', background: '#333', color: '#fff' }}>
-                  {user.avatar ? <img src={getMediaUrl(user.avatar)} alt="" /> : <UserRound size={16} />}
-                </span>
-                <ChevronDown size={14} style={{ opacity: 0.7, marginLeft: '4px', color: '#fff' }} />
+              <div className="erp-profile" onClick={() => setDropdownOpen(!dropdownOpen)}>
+                <div className="erp-profile-avatar">
+                  {user.avatar ? (
+                    <img src={getMediaUrl(user.avatar)} alt="" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+                  ) : (
+                    <span>{user.username ? user.username.charAt(0).toUpperCase() : 'A'}</span>
+                  )}
+                </div>
+                <div className="erp-profile-text">
+                  <span className="erp-profile-name">{user.username || 'Admin'}</span>
+                  <span className="erp-profile-role">Admin</span>
+                </div>
+                <ChevronDown size={14} color="white" />
               </div>
               
               {dropdownOpen && (
-                <div className="profile-dropdown" style={{ background: '#111', border: '1px solid #333' }}>
-                  <button className="dropdown-item text-danger" onClick={() => { logout(); navigate('/login'); }} style={{ color: '#ff4d4f' }}>
+                <div className="erp-dropdown-menu" style={{ display: 'flex', top: '100%', right: 0, left: 'auto', transform: 'none', marginTop: '12px' }}>
+                  <button className="erp-dropdown-item text-danger" onClick={() => { logout(); navigate('/login'); }} style={{ color: 'var(--danger)' }}>
                     <LogOut size={16} /> Sign out
                   </button>
                 </div>
