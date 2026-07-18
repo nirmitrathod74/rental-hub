@@ -48,6 +48,13 @@ const AppContent = () => {
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/vendor-signup" element={<VendorSignup />} />
         <Route path="/reset-password" element={<ResetPassword />} />
+        
+        {/* Authenticated Admin Routes - Outside AppShell */}
+        <Route path="/admin" element={
+          <ProtectedRoute roles={['admin']}>
+            <AdminDashboard />
+          </ProtectedRoute>
+        } />
 
         {/* App Routes - Inside AppShell */}
         <Route path="*" element={
@@ -69,13 +76,6 @@ const AppContent = () => {
               <Route path="/profile" element={
                 <ProtectedRoute roles={['client', 'admin']}>
                   <Profile />
-                </ProtectedRoute>
-              } />
-
-              {/* Authenticated Admin Routes */}
-              <Route path="/admin" element={
-                <ProtectedRoute roles={['admin']}>
-                  <AdminDashboard />
                 </ProtectedRoute>
               } />
               
