@@ -16,6 +16,7 @@ import {
 } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
 import { validateRequired } from '../utils/validation.js';
+import RentalScheduler from '../components/RentalScheduler.jsx';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
@@ -476,7 +477,7 @@ export const AdminDashboard = () => {
             </div>
           </div>
 
-          <div className="erp-nav-item" onClick={() => setActiveTab('dashboard')} style={activeTab === 'dashboard' ? {opacity: 1} : {}}>
+          <div className="erp-nav-item" onClick={() => setActiveTab('schedule')} style={activeTab === 'schedule' ? {opacity: 1} : {}}>
             Schedule
           </div>
 
@@ -548,6 +549,13 @@ export const AdminDashboard = () => {
 
       <div className="page fade-in admin-erp-layout" style={{ display: 'block', padding: '24px', flex: 1 }}>
         
+        {/* SCHEDULE TAB */}
+        {activeTab === 'schedule' && (
+          <div className="fade-in" style={{ height: 'calc(100vh - 120px)' }}>
+            <RentalScheduler setActiveTab={setActiveTab} />
+          </div>
+        )}
+
         {/* DASHBOARD TAB */}
         {activeTab === 'dashboard' && (
           <div className="fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
