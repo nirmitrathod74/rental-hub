@@ -33,3 +33,25 @@ export const validateRequired = (value, fieldName) => {
   if (!value || value.trim() === '') return `${fieldName} is required`;
   return '';
 };
+
+export const validateCardNumber = (number) => {
+  if (!number) return 'Card number is required';
+  const cleanNumber = number.replace(/\s+/g, '');
+  if (!/^\d{16}$/.test(cleanNumber)) return 'Please enter a valid 16-digit card number';
+  return '';
+};
+
+export const validateExpiry = (expiry) => {
+  if (!expiry) return 'Expiry date is required';
+  if (!/^(0[1-9]|1[0-2])\/\d{2}$/.test(expiry)) return 'Please enter a valid expiry date (MM/YY)';
+  const [month, year] = expiry.split('/');
+  const expiryDate = new Date(2000 + parseInt(year), parseInt(month) - 1);
+  if (expiryDate < new Date()) return 'Card has expired';
+  return '';
+};
+
+export const validateCvv = (cvv) => {
+  if (!cvv) return 'CVV is required';
+  if (!/^\d{3,4}$/.test(cvv)) return 'Please enter a valid 3 or 4-digit CVV';
+  return '';
+};

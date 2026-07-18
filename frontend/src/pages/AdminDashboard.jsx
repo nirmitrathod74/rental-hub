@@ -10,6 +10,7 @@ import {
   Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend
 } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
+import { validateRequired } from '../utils/validation.js';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
@@ -45,6 +46,7 @@ export const AdminDashboard = () => {
   const [newProdLateRate, setNewProdLateRate] = useState('');
   const [newProdGrace, setNewProdGrace] = useState('2');
   const [newProdSuccess, setNewProdSuccess] = useState('');
+  const [prodFieldErrors, setProdFieldErrors] = useState({});
 
   const fetchAdminData = async () => {
     setLoading(true);
@@ -162,6 +164,22 @@ export const AdminDashboard = () => {
   const handleCreateProduct = async (e) => {
     e.preventDefault();
     setNewProdSuccess('');
+    
+    const errors = {};
+    errors.name = validateRequired(newProdName, 'Asset Name');
+    errors.sku = validateRequired(newProdSku, 'SKU');
+    errors.category = validateRequired(newProdCat, 'Category');
+    errors.description = validateRequired(newProdDesc, 'Description');
+    errors.price = validateRequired(newProdPrice, 'Base Rate');
+    errors.stock = validateRequired(newProdStock, 'Stock Quantity');
+    errors.depVal = validateRequired(newProdDepVal, 'Deposit Value');
+    errors.lateRate = validateRequired(newProdLateRate, 'Penalty Rate');
+    errors.grace = validateRequired(newProdGrace, 'Grace Hours');
+
+    Object.keys(errors).forEach(key => !errors[key] && delete errors[key]);
+    setProdFieldErrors(errors);
+    if (Object.keys(errors).length > 0) return;
+
     try {
       const payload = {
         name: newProdName,
@@ -353,32 +371,38 @@ export const AdminDashboard = () => {
               <div style={{ display: 'flex', gap: '16px' }}>
                 <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
                   <label style={{ fontSize: '12px', color: 'hsl(var(--text-secondary))' }}>Asset Name</label>
-                  <input type="text" className="glass-input" value={newProdName} onChange={e => setNewProdName(e.target.value)} required />
+                  <input type="text" className={`glass-input ${prodFieldErrors?.name ? 'input-error' : ''}`} value={newProdName} onChange={e => { setNewProdName(e.target.value); setProdFieldErrors({...prodFieldErrors, name: ''}); }} />
+                  {prodFieldErrors?.name && <span className="field-error">{prodFieldErrors.name}</span>}
                 </div>
                 <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
                   <label style={{ fontSize: '12px', color: 'hsl(var(--text-secondary))' }}>SKU (Unique)</label>
-                  <input type="text" className="glass-input" value={newProdSku} onChange={e => setNewProdSku(e.target.value)} required />
+                  <input type="text" className={`glass-input ${prodFieldErrors?.sku ? 'input-error' : ''}`} value={newProdSku} onChange={e => { setNewProdSku(e.target.value); setProdFieldErrors({...prodFieldErrors, sku: ''}); }} />
+                  {prodFieldErrors?.sku && <span className="field-error">{prodFieldErrors.sku}</span>}
                 </div>
                 <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
                   <label style={{ fontSize: '12px', color: 'hsl(var(--text-secondary))' }}>Category</label>
-                  <select className="glass-input" value={newProdCat} onChange={e => setNewProdCat(e.target.value)} required>
+                  <select className={`glass-input ${prodFieldErrors?.category ? 'input-error' : ''}`} value={newProdCat} onChange={e => { setNewProdCat(e.target.value); setProdFieldErrors({...prodFieldErrors, category: ''}); }}>
                     <option value="">Select Category</option>
                     {categories.map(c => (<option key={c.id} value={c.id}>{c.name}</option>))}
                   </select>
+                  {prodFieldErrors?.category && <span className="field-error">{prodFieldErrors.category}</span>}
                 </div>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                 <label style={{ fontSize: '12px', color: 'hsl(var(--text-secondary))' }}>Description</label>
-                <textarea className="glass-input" value={newProdDesc} onChange={e => setNewProdDesc(e.target.value)} rows={2} required />
+                <textarea className={`glass-input ${prodFieldErrors?.description ? 'input-error' : ''}`} value={newProdDesc} onChange={e => { setNewProdDesc(e.target.value); setProdFieldErrors({...prodFieldErrors, description: ''}); }} rows={2} />
+                {prodFieldErrors?.description && <span className="field-error">{prodFieldErrors.description}</span>}
               </div>
               <div style={{ display: 'flex', gap: '16px' }}>
                 <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
                   <label style={{ fontSize: '12px', color: 'hsl(var(--text-secondary))' }}>Base Rate ($/day)</label>
-                  <input type="number" className="glass-input" value={newProdPrice} onChange={e => setNewProdPrice(e.target.value)} required />
+                  <input type="number" className={`glass-input ${prodFieldErrors?.price ? 'input-error' : ''}`} value={newProdPrice} onChange={e => { setNewProdPrice(e.target.value); setProdFieldErrors({...prodFieldErrors, price: ''}); }} />
+                  {prodFieldErrors?.price && <span className="field-error">{prodFieldErrors.price}</span>}
                 </div>
                 <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
                   <label style={{ fontSize: '12px', color: 'hsl(var(--text-secondary))' }}>Initial Stock Qty</label>
-                  <input type="number" className="glass-input" value={newProdStock} onChange={e => setNewProdStock(e.target.value)} required />
+                  <input type="number" className={`glass-input ${prodFieldErrors?.stock ? 'input-error' : ''}`} value={newProdStock} onChange={e => { setNewProdStock(e.target.value); setProdFieldErrors({...prodFieldErrors, stock: ''}); }} />
+                  {prodFieldErrors?.stock && <span className="field-error">{prodFieldErrors.stock}</span>}
                 </div>
               </div>
               <div style={{ display: 'flex', gap: '16px' }}>
@@ -391,7 +415,8 @@ export const AdminDashboard = () => {
                 </div>
                 <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
                   <label style={{ fontSize: '12px', color: 'hsl(var(--text-secondary))' }}>Deposit Value</label>
-                  <input type="number" className="glass-input" value={newProdDepVal} onChange={e => setNewProdDepVal(e.target.value)} required />
+                  <input type="number" className={`glass-input ${prodFieldErrors?.depVal ? 'input-error' : ''}`} value={newProdDepVal} onChange={e => { setNewProdDepVal(e.target.value); setProdFieldErrors({...prodFieldErrors, depVal: ''}); }} />
+                  {prodFieldErrors?.depVal && <span className="field-error">{prodFieldErrors.depVal}</span>}
                 </div>
               </div>
               <div className="glass-panel" style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -410,11 +435,13 @@ export const AdminDashboard = () => {
                   </div>
                   <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
                     <label style={{ fontSize: '11px', color: 'hsl(var(--text-secondary))' }}>Penalty Rate ($)</label>
-                    <input type="number" className="glass-input" value={newProdLateRate} onChange={e => setNewProdLateRate(e.target.value)} required />
+                    <input type="number" className={`glass-input ${prodFieldErrors?.lateRate ? 'input-error' : ''}`} value={newProdLateRate} onChange={e => { setNewProdLateRate(e.target.value); setProdFieldErrors({...prodFieldErrors, lateRate: ''}); }} />
+                    {prodFieldErrors?.lateRate && <span className="field-error">{prodFieldErrors.lateRate}</span>}
                   </div>
                   <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
                     <label style={{ fontSize: '11px', color: 'hsl(var(--text-secondary))' }}>Grace Hours</label>
-                    <input type="number" className="glass-input" value={newProdGrace} onChange={e => setNewProdGrace(e.target.value)} required />
+                    <input type="number" className={`glass-input ${prodFieldErrors?.grace ? 'input-error' : ''}`} value={newProdGrace} onChange={e => { setNewProdGrace(e.target.value); setProdFieldErrors({...prodFieldErrors, grace: ''}); }} />
+                    {prodFieldErrors?.grace && <span className="field-error">{prodFieldErrors.grace}</span>}
                   </div>
                 </div>
               </div>

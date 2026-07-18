@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext.jsx';
 import { api } from '../api/index.js';
 import { CheckCircle2, ShieldCheck, Lock, CreditCard } from 'lucide-react';
+import { validateRequired, validateCardNumber, validateExpiry, validateCvv } from '../utils/validation.js';
 
 export const Checkout = () => {
   const {
@@ -23,6 +24,7 @@ export const Checkout = () => {
   const [cardExpiry, setCardExpiry] = useState('');
   const [cardCvv, setCardCvv] = useState('');
   
+  const [fieldErrors, setFieldErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
   const [successOrder, setSuccessOrder] = useState(null);
   const [invoiceUrl, setInvoiceUrl] = useState('');
@@ -40,9 +42,23 @@ export const Checkout = () => {
   const finalDelivery = fulfillmentType === 'delivery' ? 50.00 : 0.00;
   const totalDue = finalRent + totalDeposit + finalDelivery;
 
+  const validateForm = () => {
+    const errors = {};
+    errors.cardName = validateRequired(cardName, 'Cardholder Name');
+    errors.cardNumber = validateCardNumber(cardNumber);
+    errors.cardExpiry = validateExpiry(cardExpiry);
+    errors.cardCvv = validateCvv(cardCvv);
+
+    Object.keys(errors).forEach(key => !errors[key] && delete errors[key]);
+    setFieldErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   const handlePaySubmit = async (e) => {
     e.preventDefault();
     setError('');
+    if (!validateForm()) return;
+    
     setSubmitting(true);
 
     try {
@@ -178,60 +194,69 @@ export const Checkout = () => {
         gap: '32px',
         alignItems: 'start'
       }}>
-        <form onSubmit={handlePaySubmit} className="glass-panel" style={{ padding: '32px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        <form onSubmit={handlePaySubmit} noValidate className="glass-panel" style={{ padding: '32px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
           <h3 style={{ fontSize: '18px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px' }}>
             <CreditCard size={18} style={{ color: 'hsl(var(--primary))' }} /> Payment Details
           </h3>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
             <label style={{ fontSize: '12px', fontWeight: 600, color: 'hsl(var(--text-secondary))' }}>Cardholder Name</label>
             <input
               type="text"
-              className="glass-input"
+              className={`glass-input ${fieldErrors.cardName ? 'input-error' : ''}`}
               value={cardName}
-              onChange={(e) => setCardName(e.target.value)}
+              onChange={(e) => { setCardName(e.target.value); setFieldErrors({ ...fieldErrors, cardName: '' }); }}
               placeholder="e.g. John Doe"
-              required
             />
+            {fieldErrors.cardName && <span className="field-error">{fieldErrors.cardName}</span>}
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
             <label style={{ fontSize: '12px', fontWeight: 600, color: 'hsl(var(--text-secondary))' }}>Card Number</label>
             <input
               type="text"
-              className="glass-input"
+              className={`glass-input ${fieldErrors.cardNumber ? 'input-error' : ''}`}
               value={cardNumber}
-              onChange={(e) => setCardNumber(e.target.value.replace(/\s?/g, '').replace(/(\d{4})/g, '$1 ').trim())}
+              onChange={(e) => {
+                setCardNumber(e.target.value.replace(/\s?/g, '').replace(/(\d{4})/g, '$1 ').trim());
+                setFieldErrors({ ...fieldErrors, cardNumber: '' });
+              }}
               placeholder="0000 0000 0000 0000"
               maxLength={19}
-              required
             />
+            {fieldErrors.cardNumber && <span className="field-error">{fieldErrors.cardNumber}</span>}
           </div>
 
           <div style={{ display: 'flex', gap: '16px' }}>
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '6px' }}>
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
               <label style={{ fontSize: '12px', fontWeight: 600, color: 'hsl(var(--text-secondary))' }}>Expiry Date</label>
               <input
                 type="text"
-                className="glass-input"
+                className={`glass-input ${fieldErrors.cardExpiry ? 'input-error' : ''}`}
                 value={cardExpiry}
-                onChange={(e) => setCardExpiry(e.target.value)}
+                onChange={(e) => {
+                  setCardExpiry(e.target.value);
+                  setFieldErrors({ ...fieldErrors, cardExpiry: '' });
+                }}
                 placeholder="MM/YY"
                 maxLength={5}
-                required
               />
+              {fieldErrors.cardExpiry && <span className="field-error">{fieldErrors.cardExpiry}</span>}
             </div>
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '6px' }}>
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
               <label style={{ fontSize: '12px', fontWeight: 600, color: 'hsl(var(--text-secondary))' }}>CVV</label>
               <input
                 type="password"
-                className="glass-input"
+                className={`glass-input ${fieldErrors.cardCvv ? 'input-error' : ''}`}
                 value={cardCvv}
-                onChange={(e) => setCardCvv(e.target.value)}
+                onChange={(e) => {
+                  setCardCvv(e.target.value);
+                  setFieldErrors({ ...fieldErrors, cardCvv: '' });
+                }}
                 placeholder="•••"
-                maxLength={3}
-                required
+                maxLength={4}
               />
+              {fieldErrors.cardCvv && <span className="field-error">{fieldErrors.cardCvv}</span>}
             </div>
           </div>
 
