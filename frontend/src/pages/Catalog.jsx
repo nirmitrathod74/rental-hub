@@ -50,11 +50,17 @@ export const Catalog = () => {
   const [selectedDuration, setSelectedDuration] = useState('All Duration');
   const [selectedColor, setSelectedColor] = useState('');
   const [selectedBrands, setSelectedBrands] = useState([]); // Or categories
+  const [minPrice, setMinPrice] = useState(0);
+  const [maxPrice, setMaxPrice] = useState(10000);
 
-  const filteredProducts = products.filter(p =>
-    p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    p.sku.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredProducts = products.filter(p => {
+    const matchesSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                          p.sku.toLowerCase().includes(searchTerm.toLowerCase());
+    const price = parseFloat(p.calculated_price) || parseFloat(p.base_price) || 0;
+    const matchesPrice = price >= minPrice && price <= maxPrice;
+    
+    return matchesSearch && matchesPrice;
+  });
 
   const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
   const currentProducts = filteredProducts.slice(
@@ -165,16 +171,40 @@ export const Catalog = () => {
           <div className="filter-block">
             <div className="filter-block-title">Price Range</div>
 
-            <div className="price-slider-wrap">
+            <div className="price-slider-wrap dual-range" style={{ position: 'relative' }}>
               <div className="price-slider-labels">
-                <span>$1.0</span>
-                <span>$10000.0</span>
+                <span>${minPrice}</span>
+                <span>${maxPrice}</span>
               </div>
               <div className="price-slider-track">
-                <div className="price-slider-fill" style={{ left: '0%', right: '30%' }} />
-                <div className="price-slider-thumb left" style={{ left: '0%' }} />
-                <div className="price-slider-thumb right" style={{ right: '30%' }} />
+                <div className="price-slider-fill" style={{ left: `${(minPrice / 10000) * 100}%`, right: `${100 - (maxPrice / 10000) * 100}%` }} />
+                <div className="price-slider-thumb left" style={{ left: `${(minPrice / 10000) * 100}%` }} />
+                <div className="price-slider-thumb right" style={{ right: `${100 - (maxPrice / 10000) * 100}%` }} />
               </div>
+              <input 
+                type="range" 
+                min={0} 
+                max={10000} 
+                step={10}
+                value={minPrice} 
+                onChange={(e) => {
+                  const val = Math.min(Number(e.target.value), maxPrice - 10);
+                  setMinPrice(val);
+                  setCurrentPage(1);
+                }}
+              />
+              <input 
+                type="range" 
+                min={0} 
+                max={10000} 
+                step={10}
+                value={maxPrice} 
+                onChange={(e) => {
+                  const val = Math.max(Number(e.target.value), minPrice + 10);
+                  setMaxPrice(val);
+                  setCurrentPage(1);
+                }}
+              />
             </div>
           </div>
         </div>
