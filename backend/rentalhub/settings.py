@@ -59,7 +59,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'rentalhub.wsgi'
+WSGI_APPLICATION = 'rentalhub.wsgi.application'
 ASGI_APPLICATION = 'rentalhub.asgi.application'
 
 # Database
@@ -124,7 +124,7 @@ CORS_ALLOW_CREDENTIALS = True
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-        'django.contrib.auth.middleware.AuthenticationMiddleware',
+        'rest_framework.authentication.SessionAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
