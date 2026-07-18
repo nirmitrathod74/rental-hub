@@ -16,6 +16,7 @@ import { VendorSignup } from './pages/VendorSignup.jsx';
 import { About } from './pages/About.jsx';
 import { Terms } from './pages/Terms.jsx';
 import { Contact } from './pages/Contact.jsx';
+import { ResetPassword } from './pages/ResetPassword.jsx';
 
 // Protected Route components
 const ProtectedRoute = ({ children, roles }) => {
@@ -45,6 +46,7 @@ const AppContent = () => {
         <Route path="/signup" element={<Signup />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/vendor-signup" element={<VendorSignup />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
 
         {/* App Routes - Inside AppShell */}
         <Route path="*" element={

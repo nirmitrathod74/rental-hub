@@ -18,18 +18,34 @@ const getHeaders = () => {
   return headers;
 };
 
+const handleResponse = async (response) => {
+  if (!response.ok) {
+    const err = await response.json().catch(() => ({}));
+    let errorMessage = err.detail || err.error || err.message;
+    if (err.errors && typeof err.errors === 'object') {
+      const firstField = Object.keys(err.errors)[0];
+      const fieldError = err.errors[firstField];
+      if (Array.isArray(fieldError) && fieldError.length > 0) {
+        errorMessage = `${firstField}: ${fieldError[0]}`;
+      } else if (typeof fieldError === 'string') {
+        errorMessage = `${firstField}: ${fieldError}`;
+      }
+    }
+    if (!errorMessage && Object.keys(err).length) {
+      errorMessage = JSON.stringify(err);
+    }
+    throw new Error(errorMessage || 'API Request Failed');
+  }
+  return response.json();
+};
+
 export const api = {
   get: async (endpoint) => {
     const response = await fetch(`${BASE_URL}${endpoint}`, {
       method: 'GET',
       headers: getHeaders(),
     });
-    if (!response.ok) {
-      const err = await response.json().catch(() => ({}));
-      const errorMsg = err.detail || err.error || (Object.keys(err).length ? JSON.stringify(err) : 'API Request Failed');
-      throw new Error(errorMsg);
-    }
-    return response.json();
+    return handleResponse(response);
   },
 
   post: async (endpoint, body) => {
@@ -44,12 +60,7 @@ export const api = {
       headers: headers,
       body: isFormData ? body : JSON.stringify(body),
     });
-    if (!response.ok) {
-      const err = await response.json().catch(() => ({}));
-      const errorMsg = err.detail || err.error || (Object.keys(err).length ? JSON.stringify(err) : 'API Request Failed');
-      throw new Error(errorMsg);
-    }
-    return response.json();
+    return handleResponse(response);
   },
 
   put: async (endpoint, body) => {
@@ -63,12 +74,7 @@ export const api = {
       headers: headers,
       body: isFormData ? body : JSON.stringify(body),
     });
-    if (!response.ok) {
-      const err = await response.json().catch(() => ({}));
-      const errorMsg = err.detail || err.error || (Object.keys(err).length ? JSON.stringify(err) : 'API Request Failed');
-      throw new Error(errorMsg);
-    }
-    return response.json();
+    return handleResponse(response);
   },
 
   delete: async (endpoint) => {
@@ -76,11 +82,6 @@ export const api = {
       method: 'DELETE',
       headers: getHeaders(),
     });
-    if (!response.ok) {
-      const err = await response.json().catch(() => ({}));
-      const errorMsg = err.detail || err.error || (Object.keys(err).length ? JSON.stringify(err) : 'API Request Failed');
-      throw new Error(errorMsg);
-    }
-    return response.json();
+    return handleResponse(response);
   },
 };

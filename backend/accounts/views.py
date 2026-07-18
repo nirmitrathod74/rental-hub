@@ -4,11 +4,16 @@ from rest_framework.decorators import action
 from rest_framework.views import APIView
 from rest_framework_simplejwt.views import TokenObtainPairView
 from django.contrib.auth import get_user_model
+from django.utils.http import urlsafe_base64_decode
+from django.utils.encoding import force_str
+from django.contrib.auth.tokens import default_token_generator
+from django.conf import settings
 from accounts.serializers import (
     UserSerializer, RegisterSerializer, CustomTokenObtainPairSerializer
 )
 from accounts.repositories import UserRepository
 from accounts.services import UserService
+from accounts.utils import send_password_reset_email
 
 User = get_user_model()
 
@@ -113,3 +118,47 @@ class CustomerViewSet(viewsets.ModelViewSet):
             return standard_response(False, "Validation failed", errors=serializer.errors, status_code=400)
         user = serializer.save()
         return standard_response(True, "Customer created", data=UserSerializer(user).data, status_code=201)
+
+
+class PasswordResetRequestView(APIView):
+    permission_classes = (permissions.AllowAny,)
+
+    def post(self, request, *args, **kwargs):
+        email = request.data.get('email', '')
+        if not email:
+            return standard_response(False, "Email is required", status_code=400)
+        
+        try:
+            users = User.objects.filter(email=email, is_active=True)
+            if users.exists():
+                for user in users:
+                    send_password_reset_email(user)
+            # Prevent user enumeration by returning success regardless
+            return standard_response(True, "If an account matches that email, we have sent instructions to reset your password.")
+        except Exception as e:
+            return standard_response(False, str(e), status_code=400)
+
+
+class PasswordResetConfirmView(APIView):
+    permission_classes = (permissions.AllowAny,)
+
+    def post(self, request, *args, **kwargs):
+        uidb64 = request.data.get('uid', '')
+        token = request.data.get('token', '')
+        new_password = request.data.get('new_password', '')
+        
+        if not uidb64 or not token or not new_password:
+            return standard_response(False, "Missing required fields", status_code=400)
+            
+        try:
+            uid = force_str(urlsafe_base64_decode(uidb64))
+            user = User.objects.get(pk=uid)
+        except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+            user = None
+            
+        if user is not None and default_token_generator.check_token(user, token):
+            user.set_password(new_password)
+            user.save()
+            return standard_response(True, "Password has been reset successfully.")
+        else:
+            return standard_response(False, "The reset link is invalid or has expired.", status_code=400)
