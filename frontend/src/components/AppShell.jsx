@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link, NavLink, useNavigate } from 'react-router-dom';
+import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { Bell, Boxes, CalendarDays, ClipboardList, LayoutDashboard, LogOut, PackageSearch, Search, ShoppingCart, UserRound } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useCart } from '../context/CartContext.jsx';
@@ -10,10 +10,13 @@ export const AppShell = ({ children }) => {
   const { user, logout } = useAuth();
   const { cart } = useCart();
   const navigate = useNavigate();
+  const location = useLocation();
   const cartCount = cart.reduce((total, item) => total + item.quantity, 0);
   const signOut = () => { logout(); navigate('/login'); };
 
-  return <div className={`app-shell ${user ? 'with-sidebar' : ''}`}>
+  const hideSidebar = user?.role === 'admin' && location.pathname === '/admin';
+
+  return <div className={`app-shell ${user && !hideSidebar ? 'with-sidebar' : ''}`}>
     <header className="topbar">
       <Link className="brand" to="/"><span className="brand-mark"><Boxes size={17} /></span>RentalHub ERP</Link>
       <div className="topbar-search"><Search size={15} /><input aria-label="Global search" placeholder="Search equipment, rentals, customers…" /></div>
@@ -23,7 +26,7 @@ export const AppShell = ({ children }) => {
         {user ? <div className="account-menu"><span className="avatar">{user.avatar ? <img src={`http://localhost:8000${user.avatar}`} alt="" /> : user.username?.slice(0, 1).toUpperCase()}</span><span className="account-copy">{user.username}<small>{user.role}</small></span><button className="topbar-icon" onClick={signOut} aria-label="Sign out"><LogOut size={17} /></button></div> : <><Link className="btn-secondary" to="/login">Sign in</Link><Link className="btn btn-primary" to="/signup">Start now</Link></>}
       </div>
     </header>
-    {user && <aside className="sidebar"><nav className="sidebar-nav">
+    {user && !hideSidebar && <aside className="sidebar"><nav className="sidebar-nav">
       <span className="nav-label">Workspace</span>
       {user.role === 'admin' && <NavItem to="/admin" icon={LayoutDashboard}>Overview</NavItem>}
       <NavItem to="/" icon={PackageSearch}>Equipment</NavItem>
