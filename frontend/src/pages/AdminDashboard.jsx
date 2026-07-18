@@ -45,6 +45,8 @@ export const AdminDashboard = () => {
   const [newProdLateType, setNewProdLateType] = useState('daily');
   const [newProdLateRate, setNewProdLateRate] = useState('');
   const [newProdGrace, setNewProdGrace] = useState('2');
+  const [newProdImage, setNewProdImage] = useState(null);
+  const [newProdImagePreview, setNewProdImagePreview] = useState(null);
   const [newProdSuccess, setNewProdSuccess] = useState('');
   const [prodFieldErrors, setProdFieldErrors] = useState({});
 
@@ -161,6 +163,14 @@ export const AdminDashboard = () => {
     }
   };
 
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setNewProdImage(file);
+      setNewProdImagePreview(URL.createObjectURL(file));
+    }
+  };
+
   const handleCreateProduct = async (e) => {
     e.preventDefault();
     setNewProdSuccess('');
@@ -181,28 +191,105 @@ export const AdminDashboard = () => {
     if (Object.keys(errors).length > 0) return;
 
     try {
-      const payload = {
-        name: newProdName,
-        sku: newProdSku,
-        category: newProdCat || null,
-        description: newProdDesc,
-        base_price: newProdPrice,
-        security_deposit_type: newProdDepType,
-        security_deposit_value: newProdDepVal,
-        stock_qty: parseInt(newProdStock) || 0,
-        available_qty: parseInt(newProdStock) || 0,
-        late_fee_type: newProdLateType,
-        late_fee_rate: newProdLateRate,
-        grace_period_hours: parseInt(newProdGrace) || 0
-      };
+      const payload = new FormData();
+      payload.append('name', newProdName);
+      payload.append('sku', newProdSku);
+      if (newProdCat) payload.append('category', newProdCat);
+      payload.append('description', newProdDesc);
+      payload.append('base_price', newProdPrice);
+      payload.append('security_deposit_type', newProdDepType);
+      payload.append('security_deposit_value', newProdDepVal);
+      payload.append('stock_qty', parseInt(newProdStock) || 0);
+      payload.append('available_qty', parseInt(newProdStock) || 0);
+      payload.append('late_fee_type', newProdLateType);
+      payload.append('late_fee_rate', newProdLateRate);
+      payload.append('grace_period_hours', parseInt(newProdGrace) || 0);
+      
+      if (newProdImage) {
+        payload.append('image', newProdImage);
+      }
+
       const freshProd = await api.post('/inventory/products/', payload);
       setProducts(prev => [...prev, freshProd]);
       setNewProdSuccess('Product registered successfully!');
       setNewProdName(''); setNewProdSku(''); setNewProdCat(''); setNewProdDesc('');
       setNewProdPrice(''); setNewProdDepVal(''); setNewProdLateRate('');
+      setNewProdImage(null); setNewProdImagePreview(null);
     } catch (err) {
       alert(err.message || 'Failed to register product.');
     }
+  };
+
+  const [editingCategory, setEditingCategory] = useState(null);
+  const [newCatName, setNewCatName] = useState('');
+  const [newCatDesc, setNewCatDesc] = useState('');
+
+  const [editingProduct, setEditingProduct] = useState(null);
+
+  const handleCreateCategory = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await api.post('/inventory/categories/', { name: newCatName, description: newCatDesc });
+      setCategories([...categories, res]);
+      setNewCatName(''); setNewCatDesc('');
+    } catch (err) { alert(err.message); }
+  };
+
+  const handleUpdateCategory = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await api.put(`/inventory/categories/${editingCategory.id}/`, { name: editingCategory.name, description: editingCategory.description });
+      setCategories(categories.map(c => c.id === editingCategory.id ? res : c));
+      setEditingCategory(null);
+    } catch (err) { alert(err.message); }
+  };
+
+  const handleDeleteCategory = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this category?")) return;
+    try {
+      await api.delete(`/inventory/categories/${id}/`);
+      setCategories(categories.filter(c => c.id !== id));
+      // Optionally re-fetch products to reflect null categories
+      const productRes = await api.get('/inventory/products/');
+      setProducts(productRes.data || productRes);
+    } catch (err) { alert(err.message); }
+  };
+
+  const handleUpdateProduct = async (e) => {
+    e.preventDefault();
+    try {
+      const payload = new FormData();
+      payload.append('name', editingProduct.name);
+      payload.append('sku', editingProduct.sku);
+      if (editingProduct.category) payload.append('category', editingProduct.category);
+      payload.append('description', editingProduct.description || '');
+      payload.append('base_price', editingProduct.base_price);
+      payload.append('security_deposit_type', editingProduct.security_deposit_type || 'fixed');
+      payload.append('security_deposit_value', editingProduct.security_deposit_value || 0);
+      payload.append('stock_qty', editingProduct.stock_qty || 0);
+      payload.append('available_qty', editingProduct.available_qty || 0);
+      payload.append('late_fee_type', editingProduct.late_fee_type || 'daily');
+      payload.append('late_fee_rate', editingProduct.late_fee_rate || 0);
+      payload.append('grace_period_hours', editingProduct.grace_period_hours || 0);
+      
+      if (newProdImage) {
+        payload.append('image', newProdImage);
+      }
+
+      const res = await api.put(`/inventory/products/${editingProduct.id}/`, payload);
+      setProducts(products.map(p => p.id === editingProduct.id ? res : p));
+      setEditingProduct(null);
+      setNewProdImage(null);
+      setNewProdImagePreview(null);
+    } catch (err) { alert(err.message); }
+  };
+
+  const handleDeleteProduct = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this product?")) return;
+    try {
+      await api.delete(`/inventory/products/${id}/`);
+      setProducts(products.filter(p => p.id !== id));
+    } catch (err) { alert(err.message); }
   };
 
   if (loading) {
@@ -445,6 +532,22 @@ export const AdminDashboard = () => {
                   </div>
                 </div>
               </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginBottom: '8px' }}>
+                <label style={{ fontSize: '12px', color: 'hsl(var(--text-secondary))' }}>Product Image</label>
+                {newProdImagePreview && (
+                  <div style={{ marginBottom: '8px' }}>
+                    <img src={newProdImagePreview} alt="Preview" style={{ maxHeight: '120px', borderRadius: '6px', objectFit: 'cover' }} />
+                  </div>
+                )}
+                <div style={{ position: 'relative', width: '100%' }}>
+                  <input type="file" accept="image/*" onChange={handleImageChange} style={{ position: 'absolute', width: '100%', height: '100%', opacity: 0, cursor: 'pointer' }} />
+                  <div style={{ padding: '12px', border: '2px dashed hsl(var(--border-glass))', borderRadius: '6px', backgroundColor: 'var(--extra-light)', color: 'hsl(var(--text-muted))', fontSize: '12px', textAlign: 'center', pointerEvents: 'none' }}>
+                    {newProdImage ? newProdImage.name : 'Click or drag to upload image'}
+                  </div>
+                </div>
+              </div>
+
               <button type="submit" className="btn btn-primary" style={{ width: '100%', padding: '12px' }}>Register Product</button>
             </form>
             <div className="glass-panel" style={{ padding: '32px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -463,6 +566,10 @@ export const AdminDashboard = () => {
                         <div style={{ fontSize: '14px', fontWeight: 'bold' }}>{p.available_qty}/{p.stock_qty} available</div>
                         <span className="badge badge-picked_up" style={{ fontSize: '9px' }}>Active</span>
                       </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                        <button onClick={() => setEditingProduct(p)} className="btn btn-secondary" style={{ padding: '4px 8px', fontSize: '12px' }}><Edit size={14} /></button>
+                        <button onClick={() => handleDeleteProduct(p.id)} className="btn btn-secondary" style={{ padding: '4px 8px', fontSize: '12px', border: '1px solid var(--danger)', color: 'var(--danger)' }}><X size={14} /></button>
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -473,18 +580,39 @@ export const AdminDashboard = () => {
 
         {/* CATEGORIES TAB */}
         {activeTab === 'categories' && (
-          <div className="fade-in glass-panel" style={{ padding: '24px' }}>
-            <h3 style={{ fontSize: '18px', fontWeight: 800, color: 'hsl(var(--primary))', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Tags size={18} /> Categories ({categories.length})
-            </h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '16px' }}>
-              {categories.map(c => (
-                <div key={c.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '12px', backgroundColor: 'var(--extra-light)', borderRadius: '6px' }}>
-                  <span style={{ fontWeight: 'bold' }}>{c.name}</span>
-                  <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{c.description || 'No description'}</span>
-                </div>
-              ))}
-              {categories.length === 0 && <span style={{ fontSize: '12px', color: 'hsl(var(--text-muted))' }}>No categories configured.</span>}
+          <div className="fade-in glass-panel" style={{ padding: '24px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '32px' }}>
+            <form onSubmit={handleCreateCategory} className="glass-panel" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <h3 style={{ fontSize: '18px', fontWeight: 800, color: 'hsl(var(--primary))' }}>Create Category</h3>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <label style={{ fontSize: '12px', color: 'hsl(var(--text-secondary))' }}>Name</label>
+                <input type="text" className="glass-input" value={newCatName} onChange={e => setNewCatName(e.target.value)} required />
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <label style={{ fontSize: '12px', color: 'hsl(var(--text-secondary))' }}>Description</label>
+                <input type="text" className="glass-input" value={newCatDesc} onChange={e => setNewCatDesc(e.target.value)} />
+              </div>
+              <button type="submit" className="btn btn-primary" style={{ padding: '10px' }}>Add Category</button>
+            </form>
+
+            <div>
+              <h3 style={{ fontSize: '18px', fontWeight: 800, color: 'hsl(var(--primary))', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Tags size={18} /> Categories ({categories.length})
+              </h3>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '16px' }}>
+                {categories.map(c => (
+                  <div key={c.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px', backgroundColor: 'var(--extra-light)', borderRadius: '6px' }}>
+                    <div>
+                      <div style={{ fontWeight: 'bold' }}>{c.name}</div>
+                      <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{c.description || 'No description'}</div>
+                    </div>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <button onClick={() => setEditingCategory(c)} className="btn btn-secondary" style={{ padding: '4px 8px', fontSize: '12px' }}><Edit size={14} /></button>
+                      <button onClick={() => handleDeleteCategory(c.id)} className="btn btn-secondary" style={{ padding: '4px 8px', fontSize: '12px', border: '1px solid var(--danger)', color: 'var(--danger)' }}><X size={14} /></button>
+                    </div>
+                  </div>
+                ))}
+                {categories.length === 0 && <span style={{ fontSize: '12px', color: 'hsl(var(--text-muted))' }}>No categories configured.</span>}
+              </div>
             </div>
           </div>
         )}
@@ -777,6 +905,136 @@ export const AdminDashboard = () => {
           </div>
         </div>
       )}
+      
+      {/* EDIT CATEGORY MODAL */}
+      {editingCategory && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          backgroundColor: 'rgba(33,37,43,0.5)', backdropFilter: 'blur(5px)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 999, padding: '20px'
+        }}>
+          <form onSubmit={handleUpdateCategory} className="glass-panel" style={{ width: '100%', maxWidth: '400px', padding: '32px', position: 'relative', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <button type="button" onClick={() => setEditingCategory(null)} style={{ position: 'absolute', top: '20px', right: '20px', background: 'none', border: 'none', cursor: 'pointer' }}><X size={20} /></button>
+            <h3 style={{ fontSize: '18px', fontWeight: 800 }}>Edit Category</h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+              <label style={{ fontSize: '12px', color: 'hsl(var(--text-secondary))' }}>Name</label>
+              <input type="text" className="glass-input" value={editingCategory.name} onChange={e => setEditingCategory({...editingCategory, name: e.target.value})} required />
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+              <label style={{ fontSize: '12px', color: 'hsl(var(--text-secondary))' }}>Description</label>
+              <input type="text" className="glass-input" value={editingCategory.description || ''} onChange={e => setEditingCategory({...editingCategory, description: e.target.value})} />
+            </div>
+            <button type="submit" className="btn btn-primary" style={{ padding: '10px', marginTop: '8px' }}>Save Changes</button>
+          </form>
+        </div>
+      )}
+
+      {/* EDIT PRODUCT MODAL */}
+      {editingProduct && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          backgroundColor: 'rgba(33,37,43,0.5)', backdropFilter: 'blur(5px)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 999, padding: '20px'
+        }}>
+          <form onSubmit={handleUpdateProduct} className="glass-panel" style={{ width: '100%', maxWidth: '650px', maxHeight: '90vh', overflowY: 'auto', padding: '32px', position: 'relative', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <button type="button" onClick={() => { setEditingProduct(null); setNewProdImagePreview(null); setNewProdImage(null); }} style={{ position: 'absolute', top: '20px', right: '20px', background: 'none', border: 'none', cursor: 'pointer' }}><X size={20} /></button>
+            <h3 style={{ fontSize: '20px', fontWeight: 800 }}>Edit Product: {editingProduct.name}</h3>
+            
+            <div style={{ display: 'flex', gap: '16px' }}>
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <label style={{ fontSize: '12px', color: 'hsl(var(--text-secondary))' }}>Asset Name</label>
+                <input type="text" className="glass-input" value={editingProduct.name} onChange={e => setEditingProduct({...editingProduct, name: e.target.value})} required />
+              </div>
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <label style={{ fontSize: '12px', color: 'hsl(var(--text-secondary))' }}>SKU (Unique)</label>
+                <input type="text" className="glass-input" value={editingProduct.sku} onChange={e => setEditingProduct({...editingProduct, sku: e.target.value})} required />
+              </div>
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <label style={{ fontSize: '12px', color: 'hsl(var(--text-secondary))' }}>Category</label>
+                <select className="glass-input" value={editingProduct.category || ''} onChange={e => setEditingProduct({...editingProduct, category: e.target.value})}>
+                  <option value="">Select Category</option>
+                  {categories.map(c => (<option key={c.id} value={c.id}>{c.name}</option>))}
+                </select>
+              </div>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+              <label style={{ fontSize: '12px', color: 'hsl(var(--text-secondary))' }}>Description</label>
+              <textarea className="glass-input" value={editingProduct.description || ''} onChange={e => setEditingProduct({...editingProduct, description: e.target.value})} rows={2} />
+            </div>
+            <div style={{ display: 'flex', gap: '16px' }}>
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <label style={{ fontSize: '12px', color: 'hsl(var(--text-secondary))' }}>Base Rate ($/day)</label>
+                <input type="number" className="glass-input" value={editingProduct.base_price} onChange={e => setEditingProduct({...editingProduct, base_price: e.target.value})} required />
+              </div>
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <label style={{ fontSize: '12px', color: 'hsl(var(--text-secondary))' }}>Initial Stock Qty</label>
+                <input type="number" className="glass-input" value={editingProduct.stock_qty} onChange={e => setEditingProduct({...editingProduct, stock_qty: e.target.value})} required />
+              </div>
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <label style={{ fontSize: '12px', color: 'hsl(var(--text-secondary))' }}>Available Qty</label>
+                <input type="number" className="glass-input" value={editingProduct.available_qty} onChange={e => setEditingProduct({...editingProduct, available_qty: e.target.value})} required />
+              </div>
+            </div>
+            
+            <div style={{ display: 'flex', gap: '16px' }}>
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <label style={{ fontSize: '12px', color: 'hsl(var(--text-secondary))' }}>Deposit Policy</label>
+                <select className="glass-input" value={editingProduct.security_deposit_type} onChange={e => setEditingProduct({...editingProduct, security_deposit_type: e.target.value})}>
+                  <option value="fixed">Fixed Cash</option>
+                  <option value="percentage">Percentage (%)</option>
+                </select>
+              </div>
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <label style={{ fontSize: '12px', color: 'hsl(var(--text-secondary))' }}>Deposit Value</label>
+                <input type="number" className="glass-input" value={editingProduct.security_deposit_value} onChange={e => setEditingProduct({...editingProduct, security_deposit_value: e.target.value})} required />
+              </div>
+            </div>
+
+            <div className="glass-panel" style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <span style={{ fontSize: '13px', fontWeight: 700, color: 'hsl(var(--primary))', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <ShieldAlert size={14} /> Late Fee Calculations Rules
+              </span>
+              <div style={{ display: 'flex', gap: '12px' }}>
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                  <label style={{ fontSize: '11px', color: 'hsl(var(--text-secondary))' }}>Billing Strategy</label>
+                  <select className="glass-input" value={editingProduct.late_fee_type} onChange={e => setEditingProduct({...editingProduct, late_fee_type: e.target.value})}>
+                    <option value="hourly">Hourly</option>
+                    <option value="daily">Daily</option>
+                    <option value="weekly">Weekly</option>
+                    <option value="monthly">Monthly</option>
+                  </select>
+                </div>
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                  <label style={{ fontSize: '11px', color: 'hsl(var(--text-secondary))' }}>Penalty Rate ($)</label>
+                  <input type="number" className="glass-input" value={editingProduct.late_fee_rate} onChange={e => setEditingProduct({...editingProduct, late_fee_rate: e.target.value})} required />
+                </div>
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                  <label style={{ fontSize: '11px', color: 'hsl(var(--text-secondary))' }}>Grace Hours</label>
+                  <input type="number" className="glass-input" value={editingProduct.grace_period_hours} onChange={e => setEditingProduct({...editingProduct, grace_period_hours: e.target.value})} required />
+                </div>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginBottom: '8px' }}>
+              <label style={{ fontSize: '12px', color: 'hsl(var(--text-secondary))' }}>Product Image</label>
+              {(newProdImagePreview || editingProduct.image) && (
+                <div style={{ marginBottom: '8px' }}>
+                  <img src={newProdImagePreview || editingProduct.image} alt="Preview" style={{ maxHeight: '120px', borderRadius: '6px', objectFit: 'cover' }} />
+                </div>
+              )}
+              <div style={{ position: 'relative', width: '100%' }}>
+                <input type="file" accept="image/*" onChange={handleImageChange} style={{ position: 'absolute', width: '100%', height: '100%', opacity: 0, cursor: 'pointer' }} />
+                <div style={{ padding: '12px', border: '2px dashed hsl(var(--border-glass))', borderRadius: '6px', backgroundColor: 'var(--extra-light)', color: 'hsl(var(--text-muted))', fontSize: '12px', textAlign: 'center', pointerEvents: 'none' }}>
+                  {newProdImage ? newProdImage.name : 'Click or drag to change image'}
+                </div>
+              </div>
+            </div>
+
+            <button type="submit" className="btn btn-primary" style={{ width: '100%', padding: '12px' }}>Save Product Changes</button>
+          </form>
+        </div>
+      )}
+
     </div>
   );
 };

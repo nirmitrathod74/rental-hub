@@ -36,8 +36,21 @@ class ProductViewSet(viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         # Support bulk creating product + variants in service layer
-        variants_data = request.data.pop('variants', [])
-        serializer = self.get_serializer(data=request.data)
+        data = request.data.copy() if hasattr(request.data, 'copy') else request.data
+        
+        # Inject defaults for fields not provided by the minimal Add Product form
+        if 'security_deposit_value' not in data:
+            data['security_deposit_value'] = '0.00'
+        if 'late_fee_rate' not in data:
+            data['late_fee_rate'] = '0.00'
+        
+        # In multipart/form-data, variants might be a stringified JSON list, or just missing
+        variants_data = data.pop('variants', [])
+        if not isinstance(variants_data, list):
+            # If it's a string from form-data, we could parse it, but for now just default to []
+            variants_data = []
+
+        serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
         
         # Call service layer
@@ -45,6 +58,23 @@ class ProductViewSet(viewsets.ModelViewSet):
         
         result_serializer = self.get_serializer(product)
         return Response(result_serializer.data, status=status.HTTP_201_CREATED)
+
+    def update(self, request, *args, **kwargs):
+        data = request.data.copy() if hasattr(request.data, 'copy') else request.data
+        if 'category' in data and not data['category']:
+            data['category'] = None
+            
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        # Use service layer
+        product = InventoryService.update_product(instance, serializer.validated_data)
+        return Response(self.get_serializer(product).data)
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        InventoryService.delete_product(instance)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(detail=True, methods=['post'], permission_classes=[permissions.IsAdminUser])
     def add_variant(self, request, pk=None):

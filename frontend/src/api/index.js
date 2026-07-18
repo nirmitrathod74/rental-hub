@@ -26,33 +26,47 @@ export const api = {
     });
     if (!response.ok) {
       const err = await response.json().catch(() => ({}));
-      throw new Error(err.detail || err.error || 'API Request Failed');
+      const errorMsg = err.detail || err.error || (Object.keys(err).length ? JSON.stringify(err) : 'API Request Failed');
+      throw new Error(errorMsg);
     }
     return response.json();
   },
 
   post: async (endpoint, body) => {
+    const isFormData = body instanceof FormData;
+    const headers = getHeaders();
+    if (isFormData) {
+      delete headers['Content-Type'];
+    }
+    
     const response = await fetch(`${BASE_URL}${endpoint}`, {
       method: 'POST',
-      headers: getHeaders(),
-      body: JSON.stringify(body),
+      headers: headers,
+      body: isFormData ? body : JSON.stringify(body),
     });
     if (!response.ok) {
       const err = await response.json().catch(() => ({}));
-      throw new Error(err.detail || err.error || 'API Request Failed');
+      const errorMsg = err.detail || err.error || (Object.keys(err).length ? JSON.stringify(err) : 'API Request Failed');
+      throw new Error(errorMsg);
     }
     return response.json();
   },
 
   put: async (endpoint, body) => {
+    const isFormData = body instanceof FormData;
+    const headers = getHeaders();
+    if (isFormData) {
+      delete headers['Content-Type'];
+    }
     const response = await fetch(`${BASE_URL}${endpoint}`, {
       method: 'PUT',
-      headers: getHeaders(),
-      body: JSON.stringify(body),
+      headers: headers,
+      body: isFormData ? body : JSON.stringify(body),
     });
     if (!response.ok) {
       const err = await response.json().catch(() => ({}));
-      throw new Error(err.detail || err.error || 'API Request Failed');
+      const errorMsg = err.detail || err.error || (Object.keys(err).length ? JSON.stringify(err) : 'API Request Failed');
+      throw new Error(errorMsg);
     }
     return response.json();
   },
@@ -64,7 +78,8 @@ export const api = {
     });
     if (!response.ok) {
       const err = await response.json().catch(() => ({}));
-      throw new Error(err.detail || err.error || 'API Request Failed');
+      const errorMsg = err.detail || err.error || (Object.keys(err).length ? JSON.stringify(err) : 'API Request Failed');
+      throw new Error(errorMsg);
     }
     return response.json();
   },
