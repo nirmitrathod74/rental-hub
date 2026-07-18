@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { api, getMediaUrl } from '../api/index.js';
+import { useAuth } from '../context/AuthContext.jsx';
 import { useCart } from '../context/CartContext.jsx';
 import { ShieldCheck, Info, CheckCircle2, ChevronLeft, CalendarClock } from 'lucide-react';
 
@@ -10,6 +11,7 @@ export const ProductDetails = () => {
   const pricelistId = searchParams.get('pricelist_id') || '';
   const navigate = useNavigate();
   const { addToCart } = useCart();
+  const { user } = useAuth();
 
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -50,6 +52,10 @@ export const ProductDetails = () => {
 
   const handleAddToCart = () => {
     if (!product) return;
+    if (!user) {
+      navigate('/login');
+      return;
+    }
     addToCart(product, quantity, selectedVariants);
     setSuccessMsg('Added to cart successfully!');
     setTimeout(() => {
@@ -225,7 +231,7 @@ export const ProductDetails = () => {
               style={{ width: '100%', padding: '14px', fontSize: '15px' }}
               disabled={product.available_qty <= 0}
             >
-              {product.available_qty > 0 ? 'Add to Cart / Quotation' : 'Out of Stock'}
+              {!user ? 'Sign in to Add to Cart' : product.available_qty > 0 ? 'Add to Cart / Quotation' : 'Out of Stock'}
             </button>
           </div>
 
