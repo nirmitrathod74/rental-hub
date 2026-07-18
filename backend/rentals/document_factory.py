@@ -11,11 +11,11 @@ class DocumentFactory:
             subtotal = item.unit_price * item.quantity
             items_html += f"""
             <tr>
-                <td style="padding: 12px; border-bottom: 1px solid #334155; color: #f1f5f9;">{item.product.name}</td>
-                <td style="padding: 12px; border-bottom: 1px solid #334155; text-align: center; color: #f1f5f9;">{item.quantity}</td>
-                <td style="padding: 12px; border-bottom: 1px solid #334155; text-align: right; color: #f1f5f9;">${item.unit_price}</td>
-                <td style="padding: 12px; border-bottom: 1px solid #334155; text-align: right; color: #f1f5f9;">${item.deposit_amount}</td>
-                <td style="padding: 12px; border-bottom: 1px solid #334155; text-align: right; color: #f1f5f9;">${subtotal}</td>
+                <td style="padding: 12px; border-bottom: 1px solid #dee2e6; color: #21252b;">{item.product.name}</td>
+                <td style="padding: 12px; border-bottom: 1px solid #dee2e6; text-align: center; color: #21252b;">{item.quantity}</td>
+                <td style="padding: 12px; border-bottom: 1px solid #dee2e6; text-align: right; color: #21252b;">${item.unit_price}</td>
+                <td style="padding: 12px; border-bottom: 1px solid #dee2e6; text-align: right; color: #21252b;">${item.deposit_amount}</td>
+                <td style="padding: 12px; border-bottom: 1px solid #dee2e6; text-align: right; color: #21252b;">${subtotal}</td>
             </tr>
             """
 
@@ -23,19 +23,20 @@ class DocumentFactory:
         <html>
         <head>
             <style>
-                body {{ font-family: 'Inter', sans-serif; background-color: #0f172a; color: #e2e8f0; margin: 0; padding: 40px; }}
-                .invoice-container {{ max-width: 800px; margin: 0 auto; background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border-radius: 16px; border: 1px solid #334155; padding: 40px; box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); }}
-                .header {{ display: flex; justify-content: space-between; border-bottom: 2px solid #3b82f6; padding-bottom: 20px; margin-bottom: 30px; }}
-                .business-title {{ font-size: 28px; font-weight: 800; color: #3b82f6; }}
-                .invoice-title {{ font-size: 24px; font-weight: 700; text-align: right; }}
+                body {{ font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; background-color: #f9f9f9; color: #21252b; margin: 0; padding: 40px; }}
+                .invoice-container {{ max-width: 800px; margin: 0 auto; background: #ffffff; border-radius: 6px; border: 1px solid #dee2e6; padding: 40px; }}
+                .header {{ display: flex; justify-content: space-between; border-bottom: 2px solid #714B67; padding-bottom: 20px; margin-bottom: 30px; }}
+                .business-title {{ font-size: 28px; font-weight: 800; color: #714B67; }}
+                .invoice-title {{ font-size: 24px; font-weight: 700; text-align: right; color: #714B67; }}
                 .meta-table {{ width: 100%; margin-bottom: 30px; border-collapse: collapse; }}
-                .meta-table td {{ padding: 6px 0; color: #94a3b8; }}
+                .meta-table td {{ padding: 6px 0; color: #6c757d; }}
+                .meta-table td strong {{ color: #21252b; }}
                 .products-table {{ width: 100%; border-collapse: collapse; margin-bottom: 35px; }}
-                .products-table th {{ background-color: #1e293b; color: #3b82f6; text-align: left; padding: 12px; font-weight: 600; }}
+                .products-table th {{ background-color: #f2f2f2; color: #21252b; text-align: left; padding: 12px; border-bottom: 2px solid #dee2e6; font-weight: 600; }}
                 .summary {{ width: 50%; margin-left: auto; }}
                 .summary td {{ padding: 8px 12px; text-align: right; }}
-                .total {{ font-size: 20px; font-weight: 700; color: #3b82f6; }}
-                .footer {{ border-top: 1px solid #334155; padding-top: 20px; margin-top: 40px; text-align: center; font-size: 12px; color: #64748b; }}
+                .total {{ font-size: 20px; font-weight: 700; color: #714B67; }}
+                .footer {{ border-top: 1px solid #dee2e6; padding-top: 20px; margin-top: 40px; text-align: center; font-size: 13px; color: #6c757d; }}
             </style>
         </head>
         <body>
@@ -43,11 +44,11 @@ class DocumentFactory:
                 <div class="header">
                     <div>
                         <div class="business-title">RentalHub</div>
-                        <div>Enterprise Asset Solutions</div>
+                        <div style="color: #6c757d;">Enterprise Asset Solutions</div>
                     </div>
                     <div class="invoice-title">
                         <div>INVOICE</div>
-                        <div style="font-size: 14px; font-weight: normal; color: #94a3b8; margin-top: 5px;">Order #{order.id}</div>
+                        <div style="font-size: 14px; font-weight: normal; color: #6c757d; margin-top: 5px;">Order #{order.id}</div>
                     </div>
                 </div>
 
@@ -66,18 +67,18 @@ class DocumentFactory:
                     </tr>
                     <tr>
                         <td><strong>Shipping Address:</strong> {order.shipping_address or 'Store Pickup Selected'}</td>
-                        <td style="text-align: right;"><strong>Status:</strong> <span style="background-color: #2563eb; color: white; padding: 2px 8px; border-radius: 4px; font-size: 12px;">{order.get_status_display()}</span></td>
+                        <td style="text-align: right;"><strong>Status:</strong> <span style="background-color: #714B67; color: white; padding: 2px 8px; border-radius: 4px; font-size: 12px;">{order.get_status_display()}</span></td>
                     </tr>
                 </table>
 
                 <table class="products-table">
                     <thead>
                         <tr>
-                            <th style="border-top-left-radius: 8px; border-bottom-left-radius: 8px;">Product</th>
+                            <th>Product</th>
                             <th style="text-align: center;">Qty</th>
                             <th style="text-align: right;">Unit Rent</th>
                             <th style="text-align: right;">Unit Deposit</th>
-                            <th style="text-align: right; border-top-right-radius: 8px; border-bottom-right-radius: 8px;">Subtotal</th>
+                            <th style="text-align: right;">Subtotal</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -87,20 +88,20 @@ class DocumentFactory:
 
                 <table class="summary">
                     <tr>
-                        <td style="color: #94a3b8;">Total Rental Fee:</td>
-                        <td style="font-weight: 600; color: #f1f5f9;">${order.total_rent_amount}</td>
+                        <td style="color: #6c757d;">Total Rental Fee:</td>
+                        <td style="font-weight: 600; color: #21252b;">${order.total_rent_amount}</td>
                     </tr>
                     <tr>
-                        <td style="color: #94a3b8;">Total Deposit Held:</td>
-                        <td style="font-weight: 600; color: #f1f5f9;">${order.total_deposit_amount}</td>
+                        <td style="color: #6c757d;">Total Deposit Held:</td>
+                        <td style="font-weight: 600; color: #21252b;">${order.total_deposit_amount}</td>
                     </tr>
                     <tr>
-                        <td style="color: #94a3b8;">Late Return Penalty:</td>
-                        <td style="font-weight: 600; color: #ef4444;">${order.late_fee_charged}</td>
+                        <td style="color: #6c757d;">Late Return Penalty:</td>
+                        <td style="font-weight: 600; color: #dc3545;">${order.late_fee_charged}</td>
                     </tr>
-                    <tr style="border-top: 2px solid #334155;">
-                        <td class="total">Grand Total:</td>
-                        <td class="total">${order.total_rent_amount + order.total_deposit_amount + order.late_fee_charged}</td>
+                    <tr style="border-top: 2px solid #dee2e6;">
+                        <td class="total" style="padding-top: 12px;">Grand Total:</td>
+                        <td class="total" style="padding-top: 12px;">${order.total_rent_amount + order.total_deposit_amount + order.late_fee_charged}</td>
                     </tr>
                 </table>
 
@@ -124,11 +125,11 @@ class DocumentFactory:
             subtotal = item.unit_price * item.quantity
             items_html += f"""
             <tr>
-                <td style="padding: 12px; border-bottom: 1px solid #334155; color: #f1f5f9;">{item.product.name}</td>
-                <td style="padding: 12px; border-bottom: 1px solid #334155; text-align: center; color: #f1f5f9;">{item.quantity}</td>
-                <td style="padding: 12px; border-bottom: 1px solid #334155; text-align: right; color: #f1f5f9;">${item.unit_price}</td>
-                <td style="padding: 12px; border-bottom: 1px solid #334155; text-align: right; color: #f1f5f9;">${item.deposit_amount}</td>
-                <td style="padding: 12px; border-bottom: 1px solid #334155; text-align: right; color: #f1f5f9;">${subtotal}</td>
+                <td style="padding: 12px; border-bottom: 1px solid #dee2e6; color: #21252b;">{item.product.name}</td>
+                <td style="padding: 12px; border-bottom: 1px solid #dee2e6; text-align: center; color: #21252b;">{item.quantity}</td>
+                <td style="padding: 12px; border-bottom: 1px solid #dee2e6; text-align: right; color: #21252b;">${item.unit_price}</td>
+                <td style="padding: 12px; border-bottom: 1px solid #dee2e6; text-align: right; color: #21252b;">${item.deposit_amount}</td>
+                <td style="padding: 12px; border-bottom: 1px solid #dee2e6; text-align: right; color: #21252b;">${subtotal}</td>
             </tr>
             """
 
@@ -136,19 +137,20 @@ class DocumentFactory:
         <html>
         <head>
             <style>
-                body {{ font-family: 'Inter', sans-serif; background-color: #0f172a; color: #e2e8f0; margin: 0; padding: 40px; }}
-                .container {{ max-width: 800px; margin: 0 auto; background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border-radius: 16px; border: 1px solid #334155; padding: 40px; }}
-                .header-banner {{ border-bottom: 2px solid #10b981; padding-bottom: 15px; margin-bottom: 30px; }}
-                .custom-header {{ color: #10b981; font-size: 20px; margin-bottom: 10px; }}
-                .title {{ font-size: 26px; font-weight: 700; text-align: right; color: #10b981; }}
+                body {{ font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; background-color: #f9f9f9; color: #21252b; margin: 0; padding: 40px; }}
+                .container {{ max-width: 800px; margin: 0 auto; background: #ffffff; border-radius: 6px; border: 1px solid #dee2e6; padding: 40px; }}
+                .header-banner {{ border-bottom: 2px solid #714B67; padding-bottom: 15px; margin-bottom: 30px; }}
+                .custom-header {{ color: #714B67; font-size: 20px; margin-bottom: 10px; font-weight: 600; }}
+                .title {{ font-size: 26px; font-weight: 700; text-align: right; color: #714B67; }}
                 .meta-table {{ width: 100%; margin-bottom: 30px; }}
-                .meta-table td {{ padding: 5px 0; color: #94a3b8; }}
+                .meta-table td {{ padding: 5px 0; color: #6c757d; }}
+                .meta-table td strong {{ color: #21252b; }}
                 .products-table {{ width: 100%; border-collapse: collapse; margin-bottom: 35px; }}
-                .products-table th {{ background-color: #1e293b; color: #10b981; text-align: left; padding: 12px; }}
+                .products-table th {{ background-color: #f2f2f2; color: #21252b; text-align: left; padding: 10px 12px; border-bottom: 2px solid #dee2e6; font-weight: 600; }}
                 .summary {{ width: 50%; margin-left: auto; }}
                 .summary td {{ padding: 8px 12px; text-align: right; }}
-                .total {{ font-size: 20px; font-weight: 700; color: #10b981; }}
-                .footer {{ border-top: 1px solid #334155; padding-top: 20px; margin-top: 40px; font-size: 13px; color: #64748b; text-align: center; }}
+                .total {{ font-size: 20px; font-weight: 700; color: #714B67; }}
+                .footer {{ border-top: 1px solid #dee2e6; padding-top: 20px; margin-top: 40px; font-size: 13px; color: #6c757d; text-align: center; }}
             </style>
         </head>
         <body>
@@ -156,7 +158,7 @@ class DocumentFactory:
                 <div class="header-banner" style="display: flex; justify-content: space-between; align-items: flex-end;">
                     <div>
                         <div class="custom-header">{header_text}</div>
-                        <div>RentalHub Asset Quotation</div>
+                        <div style="color: #6c757d;">RentalHub Asset Quotation</div>
                     </div>
                     <div class="title">QUOTATION</div>
                 </div>
@@ -193,16 +195,16 @@ class DocumentFactory:
 
                 <table class="summary">
                     <tr>
-                        <td style="color: #94a3b8;">Proposed Rent:</td>
-                        <td style="font-weight: 600; color: #f1f5f9;">${order.total_rent_amount}</td>
+                        <td style="color: #6c757d;">Proposed Rent:</td>
+                        <td style="font-weight: 600; color: #21252b;">${order.total_rent_amount}</td>
                     </tr>
                     <tr>
-                        <td style="color: #94a3b8;">Refundable Deposit:</td>
-                        <td style="font-weight: 600; color: #f1f5f9;">${order.total_deposit_amount}</td>
+                        <td style="color: #6c757d;">Refundable Deposit:</td>
+                        <td style="font-weight: 600; color: #21252b;">${order.total_deposit_amount}</td>
                     </tr>
-                    <tr style="border-top: 2px solid #334155;">
-                        <td class="total">Estimated Total:</td>
-                        <td class="total">${order.total_rent_amount + order.total_deposit_amount}</td>
+                    <tr style="border-top: 2px solid #dee2e6;">
+                        <td class="total" style="padding-top: 12px;">Estimated Total:</td>
+                        <td class="total" style="padding-top: 12px;">${order.total_rent_amount + order.total_deposit_amount}</td>
                     </tr>
                 </table>
 
