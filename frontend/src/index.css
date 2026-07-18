@@ -277,36 +277,114 @@ table.list-table tr.selected {
   border-color: var(--primary);
 }
 
-/* Auth Pages (Clean Light Style) */
+/* Auth Pages (Premium Split Layout) */
 .auth-page {
   --auth-ink: #21252b;
   --auth-muted: #6c757d;
   --auth-line: #dee2e6;
   --auth-accent: #714b67;
   min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  background: var(--whitish);
+  color: var(--auth-ink);
+  position: relative;
+}
+
+.auth-backdrop {
+  position: relative;
+  background: url('https://images.unsplash.com/photo-1504307651254-35680f356dfd?q=80&w=2070&auto=format&fit=crop') center/cover no-repeat;
+  display: block;
+}
+.auth-backdrop::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(135deg, rgba(113,75,103,0.92) 0%, rgba(33,37,43,0.85) 100%);
+}
+
+.auth-intro {
+  position: absolute;
+  top: 0; left: 0; bottom: 0; width: 50%;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 60px;
+  color: white;
+  pointer-events: none;
+}
+
+.auth-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 24px;
+  font-weight: 700;
+  text-decoration: none;
+  color: white;
+  pointer-events: auto;
+}
+
+.auth-eyebrow {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.7);
+  margin-bottom: 16px;
+}
+
+.auth-intro h1 {
+  font-size: 48px;
+  line-height: 1.1;
+  font-weight: 600;
+  margin-bottom: 24px;
+  color: #fff;
+}
+.auth-intro h1 em {
+  font-style: italic;
+  font-weight: 400;
+  opacity: 0.9;
+}
+
+.auth-intro-copy {
+  font-size: 18px;
+  line-height: 1.6;
+  opacity: 0.8;
+  max-width: 400px;
+}
+
+.auth-note {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+  opacity: 0.8;
+}
+
+.auth-card-wrap {
   display: flex;
   justify-content: center;
   align-items: center;
-  background: #f9f9f9;
-  color: var(--auth-ink);
-  padding: 20px;
+  padding: 40px;
+  background: var(--background);
 }
-.auth-backdrop {
-  display: none;
-}
-.auth-intro {
-  display: none;
-}
-.auth-card-wrap {
-  width: min(100%, 460px);
+
+.auth-card {
+  width: min(100%, 420px);
   background: var(--whitish);
   border: 1px solid var(--auth-line);
-  border-radius: 6px;
-  padding: 32px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+  border-radius: 8px;
+  padding: 48px 40px;
+  box-shadow: 0 12px 32px rgba(0,0,0,0.05);
+}
+
+.auth-card-heading {
+  margin-bottom: 24px;
 }
 .auth-card h2 {
-  font-size: 24px;
+  font-size: 26px;
   font-weight: 600;
   color: var(--auth-accent);
   margin-bottom: 8px;
@@ -318,11 +396,15 @@ table.list-table tr.selected {
   letter-spacing: 0.05em;
   margin-bottom: 4px;
 }
+.auth-card p {
+  color: var(--auth-muted);
+  font-size: 14px;
+}
+
 .auth-form {
   display: flex;
   flex-direction: column;
   gap: 16px;
-  margin-top: 20px;
 }
 .auth-field {
   display: flex;
@@ -331,43 +413,154 @@ table.list-table tr.selected {
 }
 .auth-field label {
   font-size: 13px;
-  font-weight: 500;
+  font-weight: 600;
+  color: var(--auth-ink);
 }
+.auth-field input {
+  padding: 10px 12px;
+  border: 1px solid var(--auth-line);
+  border-radius: 4px;
+  background: #fff;
+  transition: all 0.2s;
+}
+.auth-field input:focus {
+  border-color: var(--auth-accent);
+  box-shadow: 0 0 0 3px rgba(113,75,103,0.15);
+}
+
+.auth-form-tools {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  color: var(--auth-muted);
+}
+.auth-form-tools a {
+  color: var(--auth-accent);
+  font-weight: 600;
+  text-decoration: none;
+}
+
 .auth-submit {
-  min-height: 40px;
+  min-height: 44px;
   border: 0;
   border-radius: 4px;
   background: var(--auth-accent);
   color: #fff;
+  font-size: 15px;
   font-weight: 600;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  transition: background 0.2s;
+  padding: 0 24px;
+  width: 100%;
+  transition: background 0.2s, transform 0.1s;
+  margin-top: 8px;
 }
 .auth-submit:hover {
   background: #5e3d55;
 }
+.auth-submit:active {
+  transform: scale(0.98);
+}
+
 .auth-error {
   color: #dc3545;
   background: #fdf3f4;
   border-left: 3px solid #dc3545;
-  padding: 10px 12px;
+  padding: 12px 14px;
   font-size: 13px;
-  margin-bottom: 16px;
+  font-weight: 500;
+  margin-bottom: 20px;
+  border-radius: 0 4px 4px 0;
 }
+
 .auth-footer-copy, .auth-secondary-link {
   font-size: 13px;
   color: var(--auth-muted);
   text-align: center;
-  margin-top: 16px;
+  margin-top: 24px;
+}
+.auth-secondary-link {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
 }
 .auth-footer-copy a, .auth-secondary-link a {
   color: var(--auth-accent);
   font-weight: 600;
   text-decoration: none;
+}
+
+.auth-card-wide {
+  width: min(100%, 540px);
+}
+.auth-field-row {
+  display: flex;
+  gap: 16px;
+}
+.auth-field-row .auth-field {
+  flex: 1;
+}
+.auth-switch-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 16px;
+  border-radius: 8px;
+  text-decoration: none;
+  color: white;
+  margin-top: 24px;
+  transition: background 0.2s;
+  pointer-events: auto;
+}
+.auth-switch-card:hover {
+  background: rgba(0, 0, 0, 0.35);
+}
+.auth-switch-card span {
+  font-size: 13px;
+  opacity: 0.8;
+}
+.auth-switch-card strong {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+}
+.auth-coupon {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  background: #f8f9fa;
+  border: 1px dashed var(--auth-line);
+  border-radius: 4px;
+  margin-top: 4px;
+}
+.auth-coupon input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-size: 13px;
+}
+.auth-coupon span {
+  font-size: 12px;
+  color: var(--auth-muted);
+}
+
+@media (max-width: 900px) {
+  .auth-page {
+    grid-template-columns: 1fr;
+  }
+  .auth-backdrop, .auth-intro {
+    display: none;
+  }
 }
 
 /* Layout overrides to match exact PDF specs */

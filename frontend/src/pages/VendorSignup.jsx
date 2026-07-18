@@ -13,7 +13,7 @@ export const VendorSignup = () => {
     return (
       <div className="auth-page auth-page-vendor fade-in">
         <div className="auth-backdrop auth-backdrop-vendor" />
-        <section className="auth-card-wrap" style={{ margin: 'auto' }}>
+        <section className="auth-card-wrap">
           <div className="auth-card">
             <div className="auth-card-heading">
               <PackageCheck size={32} style={{ color: 'var(--primary)', marginBottom: '16px' }} />

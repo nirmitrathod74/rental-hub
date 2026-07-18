@@ -36,6 +36,14 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         return token
 
     def validate(self, attrs):
+        username = attrs.get(self.username_field)
+        if username and '@' in username:
+            try:
+                user_obj = User.objects.get(email=username)
+                attrs[self.username_field] = user_obj.username
+            except User.DoesNotExist:
+                pass
+
         data = super().validate(attrs)
         if self.user.role == 'vendor' and self.user.vendor_status != 'approved':
             from rest_framework.exceptions import AuthenticationFailed

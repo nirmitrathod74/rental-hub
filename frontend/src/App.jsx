@@ -36,38 +36,45 @@ const ProtectedRoute = ({ children, roles }) => {
 const AppContent = () => {
   return (
     <Router>
-      <AppShell>
-          <Routes>
-            <Route path="/" element={<Catalog />} />
-            <Route path="/product/:id" element={<ProductDetails />} />
-            <Route path="/cart" element={<Cart />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Signup />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route path="/vendor-signup" element={<VendorSignup />} />
-            
-            {/* Authenticated Client Routes */}
-            <Route path="/checkout" element={
-              <ProtectedRoute roles={['client', 'admin']}>
-                <Checkout />
-              </ProtectedRoute>
-            } />
-            <Route path="/profile" element={
-              <ProtectedRoute roles={['client', 'admin']}>
-                <Profile />
-              </ProtectedRoute>
-            } />
+      <Routes>
+        {/* Auth Routes - Outside AppShell */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/vendor-signup" element={<VendorSignup />} />
 
-            {/* Authenticated Admin Routes */}
-            <Route path="/admin" element={
-              <ProtectedRoute roles={['admin']}>
-                <AdminDashboard />
-              </ProtectedRoute>
-            } />
-            
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-      </AppShell>
+        {/* App Routes - Inside AppShell */}
+        <Route path="*" element={
+          <AppShell>
+            <Routes>
+              <Route path="/" element={<Catalog />} />
+              <Route path="/product/:id" element={<ProductDetails />} />
+              <Route path="/cart" element={<Cart />} />
+              
+              {/* Authenticated Client Routes */}
+              <Route path="/checkout" element={
+                <ProtectedRoute roles={['client', 'admin']}>
+                  <Checkout />
+                </ProtectedRoute>
+              } />
+              <Route path="/profile" element={
+                <ProtectedRoute roles={['client', 'admin']}>
+                  <Profile />
+                </ProtectedRoute>
+              } />
+
+              {/* Authenticated Admin Routes */}
+              <Route path="/admin" element={
+                <ProtectedRoute roles={['admin']}>
+                  <AdminDashboard />
+                </ProtectedRoute>
+              } />
+              
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </AppShell>
+        } />
+      </Routes>
     </Router>
   );
 };
