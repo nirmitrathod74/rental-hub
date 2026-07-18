@@ -1,5 +1,7 @@
 import os
 import django
+from decimal import Decimal
+import django
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'rentalhub.settings')
 django.setup()
@@ -64,12 +66,7 @@ def seed():
             'name': 'Heavy Duty Excavator',
             'description': 'Industrial excavator for massive building construction and excavation works.',
             'base_price': Decimal('250.00'),
-            'security_deposit_type': 'fixed',
-            'security_deposit_value': Decimal('1000.00'),
             'stock_qty': 5,
-            'available_qty': 5,
-            'late_fee_type': 'daily',
-            'late_fee_rate': Decimal('75.00'),
             'grace_period_hours': 2
         }
     )
@@ -82,12 +79,8 @@ def seed():
             'name': '50kW Silent Diesel Generator',
             'description': 'Super silent diesel backup power generator with output of 50 kilowatts.',
             'base_price': Decimal('120.00'),
-            'security_deposit_type': 'percentage',
             'security_deposit_value': Decimal('15.00'), # 15% of rental price
             'stock_qty': 10,
-            'available_qty': 10,
-            'late_fee_type': 'hourly',
-            'late_fee_rate': Decimal('10.00'),
             'grace_period_hours': 1
         }
     )
@@ -99,12 +92,7 @@ def seed():
             'name': 'Aluminium Scaffolding Set',
             'description': 'Mobile tower aluminium scaffolding for painters, plasterers, and electricians.',
             'base_price': Decimal('45.00'),
-            'security_deposit_type': 'fixed',
-            'security_deposit_value': Decimal('150.00'),
             'stock_qty': 20,
-            'available_qty': 20,
-            'late_fee_type': 'weekly',
-            'late_fee_rate': Decimal('100.00'),
             'grace_period_hours': 6
         }
     )
@@ -139,22 +127,20 @@ def seed():
     print("Seeded quotation templates.")
 
     # 6. Mock Orders for Dashboard metrics visibility
-    from rentals.models import RentalOrder, RentalItem, DepositHistory, RentalInspection
+    from rentals.models import RentalOrder, RentalItem, RentalInspection
+    from finance.models import Payment, SecurityDeposit
     from django.utils import timezone
     from datetime import timedelta
 
     now = timezone.now()
 
-    # Draft / Quotation Order (excavator)
     if not RentalOrder.objects.filter(status='draft').exists():
         o1 = RentalOrder.objects.create(
             client=client_user,
             status='draft',
             start_date=now + timedelta(days=2),
             end_date=now + timedelta(days=5),
-            fulfillment_type='store_pickup',
-            total_rent_amount=Decimal('750.00'),
-            total_deposit_amount=Decimal('3000.00')
+            fulfillment_type='store_pickup'
         )
         RentalItem.objects.create(
             rental_order=o1,
@@ -165,7 +151,6 @@ def seed():
         )
         print("Seeded draft quotation order.")
 
-    # Confirmed Order (generator)
     if not RentalOrder.objects.filter(status='confirmed').exists():
         o2 = RentalOrder.objects.create(
             client=client_user,
@@ -173,11 +158,7 @@ def seed():
             start_date=now + timedelta(days=1),
             end_date=now + timedelta(days=3),
             fulfillment_type='delivery',
-            shipping_address='789 Construction Ave, Industrial Zone',
-            total_rent_amount=Decimal('240.00'),
-            total_deposit_amount=Decimal('36.00'),
-            amount_paid=Decimal('240.00'),
-            deposit_paid=Decimal('36.00')
+            shipping_address='789 Construction Ave, Industrial Zone'
         )
         RentalItem.objects.create(
             rental_order=o2,
@@ -186,29 +167,17 @@ def seed():
             unit_price=Decimal('120.00'),
             deposit_amount=Decimal('18.00')
         )
-        DepositHistory.objects.create(
-            rental_order=o2,
-            amount=Decimal('36.00'),
-            transaction_type='collect',
-            notes="Initial deposit collected."
-        )
-        # Update stock manually for seeding
-        p2.available_qty -= 2
-        p2.save()
+        Payment.objects.create(rental_order=o2, payment_type='deposit', amount=Decimal('36.00'), status='paid')
+        SecurityDeposit.objects.create(order=o2, amount=Decimal('36.00'), status='Held')
         print("Seeded confirmed order.")
 
-    # Active Picked Up Order (scaffolding)
     if not RentalOrder.objects.filter(status='picked_up').exists():
         o3 = RentalOrder.objects.create(
             client=client_user,
             status='picked_up',
             start_date=now - timedelta(days=1),
             end_date=now + timedelta(days=2),
-            fulfillment_type='store_pickup',
-            total_rent_amount=Decimal('225.00'),
-            total_deposit_amount=Decimal('750.00'),
-            amount_paid=Decimal('225.00'),
-            deposit_paid=Decimal('750.00')
+            fulfillment_type='store_pickup'
         )
         RentalItem.objects.create(
             rental_order=o3,
@@ -217,29 +186,17 @@ def seed():
             unit_price=Decimal('45.00'),
             deposit_amount=Decimal('150.00')
         )
-        DepositHistory.objects.create(
-            rental_order=o3,
-            amount=Decimal('750.00'),
-            transaction_type='collect',
-            notes="Initial deposit collected."
-        )
-        p3.available_qty -= 5
-        p3.save()
+        Payment.objects.create(rental_order=o3, payment_type='deposit', amount=Decimal('750.00'), status='paid')
+        SecurityDeposit.objects.create(order=o3, amount=Decimal('750.00'), status='Held')
         print("Seeded active picked up order.")
 
-    # Overdue Order (scaffolding)
     if not RentalOrder.objects.filter(status='overdue').exists():
         o4 = RentalOrder.objects.create(
             client=client_user,
             status='overdue',
             start_date=now - timedelta(days=5),
             end_date=now - timedelta(days=2),
-            fulfillment_type='store_pickup',
-            total_rent_amount=Decimal('90.00'),
-            total_deposit_amount=Decimal('300.00'),
-            amount_paid=Decimal('90.00'),
-            deposit_paid=Decimal('300.00'),
-            late_fee_charged=Decimal('200.00')
+            fulfillment_type='store_pickup'
         )
         RentalItem.objects.create(
             rental_order=o4,
@@ -248,23 +205,11 @@ def seed():
             unit_price=Decimal('45.00'),
             deposit_amount=Decimal('150.00')
         )
-        DepositHistory.objects.create(
-            rental_order=o4,
-            amount=Decimal('300.00'),
-            transaction_type='collect',
-            notes="Initial deposit collected."
-        )
-        DepositHistory.objects.create(
-            rental_order=o4,
-            amount=Decimal('200.00'),
-            transaction_type='deduct',
-            notes="Late fee deduction calculated."
-        )
-        p3.available_qty -= 2
-        p3.save()
+        Payment.objects.create(rental_order=o4, payment_type='deposit', amount=Decimal('300.00'), status='paid')
+        SecurityDeposit.objects.create(order=o4, amount=Decimal('300.00'), status='Held')
+        Payment.objects.create(rental_order=o4, payment_type='late_fee', amount=Decimal('200.00'), status='paid')
         print("Seeded overdue order.")
 
-    # Settled Order (excavator)
     if not RentalOrder.objects.filter(status='settled').exists():
         o5 = RentalOrder.objects.create(
             client=client_user,
@@ -273,12 +218,7 @@ def seed():
             end_date=now - timedelta(days=5),
             actual_return_date=now - timedelta(days=5),
             fulfillment_type='delivery',
-            shipping_address='101 Skyline Towers Road',
-            total_rent_amount=Decimal('1250.00'),
-            total_deposit_amount=Decimal('5000.00'),
-            amount_paid=Decimal('1250.00'),
-            deposit_paid=Decimal('5000.00'),
-            deposit_refunded=Decimal('5000.00')
+            shipping_address='101 Skyline Towers Road'
         )
         RentalItem.objects.create(
             rental_order=o5,
@@ -287,27 +227,16 @@ def seed():
             unit_price=Decimal('250.00'),
             deposit_amount=Decimal('1000.00')
         )
-        DepositHistory.objects.create(
-            rental_order=o5,
-            amount=Decimal('5000.00'),
-            transaction_type='collect',
-            notes="Initial deposit collected."
-        )
+        Payment.objects.create(rental_order=o5, payment_type='deposit', amount=Decimal('5000.00'), status='paid')
+        SecurityDeposit.objects.create(order=o5, amount=Decimal('5000.00'), status='Refunded')
         RentalInspection.objects.create(
             rental_order=o5,
             inspector=admin_user,
             condition_rating='good'
         )
-        DepositHistory.objects.create(
-            rental_order=o5,
-            amount=Decimal('5000.00'),
-            transaction_type='refund',
-            notes="Refunded full security deposit on-time return."
-        )
         print("Seeded settled order.")
 
     print("Database seeding completed successfully.")
-
 
 if __name__ == '__main__':
     seed()
