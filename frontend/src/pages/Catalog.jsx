@@ -158,14 +158,6 @@ export const Catalog = () => {
               <option value="Weekly">Weekly</option>
               <option value="Monthly">Monthly</option>
             </select>
-            
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '14px', fontWeight: 500, color: 'hsl(var(--text-secondary))' }}>
-              <div>1 Month</div>
-              <div>6 Month</div>
-              <div>1 Year</div>
-              <div>2 Years</div>
-              <div>3 Years</div>
-            </div>
           </div>
 
           <div className="filter-block">
