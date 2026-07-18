@@ -70,7 +70,10 @@ export const Catalog = () => {
     const productColor = p.variants?.find(v => v.attribute_name === 'Color')?.attribute_value;
     const matchesColor = !selectedColor || productColor === selectedColor;
     
-    return matchesSearch && matchesPrice && matchesCategory && matchesColor;
+    const productDuration = p.variants?.find(v => v.attribute_name === 'Duration')?.attribute_value;
+    const matchesDuration = selectedDuration === 'All Duration' || productDuration === selectedDuration;
+    
+    return matchesSearch && matchesPrice && matchesCategory && matchesColor && matchesDuration;
   });
 
   const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
@@ -172,7 +175,7 @@ export const Catalog = () => {
               className="glass-input" 
               style={{ marginBottom: '12px' }}
               value={selectedDuration}
-              onChange={(e) => setSelectedDuration(e.target.value)}
+              onChange={(e) => { setSelectedDuration(e.target.value); setCurrentPage(1); }}
             >
               <option value="All Duration">All Duration</option>
               <option value="Hourly">Hourly</option>
