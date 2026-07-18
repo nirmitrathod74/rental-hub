@@ -24,6 +24,7 @@ class RentalOrder(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='draft')
     start_date = models.DateTimeField()
     end_date = models.DateTimeField()
+    actual_pickup = models.DateTimeField(blank=True, null=True)
     actual_return_date = models.DateTimeField(blank=True, null=True)
     
     fulfillment_type = models.CharField(max_length=20, choices=FULFILLMENT_CHOICES, default='store_pickup')

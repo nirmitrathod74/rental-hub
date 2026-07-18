@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext.jsx';
 import { CartProvider } from './context/CartContext.jsx';
+import { WishlistProvider } from './context/WishlistContext.jsx';
 import { AppShell } from './components/AppShell.jsx';
 import { Catalog } from './pages/Catalog.jsx';
 import { ProductDetails } from './pages/ProductDetails.jsx';
@@ -90,9 +91,11 @@ const AppContent = () => {
 export const App = () => {
   return (
     <AuthProvider>
-      <CartProvider>
-        <AppContent />
-      </CartProvider>
+      <WishlistProvider>
+        <CartProvider>
+          <AppContent />
+        </CartProvider>
+      </WishlistProvider>
     </AuthProvider>
   );
 };

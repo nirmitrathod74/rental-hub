@@ -54,6 +54,8 @@ class RentalService:
 
         sm = RentalStateMachine(order)
         sm.transition_to('picked_up', user)
+        order.actual_pickup = timezone.now()
+        order.save()
         return order
 
     @staticmethod
