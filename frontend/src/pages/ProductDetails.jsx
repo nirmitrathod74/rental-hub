@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
-import { api } from '../api/index.js';
+import { api, getMediaUrl } from '../api/index.js';
 import { useCart } from '../context/CartContext.jsx';
 import { ShieldCheck, Info, CheckCircle2, ChevronLeft, CalendarClock } from 'lucide-react';
 
@@ -111,7 +111,7 @@ export const ProductDetails = () => {
         }}>
           {product.image ? (
             <img
-              src={`http://localhost:8000${product.image}`}
+              src={getMediaUrl(product.image)}
               alt={product.name}
               style={{ width: '100%', height: '100%', objectFit: 'cover' }}
             />

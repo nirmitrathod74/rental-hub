@@ -2,6 +2,7 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
+import { getMediaUrl } from '../api';
 import { ShoppingCart, User as UserIcon, LogOut, LayoutDashboard, Database } from 'lucide-react';
 
 export const Navbar: React.FC = () => {
@@ -95,8 +96,8 @@ export const Navbar: React.FC = () => {
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
               {user.avatar ? (
                 <img
-                  src={`http://localhost:8000${user.avatar}`}
-                  alt="avatar"
+                  src={getMediaUrl(user.avatar)}
+                  alt={user.username}
                   style={{ width: '36px', height: '36px', borderRadius: '50%', objectFit: 'cover', border: '2px solid hsl(var(--primary))' }}
                 />
               ) : (
