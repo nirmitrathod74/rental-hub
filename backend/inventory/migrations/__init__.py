@@ -1,1 +1,1 @@
-
+# Inventory migrations init

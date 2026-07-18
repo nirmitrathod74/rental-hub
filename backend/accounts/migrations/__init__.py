@@ -1,1 +1,1 @@
-
+# Accounts migrations init

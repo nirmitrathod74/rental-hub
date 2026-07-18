@@ -1,1 +1,1 @@
-
+# Rentals migrations init
