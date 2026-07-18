@@ -88,7 +88,7 @@ export const Cart = () => {
                     <div style={{
                       width: '60px',
                       height: '60px',
-                      backgroundColor: '#1e293b',
+                      backgroundColor: '#f8f9fa',
                       borderRadius: '8px',
                       display: 'flex',
                       alignItems: 'center',
@@ -103,10 +103,10 @@ export const Cart = () => {
                         {Object.entries(item.selectedVariants).map(([k, v]) => (
                           <span key={k} style={{
                             fontSize: '11px',
-                            backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                            backgroundColor: 'var(--extra-light)',
                             padding: '2px 8px',
                             borderRadius: '4px',
-                            color: 'hsl(var(--text-secondary))'
+                            color: 'var(--blackish)'
                           }}>
                             {k}: {v}
                           </span>
@@ -261,7 +261,7 @@ export const Cart = () => {
             </span>
           </div>
 
-          <div className="glass-panel" style={{ padding: '16px', backgroundColor: 'rgba(99, 102, 241, 0.05)', fontSize: '12px', color: 'hsl(var(--text-secondary))' }}>
+          <div className="glass-panel" style={{ padding: '16px', backgroundColor: '#f3e9f0', fontSize: '12px', color: 'var(--blackish)' }}>
             <strong>Note:</strong> The Security Deposit portion is fully refunded upon returning the asset on-time and damage-free.
           </div>
 

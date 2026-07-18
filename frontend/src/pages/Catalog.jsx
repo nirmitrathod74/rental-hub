@@ -118,7 +118,7 @@ export const Catalog = () => {
               }}>
                 <div style={{
                   height: '180px',
-                  backgroundColor: '#1e293b',
+                  backgroundColor: '#f8f9fa',
                   position: 'relative',
                   display: 'flex',
                   alignItems: 'center',

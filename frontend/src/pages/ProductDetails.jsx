@@ -105,7 +105,7 @@ export const ProductDetails = () => {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          backgroundColor: '#1e293b',
+          backgroundColor: '#f8f9fa',
           borderRadius: '16px',
           overflow: 'hidden'
         }}>

@@ -81,13 +81,13 @@ export const Profile = () => {
                 width: '60px',
                 height: '60px',
                 borderRadius: '50%',
-                backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                backgroundColor: '#f1e7ee',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                color: 'hsl(var(--primary))',
+                color: 'var(--primary)',
                 fontSize: '24px',
-                border: '1px solid hsl(var(--border-glass))'
+                border: '1px solid var(--border)'
               }}>
                 👤
               </div>
@@ -196,7 +196,7 @@ export const Profile = () => {
             </thead>
             <tbody>
               {orders.map(order => (
-                <tr key={order.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
+                <tr key={order.id} style={{ borderBottom: '1px solid var(--border)' }}>
                   <td style={{ padding: '14px 12px', fontWeight: 'bold' }}>#{order.id}</td>
                   <td style={{ padding: '14px 12px', fontSize: '13px' }}>
                     {new Date(order.start_date).toLocaleDateString()} - {new Date(order.end_date).toLocaleDateString()}
@@ -233,7 +233,7 @@ export const Profile = () => {
           left: 0,
           right: 0,
           bottom: 0,
-          backgroundColor: 'rgba(0,0,0,0.8)',
+          backgroundColor: 'rgba(33,37,43,0.5)',
           backdropFilter: 'blur(4px)',
           display: 'flex',
           alignItems: 'center',
@@ -309,9 +309,9 @@ export const Profile = () => {
                       alignItems: 'center',
                       fontSize: '12px',
                       padding: '8px',
-                      backgroundColor: 'rgba(255,255,255,0.02)',
+                      backgroundColor: 'var(--extra-light)',
                       borderRadius: '4px',
-                      borderLeft: tx.transaction_type === 'collect' ? '3px solid hsl(var(--success))' : tx.transaction_type === 'refund' ? '3px solid hsl(var(--info))' : '3px solid hsl(var(--danger))'
+                      borderLeft: tx.transaction_type === 'collect' ? '3px solid var(--success)' : tx.transaction_type === 'refund' ? '3px solid var(--info)' : '3px solid var(--danger)'
                     }}>
                       <div>
                         <strong>{tx.transaction_type.toUpperCase()}</strong>: {tx.notes || 'No description'}
