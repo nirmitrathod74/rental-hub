@@ -285,11 +285,11 @@ export const AdminDashboard = () => {
                     },
                     scales: {
                       y: {
-                        ticks: { color: '#94a3b8' },
-                        grid: { color: 'rgba(255,255,255,0.05)' }
+                        ticks: { color: 'var(--blackish)' },
+                        grid: { color: 'var(--border)' }
                       },
                       x: {
-                        ticks: { color: '#94a3b8' },
+                        ticks: { color: 'var(--blackish)' },
                         grid: { display: false }
                       }
                     }
@@ -309,9 +309,9 @@ export const AdminDashboard = () => {
                 </span>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '8px' }}>
                   {orders.filter(o => o.status === 'confirmed').slice(0, 3).map(o => (
-                    <div key={o.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', padding: '10px', backgroundColor: 'rgba(255,255,255,0.02)', borderRadius: '6px' }}>
+                    <div key={o.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', padding: '10px', backgroundColor: 'var(--extra-light)', borderRadius: '6px' }}>
                       <span>Order <strong>#{o.id}</strong> - {o.client_details?.username}</span>
-                      <span style={{ color: 'hsl(var(--text-secondary))' }}>{new Date(o.start_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                      <span style={{ color: 'var(--text-secondary)' }}>{new Date(o.start_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                     </div>
                   ))}
                   {orders.filter(o => o.status === 'confirmed').length === 0 && <span style={{ fontSize: '12px', color: 'hsl(var(--text-muted))' }}>No pickups scheduled.</span>}
@@ -324,9 +324,9 @@ export const AdminDashboard = () => {
                 </span>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '8px' }}>
                   {orders.filter(o => o.status === 'picked_up').slice(0, 3).map(o => (
-                    <div key={o.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', padding: '10px', backgroundColor: 'rgba(255,255,255,0.02)', borderRadius: '6px' }}>
+                    <div key={o.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', padding: '10px', backgroundColor: 'var(--extra-light)', borderRadius: '6px' }}>
                       <span>Order <strong>#{o.id}</strong> - {o.client_details?.username}</span>
-                      <span style={{ color: 'hsl(var(--text-secondary))' }}>{new Date(o.end_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                      <span style={{ color: 'var(--text-secondary)' }}>{new Date(o.end_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                     </div>
                   ))}
                   {orders.filter(o => o.status === 'picked_up').length === 0 && <span style={{ fontSize: '12px', color: 'hsl(var(--text-muted))' }}>No returns scheduled.</span>}
@@ -354,7 +354,7 @@ export const AdminDashboard = () => {
             </thead>
             <tbody>
               {orders.map(order => (
-                <tr key={order.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.02)' }}>
+                <tr key={order.id} style={{ borderBottom: '1px solid var(--border)' }}>
                   <td style={{ padding: '12px', fontWeight: 'bold' }}>#{order.id}</td>
                   <td style={{ padding: '12px' }}>{order.client_details?.username}</td>
                   <td style={{ padding: '12px', fontSize: '13px' }}>
@@ -507,9 +507,9 @@ export const AdminDashboard = () => {
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '16px' }}>
                   {pl.items.map(item => (
-                    <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', padding: '8px', backgroundColor: 'rgba(255,255,255,0.02)', borderRadius: '4px' }}>
+                    <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', padding: '8px', backgroundColor: 'var(--extra-light)', borderRadius: '4px' }}>
                       <span>{item.product_name} ({item.product_sku})</span>
-                      <span style={{ fontWeight: 'bold', color: 'hsl(var(--success))' }}>Promo rate: ${item.custom_price}/day</span>
+                      <span style={{ fontWeight: 'bold', color: 'var(--success)' }}>Promo rate: ${item.custom_price}/day</span>
                     </div>
                   ))}
                   {pl.items.length === 0 && <span style={{ fontSize: '12px', color: 'hsl(var(--text-muted))' }}>No promo override rules mapped.</span>}
@@ -528,7 +528,7 @@ export const AdminDashboard = () => {
           left: 0,
           right: 0,
           bottom: 0,
-          backgroundColor: 'rgba(0,0,0,0.85)',
+          backgroundColor: 'rgba(33,37,43,0.5)',
           backdropFilter: 'blur(5px)',
           display: 'flex',
           alignItems: 'center',
@@ -639,7 +639,7 @@ export const AdminDashboard = () => {
                 <h4 style={{ fontSize: '14px', fontWeight: 700, marginBottom: '8px' }}>Log Inspections Logged</h4>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                   {selectedOrder.inspections.map((ins, idx) => (
-                    <div key={idx} style={{ padding: '10px', backgroundColor: 'rgba(255,255,255,0.02)', borderRadius: '6px', fontSize: '12px' }}>
+                    <div key={idx} style={{ padding: '10px', backgroundColor: 'var(--extra-light)', borderRadius: '6px', fontSize: '12px' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                         <span>Inspector: <strong>{ins.inspector_details?.username}</strong></span>
                         <span className={`badge badge-${ins.condition_rating === 'good' ? 'picked_up' : 'overdue'}`}>{ins.condition_rating}</span>
@@ -652,7 +652,7 @@ export const AdminDashboard = () => {
             )}
 
             {selectedOrder.status === 'returned' && (
-              <div className="glass-panel" style={{ padding: '16px', backgroundColor: 'rgba(16, 185, 129, 0.05)', fontSize: '12px', color: 'hsl(var(--text-secondary))', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <div className="glass-panel" style={{ padding: '16px', backgroundColor: '#dff3e4', fontSize: '12px', color: 'var(--blackish)', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Wrench size={16} style={{ color: '#10b981' }} />
                 <span>
                   The inspection has been submitted. Click "Settle Security Deposit" above to release the remaining deposit (${parseFloat(selectedOrder.deposit_paid) - parseFloat(selectedOrder.late_fee_charged)}) to the customer and lock the transaction ledger.

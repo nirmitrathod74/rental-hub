@@ -11,6 +11,8 @@ import { Profile } from './pages/Profile.jsx';
 import { Login } from './pages/Login.jsx';
 import { Signup } from './pages/Signup.jsx';
 import { AdminDashboard } from './pages/AdminDashboard.jsx';
+import { ForgotPassword } from './pages/ForgotPassword.jsx';
+import { VendorSignup } from './pages/VendorSignup.jsx';
 
 // Protected Route components
 const ProtectedRoute = ({ children, roles }) => {
@@ -41,6 +43,8 @@ const AppContent = () => {
             <Route path="/cart" element={<Cart />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/vendor-signup" element={<VendorSignup />} />
             
             {/* Authenticated Client Routes */}
             <Route path="/checkout" element={

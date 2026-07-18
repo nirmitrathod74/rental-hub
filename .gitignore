@@ -29,5 +29,7 @@ Thumbs.db
 
 # Agent Configurations
 .agents/
+.agent/
 .claude/
+
 
