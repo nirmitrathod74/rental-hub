@@ -28,3 +28,29 @@ RentalHub Team
         [user.email],
         fail_silently=False,
     )
+
+
+def send_verification_email(user):
+    token = default_token_generator.make_token(user)
+    uid = urlsafe_base64_encode(force_bytes(user.pk))
+    verification_link = f"http://localhost:8000/api/accounts/verify-email/?uid={uid}&token={token}"
+    
+    subject = "Verify your email for RentalHub"
+    message = f"""
+Hello {user.username},
+
+Please verify your email address by clicking the link below:
+{verification_link}
+
+If you did not register for an account, please ignore this email.
+
+Thanks,
+RentalHub Team
+"""
+    send_mail(
+        subject,
+        message,
+        settings.DEFAULT_FROM_EMAIL,
+        [user.email],
+        fail_silently=False,
+    )

@@ -8,12 +8,13 @@ from django.utils.http import urlsafe_base64_decode
 from django.utils.encoding import force_str
 from django.contrib.auth.tokens import default_token_generator
 from django.conf import settings
+from django.shortcuts import redirect
 from accounts.serializers import (
     UserSerializer, RegisterSerializer, CustomTokenObtainPairSerializer
 )
 from accounts.repositories import UserRepository
 from accounts.services import UserService
-from accounts.utils import send_password_reset_email
+from accounts.utils import send_password_reset_email, send_verification_email
 
 User = get_user_model()
 
@@ -32,13 +33,18 @@ class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     permission_classes = (permissions.AllowAny,)
     serializer_class = RegisterSerializer
-
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         if not serializer.is_valid():
             return standard_response(False, "Validation failed", errors=serializer.errors, status_code=400)
         user = serializer.save()
-        return standard_response(True, "Registration successful", data=UserSerializer(user).data, status_code=201)
+        user.is_active = False
+        user.save()
+        try:
+            send_verification_email(user)
+        except Exception as e:
+            pass
+        return standard_response(True, "Registration successful. Please check your email to verify your account.", data=UserSerializer(user).data, status_code=201)
 
 class ProfileView(generics.RetrieveUpdateAPIView):
     permission_classes = (permissions.IsAuthenticated,)
@@ -162,3 +168,24 @@ class PasswordResetConfirmView(APIView):
             return standard_response(True, "Password has been reset successfully.")
         else:
             return standard_response(False, "The reset link is invalid or has expired.", status_code=400)
+
+
+class VerifyEmailView(APIView):
+    permission_classes = (permissions.AllowAny,)
+
+    def get(self, request, *args, **kwargs):
+        uidb64 = request.GET.get('uid', '')
+        token = request.GET.get('token', '')
+        try:
+            uid = force_str(urlsafe_base64_decode(uidb64))
+            user = User.objects.get(pk=uid)
+        except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+            user = None
+
+        if user is not None and default_token_generator.check_token(user, token):
+            user.is_active = True
+            user.save()
+            return redirect(f"{settings.FRONTEND_URL}/login?verified=true")
+        else:
+            return redirect(f"{settings.FRONTEND_URL}/login?verified=false")
+
