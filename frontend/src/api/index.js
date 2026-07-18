@@ -7,6 +7,7 @@ export const getMediaUrl = (path) => {
   return `${API_ROOT}${path.startsWith('/') ? '' : '/'}${path}`;
 };
 
+// Retrieve JWT access token from localStorage and construct request authorization headers
 const getHeaders = () => {
   const token = localStorage.getItem('access_token');
   const headers = {
@@ -18,19 +19,27 @@ const getHeaders = () => {
   return headers;
 };
 
+// --- CUSTOM DRF ERROR RESPONSE PARSER ---
+// Processes failed HTTP responses (non-2xx) and extracts human-readable validation messages.
+// This is critical because Django REST Framework returns errors nested by field (e.g. {errors: {username: ["already exists"]}}).
 const handleResponse = async (response) => {
   if (!response.ok) {
     const err = await response.json().catch(() => ({}));
     let errorMessage = err.detail || err.error || err.message;
+    
+    // Check if error response contains a structured 'errors' object (Django serializer validation dictionary)
     if (err.errors && typeof err.errors === 'object') {
       const firstField = Object.keys(err.errors)[0];
       const fieldError = err.errors[firstField];
+      // Format it as: "fieldname: error message" (e.g., "username: A user with that username already exists.")
       if (Array.isArray(fieldError) && fieldError.length > 0) {
         errorMessage = `${firstField}: ${fieldError[0]}`;
       } else if (typeof fieldError === 'string') {
         errorMessage = `${firstField}: ${fieldError}`;
       }
     }
+    
+    // Fallback to raw stringified JSON if no specific error message was parsed
     if (!errorMessage && Object.keys(err).length) {
       errorMessage = JSON.stringify(err);
     }
@@ -51,6 +60,8 @@ export const api = {
   post: async (endpoint, body) => {
     const isFormData = body instanceof FormData;
     const headers = getHeaders();
+    // If the body is FormData (used for file/image uploads), browser automatically sets boundary,
+    // so we delete the default application/json 'Content-Type' header.
     if (isFormData) {
       delete headers['Content-Type'];
     }

@@ -31,17 +31,22 @@ export const Contact = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!validateForm()) return;
+    if (!validateForm()) return; // Stop if local validation fails
+    
     setError('');
-    setSubmitting(true);
+    setSubmitting(true); // Toggle loading spinner
     try {
+      // POST the name, email, subject, message to contact message endpoint
       await api.post('/accounts/contact/', form);
+      // Toggle submission success view
       setSubmitted(true);
+      // Clear the form fields
       setForm({ name: '', email: '', subject: '', message: '' });
     } catch (err) {
+      // Capture errors thrown from DRF or connection failure
       setError(err.message || 'Failed to send your message. Please try again later.');
     } finally {
-      setSubmitting(false);
+      setSubmitting(false); // Stop loading spinner
     }
   };
 

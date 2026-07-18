@@ -23,16 +23,20 @@ export const ForgotPassword = () => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    if (!validateForm()) return;
+    if (!validateForm()) return; // Stop if local email validation fails
+    
     setError('');
-    setSubmitting(true);
+    setSubmitting(true); // Toggle button loading state
     try {
+      // POST the email payload to the password reset request API
       await api.post('/accounts/password-reset-request/', { email });
+      // On success, show confirmation view
       setSubmitted(true);
     } catch (err) {
+      // Bubble up server validation/network error
       setError(err.message || 'Failed to request password reset. Please try again.');
     } finally {
-      setSubmitting(false);
+      setSubmitting(false); // Reset loading state
     }
   };
 

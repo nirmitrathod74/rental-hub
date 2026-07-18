@@ -34,16 +34,26 @@ class RegisterView(generics.CreateAPIView):
     permission_classes = (permissions.AllowAny,)
     serializer_class = RegisterSerializer
     def create(self, request, *args, **kwargs):
+        # Validate incoming registration payload
         serializer = self.get_serializer(data=request.data)
         if not serializer.is_valid():
             return standard_response(False, "Validation failed", errors=serializer.errors, status_code=400)
+        
+        # Save the new user record in the database
         user = serializer.save()
+        
+        # Deactivate user account immediately (is_active = False) so they cannot sign in 
+        # until their email address is verified
         user.is_active = False
         user.save()
+        
+        # Trigger email verification asynchronously/synchronously
         try:
             send_verification_email(user)
         except Exception as e:
+            # If SMTP fails, we catch it silently so the HTTP request doesn't crash 500
             pass
+            
         return standard_response(True, "Registration successful. Please check your email to verify your account.", data=UserSerializer(user).data, status_code=201)
 
 class ProfileView(generics.RetrieveUpdateAPIView):
@@ -126,7 +136,13 @@ class CustomerViewSet(viewsets.ModelViewSet):
         return standard_response(True, "Customer created", data=UserSerializer(user).data, status_code=201)
 
 
+# --- PASSWORD RESET FLOW VIEWS ---
+
 class PasswordResetRequestView(APIView):
+    """
+    Accepts user email, finds active account(s) matching the email,
+    and dispatches a password recovery token link.
+    """
     permission_classes = (permissions.AllowAny,)
 
     def post(self, request, *args, **kwargs):
@@ -135,17 +151,23 @@ class PasswordResetRequestView(APIView):
             return standard_response(False, "Email is required", status_code=400)
         
         try:
+            # Query active users matching this email address
             users = User.objects.filter(email=email, is_active=True)
             if users.exists():
                 for user in users:
                     send_password_reset_email(user)
-            # Prevent user enumeration by returning success regardless
+            # Security Best Practice: Return a success message even if email is not found
+            # to prevent malicious actors from guessing/harvesting registered email addresses (user enumeration).
             return standard_response(True, "If an account matches that email, we have sent instructions to reset your password.")
         except Exception as e:
             return standard_response(False, str(e), status_code=400)
 
 
 class PasswordResetConfirmView(APIView):
+    """
+    Accepts the uid and cryptographic token alongside the user's new password,
+    validates the link authenticity/timelimit, and resets their password.
+    """
     permission_classes = (permissions.AllowAny,)
 
     def post(self, request, *args, **kwargs):
@@ -157,11 +179,13 @@ class PasswordResetConfirmView(APIView):
             return standard_response(False, "Missing required fields", status_code=400)
             
         try:
+            # Decode the base64 encoded user ID back into standard format
             uid = force_str(urlsafe_base64_decode(uidb64))
             user = User.objects.get(pk=uid)
         except (TypeError, ValueError, OverflowError, User.DoesNotExist):
             user = None
             
+        # Verify the signature match and that the token is valid for this user
         if user is not None and default_token_generator.check_token(user, token):
             user.set_password(new_password)
             user.save()
@@ -170,27 +194,43 @@ class PasswordResetConfirmView(APIView):
             return standard_response(False, "The reset link is invalid or has expired.", status_code=400)
 
 
+# --- REGISTRATION EMAIL VERIFICATION VIEW ---
+
 class VerifyEmailView(APIView):
+    """
+    Acts as the entry endpoint when users click their email verification link.
+    Validates token, activates account (is_active = True), and redirects to login with success parameters.
+    """
     permission_classes = (permissions.AllowAny,)
 
     def get(self, request, *args, **kwargs):
         uidb64 = request.GET.get('uid', '')
         token = request.GET.get('token', '')
         try:
+            # Decode base64 encoded user ID
             uid = force_str(urlsafe_base64_decode(uidb64))
             user = User.objects.get(pk=uid)
         except (TypeError, ValueError, OverflowError, User.DoesNotExist):
             user = None
 
+        # Verify the token signature. If valid, activate user.
         if user is not None and default_token_generator.check_token(user, token):
             user.is_active = True
             user.save()
+            # Redirect user back to React login page with verified=true parameter
             return redirect(f"{settings.FRONTEND_URL}/login?verified=true")
         else:
+            # Redirect user back to React login page with verified=false (failed/expired)
             return redirect(f"{settings.FRONTEND_URL}/login?verified=false")
 
 
+# --- CONTACT US MAIL DISPATCH VIEW ---
+
 class ContactMessageView(APIView):
+    """
+    Accepts contact queries submitted from the website's Contact Us page,
+    formats them into an email message, and sends it to the server host administrator.
+    """
     permission_classes = (permissions.AllowAny,)
 
     def post(self, request, *args, **kwargs):
@@ -202,6 +242,7 @@ class ContactMessageView(APIView):
         if not name or not email or not subject or not message:
             return standard_response(False, "Missing required fields", status_code=400)
 
+        # Recipient is the EMAIL_HOST_USER defined in .env
         recipient = settings.EMAIL_HOST_USER or settings.DEFAULT_FROM_EMAIL
         
         email_subject = f"Contact Message: {subject}"

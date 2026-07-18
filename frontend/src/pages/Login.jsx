@@ -12,11 +12,13 @@ export const Login = () => {
   const [submitting, setSubmitting] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
+  // Read query parameters from URL search params (e.g. ?reset=true, ?registered=true, ?verified=true/false)
+  // to display success/failure feedback banners to the user upon redirects.
   const [searchParams] = useSearchParams();
-  const isReset = searchParams.get('reset') === 'true';
-  const isRegistered = searchParams.get('registered') === 'true';
-  const isVerified = searchParams.get('verified') === 'true';
-  const isVerifiedFailed = searchParams.get('verified') === 'false';
+  const isReset = searchParams.get('reset') === 'true'; // Set after resetting password
+  const isRegistered = searchParams.get('registered') === 'true'; // Set after successful signup (before activation)
+  const isVerified = searchParams.get('verified') === 'true'; // Set after user successfully verifies email
+  const isVerifiedFailed = searchParams.get('verified') === 'false'; // Set if email token is expired/invalid
   
   const validateForm = () => {
     const errors = {};

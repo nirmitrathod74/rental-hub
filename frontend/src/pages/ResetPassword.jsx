@@ -12,6 +12,7 @@ export const ResetPassword = () => {
   const [success, setSuccess] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   
+  // Extract URL search parameters (queries) e.g., ?uid=...&token=...
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   
@@ -20,14 +21,16 @@ export const ResetPassword = () => {
 
   const validateForm = () => {
     const errors = {};
+    // Ensure password matches complexity rules (minimum length, etc.)
     errors.newPassword = validateRequired(newPassword, 'New Password') || validatePassword(newPassword);
     errors.confirmPassword = validateRequired(confirmPassword, 'Confirm Password');
     
+    // Check if confirm password matches the new password
     if (!errors.confirmPassword && newPassword !== confirmPassword) {
       errors.confirmPassword = 'Passwords do not match';
     }
 
-    // Remove empty error strings
+    // Remove empty error values from field validation dictionary
     Object.keys(errors).forEach(key => !errors[key] && delete errors[key]);
     
     setFieldErrors(errors);
@@ -36,24 +39,28 @@ export const ResetPassword = () => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    if (!validateForm()) return;
+    if (!validateForm()) return; // Stop if validation checks fail
     setError('');
-    setSubmitting(true);
+    setSubmitting(true); // Toggle button disabled/loading state
     
     try {
+      // POST the uid, token, and new password to the confirmation endpoint
       await api.post('/accounts/password-reset-confirm/', {
         uid,
         token,
         new_password: newPassword,
       });
+      // Show local success message
       setSuccess(true);
+      // Wait 2 seconds, then redirect to login page with reset=true query flag
       setTimeout(() => {
         navigate('/login?reset=true');
       }, 2000);
     } catch (err) {
+      // Capture signature expiration or invalid token errors
       setError(err.message || 'The reset link is invalid or has expired. Please try requesting a new one.');
     } finally {
-      setSubmitting(false);
+      setSubmitting(false); // Stop loading indicator
     }
   };
 
