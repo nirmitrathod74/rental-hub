@@ -33,7 +33,7 @@ button, input, select, textarea { font: inherit; }
 a { color: inherit; }
 
 .app-shell { min-height: 100vh; background: var(--odoo-bg); }
-.topbar { position: fixed; z-index: 40; top: 0; right: 0; left: 0; height: 56px; display: flex; align-items: center; gap: 16px; padding: 0 20px; color: #fff; background: var(--odoo-primary); box-shadow: 0 1px 3px rgba(33,37,43,.16); }
+.topbar { position: fixed; z-index: 40; top: 0; right: 0; left: 0; height: 64px; display: flex; align-items: center; gap: 16px; padding: 0 32px; color: #fff; background: var(--odoo-primary); box-shadow: 0 1px 3px rgba(33,37,43,.16); }
 .brand { display: inline-flex; min-width: 202px; align-items: center; gap: 9px; color: #fff; font-size: 18px; font-weight: 600; text-decoration: none; }
 .brand-mark { display: grid; width: 28px; height: 28px; place-items: center; border-radius: 6px; background: rgba(255,255,255,.15); }
 .topbar-search { position: relative; flex: 1; max-width: 440px; }

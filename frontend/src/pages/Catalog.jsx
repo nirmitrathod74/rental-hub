@@ -6,6 +6,7 @@ import { useWishlist } from '../context/WishlistContext.jsx';
 
 export const Catalog = () => {
   const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [pricelists, setPricelists] = useState([]);
   const [selectedPricelist, setSelectedPricelist] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
@@ -20,6 +21,8 @@ export const Catalog = () => {
     const q = params.get('q');
     if (q !== null) {
       setSearchTerm(q);
+    } else {
+      setSearchTerm('');
     }
   }, [location.search]);
 
@@ -28,6 +31,9 @@ export const Catalog = () => {
     try {
       const plData = await api.get('/inventory/pricelists/');
       setPricelists(plData);
+      
+      const catData = await api.get('/inventory/categories/');
+      setCategories(catData);
       
       const query = selectedPricelist ? `?pricelist_id=${selectedPricelist}` : '';
       const prodData = await api.get(`/inventory/products/${query}`);
@@ -49,17 +55,25 @@ export const Catalog = () => {
   // Filter states
   const [selectedDuration, setSelectedDuration] = useState('All Duration');
   const [selectedColor, setSelectedColor] = useState('');
-  const [selectedBrands, setSelectedBrands] = useState([]); // Or categories
+  const [selectedCategories, setSelectedCategories] = useState([]);
   const [minPrice, setMinPrice] = useState(0);
   const [maxPrice, setMaxPrice] = useState(10000);
 
   const filteredProducts = products.filter(p => {
-    const matchesSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          p.sku.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = (p.name && p.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                          (p.sku && p.sku.toLowerCase().includes(searchTerm.toLowerCase()));
     const price = parseFloat(p.calculated_price) || parseFloat(p.base_price) || 0;
     const matchesPrice = price >= minPrice && price <= maxPrice;
     
-    return matchesSearch && matchesPrice;
+    const matchesCategory = selectedCategories.length === 0 || selectedCategories.includes(p.category_detail?.name);
+    
+    const productColor = p.variants?.find(v => v.attribute_name === 'Color')?.attribute_value;
+    const matchesColor = !selectedColor || productColor === selectedColor;
+    
+    const productDuration = p.variants?.find(v => v.attribute_name === 'Duration')?.attribute_value;
+    const matchesDuration = selectedDuration === 'All Duration' || productDuration === selectedDuration;
+    
+    return matchesSearch && matchesPrice && matchesCategory && matchesColor && matchesDuration;
   });
 
   const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
@@ -119,10 +133,21 @@ export const Catalog = () => {
             </div>
             
             <div className="filter-block-title">Categories</div>
-            {['Heavy Machinery', 'Electronics', 'Vehicles', 'Event Gear', 'Tools & Equipment'].map((cat, idx) => (
+            {categories.filter(cat => products.some(p => p.category_detail?.name === cat.name)).map((cat, idx) => (
               <label key={idx} className="filter-checkbox">
-                <input type="checkbox" />
-                <span>{cat}</span>
+                <input 
+                  type="checkbox" 
+                  checked={selectedCategories.includes(cat.name)}
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      setSelectedCategories([...selectedCategories, cat.name]);
+                    } else {
+                      setSelectedCategories(selectedCategories.filter(c => c !== cat.name));
+                    }
+                    setCurrentPage(1);
+                  }}
+                />
+                <span>{cat.name}</span>
               </label>
             ))}
           </div>
@@ -150,7 +175,7 @@ export const Catalog = () => {
               className="glass-input" 
               style={{ marginBottom: '12px' }}
               value={selectedDuration}
-              onChange={(e) => setSelectedDuration(e.target.value)}
+              onChange={(e) => { setSelectedDuration(e.target.value); setCurrentPage(1); }}
             >
               <option value="All Duration">All Duration</option>
               <option value="Hourly">Hourly</option>
@@ -168,35 +193,37 @@ export const Catalog = () => {
                 <span>${minPrice}</span>
                 <span>${maxPrice}</span>
               </div>
-              <div className="price-slider-track">
-                <div className="price-slider-fill" style={{ left: `${(minPrice / 10000) * 100}%`, right: `${100 - (maxPrice / 10000) * 100}%` }} />
-                <div className="price-slider-thumb left" style={{ left: `${(minPrice / 10000) * 100}%` }} />
-                <div className="price-slider-thumb right" style={{ right: `${100 - (maxPrice / 10000) * 100}%` }} />
+              <div style={{ position: 'relative', height: '4px', margin: '14px 12px 24px 12px' }}>
+                <div className="price-slider-track" style={{ margin: 0 }}>
+                  <div className="price-slider-fill" style={{ left: `${(minPrice / 10000) * 100}%`, right: `${100 - (maxPrice / 10000) * 100}%` }} />
+                  <div className="price-slider-thumb left" style={{ left: `${(minPrice / 10000) * 100}%` }} />
+                  <div className="price-slider-thumb right" style={{ right: `${100 - (maxPrice / 10000) * 100}%` }} />
+                </div>
+                <input 
+                  type="range" 
+                  min={0} 
+                  max={10000} 
+                  step={10}
+                  value={minPrice} 
+                  onChange={(e) => {
+                    const val = Math.min(Number(e.target.value), maxPrice - 10);
+                    setMinPrice(val);
+                    setCurrentPage(1);
+                  }}
+                />
+                <input 
+                  type="range" 
+                  min={0} 
+                  max={10000} 
+                  step={10}
+                  value={maxPrice} 
+                  onChange={(e) => {
+                    const val = Math.max(Number(e.target.value), minPrice + 10);
+                    setMaxPrice(val);
+                    setCurrentPage(1);
+                  }}
+                />
               </div>
-              <input 
-                type="range" 
-                min={0} 
-                max={10000} 
-                step={10}
-                value={minPrice} 
-                onChange={(e) => {
-                  const val = Math.min(Number(e.target.value), maxPrice - 10);
-                  setMinPrice(val);
-                  setCurrentPage(1);
-                }}
-              />
-              <input 
-                type="range" 
-                min={0} 
-                max={10000} 
-                step={10}
-                value={maxPrice} 
-                onChange={(e) => {
-                  const val = Math.max(Number(e.target.value), minPrice + 10);
-                  setMaxPrice(val);
-                  setCurrentPage(1);
-                }}
-              />
             </div>
           </div>
         </div>

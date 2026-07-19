@@ -45,7 +45,7 @@ export const AppShell = ({ children }) => {
 
       <form className="topbar-search" onSubmit={handleSearch} style={{ flex: '0 1 480px', margin: '0 auto', marginRight: '32px' }}>
         <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-          <Search size={18} style={{ position: 'absolute', left: '16px', color: '#64748b' }} />
+          <Search size={16} style={{ position: 'absolute', left: '16px', color: '#64748b' }} />
           <input 
             aria-label="Global search" 
             placeholder="Search equipment, rentals, customers…" 
@@ -53,9 +53,9 @@ export const AppShell = ({ children }) => {
             onChange={(e) => setSearchQuery(e.target.value)}
             className="appshell-search-input"
             style={{ 
-              width: '100%', height: '44px', padding: '0 16px 0 44px', border: 'none', 
-              borderRadius: '24px', outline: 'none', color: '#1e293b', 
-              backgroundColor: '#f1f5f9', fontSize: '15px', fontWeight: 500,
+              width: '100%', height: '38px', padding: '0 16px 0 40px', border: 'none', 
+              borderRadius: '19px', outline: 'none', color: '#1e293b', 
+              backgroundColor: '#f1f5f9', fontSize: '14px', fontWeight: 500,
               boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.02)'
             }}
           />
