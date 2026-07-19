@@ -24,7 +24,7 @@ class ProductRepository:
     @staticmethod
     def update_stock(product, qty_change):
         # Can accept positive or negative values
-        product.available_qty += qty_change
+        product.stock_qty += qty_change
         product.save()
         return product
 

@@ -129,7 +129,12 @@ export const Profile = () => {
   return (
     <div style={{ padding: '40px', maxWidth: '1200px', margin: '0 auto', fontFamily: 'Inter, sans-serif', color: '#333' }}>
       
-      <div style={{ display: 'flex', gap: '8px', borderBottom: '1px solid var(--border)' }}>
+      <div style={{ marginBottom: '32px' }}>
+        <h1 style={{ fontSize: '28px', fontWeight: 800, color: '#111', margin: 0 }}>My Account</h1>
+        <p style={{ color: '#666', marginTop: '8px', fontSize: '15px' }}>Manage your profile information and view your rental history.</p>
+      </div>
+
+      <div style={{ display: 'flex', gap: '8px', borderBottom: '1px solid var(--border)', marginBottom: '32px' }}>
         <button 
           onClick={() => setSearchParams({ tab: 'profile' })}
           style={{ 

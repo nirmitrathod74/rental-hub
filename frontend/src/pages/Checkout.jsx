@@ -270,181 +270,178 @@ export const Checkout = () => {
       )}
 
       {currentStep === 'payment' && (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 380px', gap: '32px', alignItems: 'start' }}>
-          <div>
-            <h2 style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', marginBottom: '24px' }}>Payment Method</h2>
+        <div className="checkout-grid">
+          <div className="fade-in">
+            <h2 style={{ fontSize: '24px', fontWeight: 700, marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <CreditCard size={24} style={{ color: 'hsl(var(--primary))' }} /> Payment Details
+            </h2>
             
-            <div style={{ border: '1px solid #e2e8f0', borderRadius: '12px', padding: '32px', marginBottom: '32px', background: '#fff' }}>
-              <h3 style={{ fontSize: '16px', fontWeight: 700, color: '#0f172a', marginBottom: '8px' }}>Credit Card</h3>
-              <p style={{ fontSize: '13px', color: '#64748b', marginBottom: '24px' }}>Enter your payment details securely.</p>
+            <div className="glass-panel" style={{ borderRadius: '16px', padding: '32px', marginBottom: '24px', border: '1px solid hsl(var(--border-glass))', boxShadow: '0 8px 32px rgba(0, 0, 0, 0.05)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+                <div>
+                  <h3 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--text-primary)' }}>Credit Card</h3>
+                  <p style={{ fontSize: '13px', color: 'var(--text-muted)', marginTop: '4px' }}>Safe money transfer using your bank account. We support Mastercard, Visa, Discover and Stripe.</p>
+                </div>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <div style={{ width: '40px', height: '24px', background: '#f1f5f9', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', fontWeight: 'bold', color: '#1e293b' }}>VISA</div>
+                  <div style={{ width: '40px', height: '24px', background: '#f1f5f9', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', fontWeight: 'bold', color: '#1e293b' }}>MC</div>
+                </div>
+              </div>
               
               <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                 <div style={{ position: 'relative' }}>
-                  <input
-                    type="text"
-                    value={cardNumber}
-                    onChange={(e) => {
-                      setCardNumber(e.target.value.replace(/\s?/g, '').replace(/(\d{4})/g, '$1 ').trim());
-                      setFieldErrors({ ...fieldErrors, cardNumber: '' });
-                    }}
-                    placeholder="Card Number (xxxx xxxx xxxx xxxx)"
-                    maxLength={19}
-                    style={{ width: '100%', padding: '14px 16px', borderRadius: '8px', border: `1px solid ${fieldErrors.cardNumber ? '#dc2626' : '#e2e8f0'}`, outline: 'none', fontSize: '14px', background: '#f8fafc', boxSizing: 'border-box', fontFamily: 'inherit' }}
-                    onFocus={e => e.target.style.borderColor = accentColor}
-                    onBlur={e => e.target.style.borderColor = fieldErrors.cardNumber ? '#dc2626' : '#e2e8f0'}
-                  />
-                  {fieldErrors.cardNumber && <span style={{ fontSize: '12px', color: '#dc2626', marginTop: '6px', display: 'block' }}>{fieldErrors.cardNumber}</span>}
+                  <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '6px', display: 'block' }}>Card Number</label>
+                  <div style={{ position: 'relative' }}>
+                    <input
+                      type="text"
+                      className={`glass-input ${fieldErrors.cardNumber ? 'input-error' : ''}`}
+                      value={cardNumber}
+                      onChange={(e) => {
+                        setCardNumber(e.target.value.replace(/\s?/g, '').replace(/(\d{4})/g, '$1 ').trim());
+                        setFieldErrors({ ...fieldErrors, cardNumber: '' });
+                      }}
+                      placeholder="0000 0000 0000 0000"
+                      maxLength={19}
+                      style={{ paddingLeft: '40px', fontSize: '15px', letterSpacing: '1px', width: '100%', boxSizing: 'border-box' }}
+                    />
+                    <CreditCard size={18} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+                  </div>
+                  {fieldErrors.cardNumber && <span className="field-error" style={{ fontSize: '12px', color: 'var(--danger)', marginTop: '4px', display: 'block' }}>{fieldErrors.cardNumber}</span>}
                 </div>
                 
                 <div style={{ display: 'flex', gap: '20px' }}>
-                  <div style={{ flex: 1, position: 'relative' }}>
+                  <div style={{ flex: 1 }}>
+                    <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '6px', display: 'block' }}>Expiry Date</label>
                     <input
                       type="text"
+                      className={`glass-input ${fieldErrors.cardExpiry ? 'input-error' : ''}`}
                       value={cardExpiry}
                       onChange={(e) => {
-                        setCardExpiry(e.target.value);
+                        let val = e.target.value.replace(/\D/g, '');
+                        if (val.length >= 2) val = val.substring(0, 2) + '/' + val.substring(2, 4);
+                        setCardExpiry(val);
                         setFieldErrors({ ...fieldErrors, cardExpiry: '' });
                       }}
                       placeholder="MM/YY"
                       maxLength={5}
-                      style={{ width: '100%', padding: '14px 16px', borderRadius: '8px', border: `1px solid ${fieldErrors.cardExpiry ? '#dc2626' : '#e2e8f0'}`, outline: 'none', fontSize: '14px', background: '#f8fafc', boxSizing: 'border-box', fontFamily: 'inherit' }}
-                      onFocus={e => e.target.style.borderColor = accentColor}
-                      onBlur={e => e.target.style.borderColor = fieldErrors.cardExpiry ? '#dc2626' : '#e2e8f0'}
+                      style={{ fontSize: '15px', textAlign: 'center', letterSpacing: '1px', width: '100%', boxSizing: 'border-box' }}
                     />
-                    {fieldErrors.cardExpiry && <span style={{ fontSize: '12px', color: '#dc2626', marginTop: '6px', display: 'block' }}>{fieldErrors.cardExpiry}</span>}
+                    {fieldErrors.cardExpiry && <span className="field-error" style={{ fontSize: '12px', color: 'var(--danger)', marginTop: '4px', display: 'block' }}>{fieldErrors.cardExpiry}</span>}
                   </div>
-                  <div style={{ flex: 1, position: 'relative' }}>
-                    <input
-                      type="password"
-                      value={cardCvv}
-                      onChange={(e) => {
-                        setCardCvv(e.target.value);
-                        setFieldErrors({ ...fieldErrors, cardCvv: '' });
-                      }}
-                      placeholder="CVV"
-                      maxLength={4}
-                      style={{ width: '100%', padding: '14px 16px', borderRadius: '8px', border: `1px solid ${fieldErrors.cardCvv ? '#dc2626' : '#e2e8f0'}`, outline: 'none', fontSize: '14px', background: '#f8fafc', boxSizing: 'border-box', fontFamily: 'inherit' }}
-                      onFocus={e => e.target.style.borderColor = accentColor}
-                      onBlur={e => e.target.style.borderColor = fieldErrors.cardCvv ? '#dc2626' : '#e2e8f0'}
-                    />
-                    {fieldErrors.cardCvv && <span style={{ fontSize: '12px', color: '#dc2626', marginTop: '6px', display: 'block' }}>{fieldErrors.cardCvv}</span>}
+                  <div style={{ flex: 1 }}>
+                    <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '6px', display: 'block' }}>CVV</label>
+                    <div style={{ position: 'relative' }}>
+                      <input
+                        type="password"
+                        className={`glass-input ${fieldErrors.cardCvv ? 'input-error' : ''}`}
+                        value={cardCvv}
+                        onChange={(e) => {
+                          setCardCvv(e.target.value.replace(/\D/g, ''));
+                          setFieldErrors({ ...fieldErrors, cardCvv: '' });
+                        }}
+                        placeholder="•••"
+                        maxLength={4}
+                        style={{ fontSize: '15px', textAlign: 'center', letterSpacing: '2px', paddingRight: '40px', width: '100%', boxSizing: 'border-box' }}
+                      />
+                      <Lock size={16} style={{ position: 'absolute', right: '14px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+                    </div>
+                    {fieldErrors.cardCvv && <span className="field-error" style={{ fontSize: '12px', color: 'var(--danger)', marginTop: '4px', display: 'block' }}>{fieldErrors.cardCvv}</span>}
                   </div>
                 </div>
 
-                <div style={{ position: 'relative' }}>
+                <div>
+                  <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '6px', display: 'block' }}>Cardholder Name</label>
                   <input
                     type="text"
+                    className={`glass-input ${fieldErrors.cardName ? 'input-error' : ''}`}
                     value={cardName}
                     onChange={(e) => { setCardName(e.target.value); setFieldErrors({ ...fieldErrors, cardName: '' }); }}
-                    placeholder="Cardholder Name"
-                    style={{ width: '100%', padding: '14px 16px', borderRadius: '8px', border: `1px solid ${fieldErrors.cardName ? '#dc2626' : '#e2e8f0'}`, outline: 'none', fontSize: '14px', background: '#f8fafc', boxSizing: 'border-box', fontFamily: 'inherit' }}
-                    onFocus={e => e.target.style.borderColor = accentColor}
-                    onBlur={e => e.target.style.borderColor = fieldErrors.cardName ? '#dc2626' : '#e2e8f0'}
+                    placeholder="Enter name exactly as on card"
+                    style={{ fontSize: '15px', width: '100%', boxSizing: 'border-box' }}
                   />
-                  {fieldErrors.cardName && <span style={{ fontSize: '12px', color: '#dc2626', marginTop: '6px', display: 'block' }}>{fieldErrors.cardName}</span>}
+                  {fieldErrors.cardName && <span className="field-error" style={{ fontSize: '12px', color: 'var(--danger)', marginTop: '4px', display: 'block' }}>{fieldErrors.cardName}</span>}
                 </div>
               </div>
 
-              <label style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '24px', fontSize: '13px', cursor: 'pointer', color: '#475569', fontWeight: 500 }}>
-                <input type="checkbox" checked={savePaymentDetails} onChange={(e) => setSavePaymentDetails(e.target.checked)} style={{ width: '16px', height: '16px', accentColor: accentColor }} />
-                <span>Save my payment details for next time</span>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '24px', fontSize: '13px', color: 'var(--text-secondary)', cursor: 'pointer' }}>
+                <input type="checkbox" checked={savePaymentDetails} onChange={(e) => setSavePaymentDetails(e.target.checked)} style={{ width: '18px', height: '18px', accentColor: 'hsl(var(--primary))', borderRadius: '4px' }} />
+                <span>Save this card for future transactions</span>
               </label>
             </div>
 
-            <div style={{ border: '1px solid #e2e8f0', borderRadius: '12px', padding: '24px', background: '#fff' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                <span style={{ fontSize: '12px', fontWeight: 700, padding: '4px 12px', border: '1px solid #e2e8f0', borderRadius: '20px', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Delivery &amp; Billing</span>
-                <div style={{ background: '#f1f5f9', color: '#475569', padding: '8px', borderRadius: '6px', cursor: 'pointer' }} onClick={() => setCurrentStep('address')}><Edit2 size={16} /></div>
+            <div className="glass-panel" style={{ borderRadius: '16px', padding: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                  <span style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', padding: '4px 8px', background: 'var(--extra-light)', color: 'var(--text-secondary)', borderRadius: '4px' }}>Delivery Address</span>
+                </div>
+                <h3 style={{ fontSize: '16px', fontWeight: 700, marginBottom: '4px' }}>{user?.first_name} {user?.last_name || 'Client Name'}</h3>
+                <div style={{ color: 'var(--text-muted)', fontSize: '14px' }}>
+                  {fulfillmentType === 'delivery' ? shippingAddress || 'No address provided' : 'Store Pickup'}
+                </div>
               </div>
-              <h3 style={{ fontSize: '18px', fontWeight: 700, color: '#0f172a', marginBottom: '8px', margin: 0 }}>{user?.first_name} {user?.last_name || 'Client Name'}</h3>
-              <div style={{ color: '#64748b', fontSize: '14px', marginTop: '4px' }}>
-                {fulfillmentType === 'delivery' ? shippingAddress || 'No address provided' : 'Store Pickup'}
-              </div>
+              <button onClick={() => setCurrentStep('address')} className="btn btn-secondary" style={{ padding: '8px', borderRadius: '8px' }}>
+                <Edit2 size={16} />
+              </button>
             </div>
           </div>
-          
           {renderSummarySidebar(false)}
         </div>
       )}
 
       {currentStep === 'success' && successOrder && (
-        <div style={{ maxWidth: '800px', margin: '60px auto 0', textAlign: 'center' }}>
-          <div style={{ width: '80px', height: '80px', background: '#ecfdf5', color: '#10b981', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px' }}>
-            <CheckCircle2 size={40} />
-          </div>
-          <h1 style={{ fontSize: '32px', fontWeight: 800, color: '#0f172a', marginBottom: '8px' }}>Payment Successful!</h1>
-          <p style={{ fontSize: '16px', color: '#64748b', marginBottom: '32px' }}>Your order <strong style={{ color: '#0f172a' }}>#{successOrder.id.toString().padStart(6, '0')}</strong> has been placed and is being processed.</p>
-
-          <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: '16px', padding: '32px', textAlign: 'left', marginBottom: '32px', boxShadow: '0 4px 12px rgba(0,0,0,0.02)' }}>
-            <h3 style={{ fontSize: '18px', fontWeight: 700, color: '#0f172a', marginBottom: '24px', borderBottom: '1px solid #f1f5f9', paddingBottom: '16px' }}>Order Details</h3>
-            
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
-              <span style={{ color: '#64748b', fontSize: '14px' }}>Date</span>
-              <span style={{ color: '#0f172a', fontSize: '14px', fontWeight: 600 }}>{new Date().toLocaleDateString()}</span>
+        <div className="fade-in" style={{ maxWidth: '800px', margin: '0 auto', padding: '40px 0' }}>
+          <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '80px', height: '80px', borderRadius: '50%', background: 'rgba(16, 185, 129, 0.1)', color: '#10b981', marginBottom: '24px' }}>
+              <CheckCircle2 size={40} />
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
-              <span style={{ color: '#64748b', fontSize: '14px' }}>Rental Period</span>
-              <span style={{ color: '#0f172a', fontSize: '14px', fontWeight: 600 }}>{new Date(successOrder.start_date).toLocaleDateString()} - {new Date(successOrder.end_date).toLocaleDateString()}</span>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
-              <span style={{ color: '#64748b', fontSize: '14px' }}>Fulfillment</span>
-              <span style={{ color: '#0f172a', fontSize: '14px', fontWeight: 600 }}>{successOrder.fulfillment_type === 'delivery' ? 'Standard Delivery' : 'Store Pickup'}</span>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '24px', paddingTop: '16px', borderTop: '1px dashed #e2e8f0' }}>
-              <span style={{ color: '#0f172a', fontSize: '16px', fontWeight: 700 }}>Total Paid</span>
-              <span style={{ color: accentColor, fontSize: '20px', fontWeight: 800 }}>${(parseFloat(successOrder.amount_paid) + parseFloat(successOrder.deposit_paid)).toFixed(2)}</span>
-            </div>
+            <h1 style={{ fontSize: '36px', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '12px' }}>Payment Successful!</h1>
+            <p style={{ fontSize: '16px', color: 'var(--text-secondary)' }}>Thank you for your order. We've sent a confirmation email with your invoice.</p>
           </div>
 
-          <div style={{ display: 'flex', gap: '16px', justifyContent: 'center' }}>
-            <Link to="/profile" style={{ padding: '14px 28px', background: '#f8fafc', color: '#0f172a', textDecoration: 'none', borderRadius: '8px', fontWeight: 700, fontSize: '14px', border: '1px solid #e2e8f0', transition: 'background 0.2s' }} onMouseOver={e=>e.currentTarget.style.background='#f1f5f9'} onMouseOut={e=>e.currentTarget.style.background='#f8fafc'}>
-              View My Orders
-            </Link>
-            {invoiceUrl && (
-              <a href={invoiceUrl} target="_blank" rel="noreferrer" style={{ padding: '14px 28px', background: accentColor, color: '#fff', textDecoration: 'none', borderRadius: '8px', fontWeight: 700, fontSize: '14px', transition: 'opacity 0.2s' }} onMouseOver={e=>e.currentTarget.style.opacity=0.9} onMouseOut={e=>e.currentTarget.style.opacity=1}>
-                Download Invoice
-              </a>
-            )}
-          </div>
-
-          <div style={{ background: '#174026', color: 'white', padding: '16px 24px', borderRadius: '8px', fontSize: '18px', marginBottom: '32px', border: '1px solid #28a745' }}>
-            Your Payment has been processed.
-          </div>
-
-          <div className="checkout-grid">
-            <div style={{ border: '1px solid var(--border)', borderRadius: '12px', padding: '24px', alignSelf: 'start' }}>
-              <div style={{ display: 'inline-block', fontSize: '12px', padding: '4px 12px', border: '1px solid var(--border)', borderRadius: '4px', marginBottom: '16px' }}>Delivery &amp; Billing</div>
-              <h3 style={{ fontSize: '18px', fontWeight: 700, marginBottom: '8px' }}>{user?.first_name} {user?.last_name || 'Client Name'}</h3>
-              <div style={{ color: 'var(--text-muted)', fontSize: '14px' }}>
-                {successOrder.fulfillment_type === 'delivery' ? successOrder.shipping_address : 'Store Pickup'}
+          <div className="glass-panel" style={{ borderRadius: '24px', padding: '40px', border: '1px solid hsl(var(--border-glass))', boxShadow: '0 20px 40px rgba(0, 0, 0, 0.05)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px dashed var(--border)', paddingBottom: '24px', marginBottom: '24px' }}>
+              <div>
+                <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '1px' }}>Order Reference</span>
+                <div style={{ fontSize: '20px', fontWeight: 800, color: 'var(--primary)', marginTop: '4px' }}>S{successOrder.id.toString().padStart(6, '0')}</div>
               </div>
+              {invoiceUrl && (
+                <a href={invoiceUrl} target="_blank" rel="noreferrer" className="btn btn-outline" style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 20px', borderRadius: '12px' }}>
+                  Print Invoice
+                </a>
+              )}
             </div>
-            
-            <div className="checkout-summary-box">
-              <div style={{ display: 'flex', gap: '16px', marginBottom: '24px' }}>
-                <div style={{ width: '60px', height: '60px', borderRadius: '8px', background: 'var(--extra-light)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>📦</div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: '13px', fontWeight: 600 }}>Order Items</div>
-                  <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Confirmed</div>
+
+            <div style={{ display: 'flex', gap: '40px' }}>
+              <div style={{ flex: 1 }}>
+                <h4 style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Delivery Details</h4>
+                <div style={{ fontSize: '15px', fontWeight: 600, marginBottom: '4px' }}>{user?.first_name} {user?.last_name || 'Client Name'}</div>
+                <div style={{ color: 'var(--text-muted)', fontSize: '14px', lineHeight: '1.6' }}>
+                  {successOrder.fulfillment_type === 'delivery' ? successOrder.shipping_address : 'Store Pickup'}
                 </div>
               </div>
-              <hr style={{ border: 'none', borderTop: '1px solid var(--border)', margin: '0 0 16px 0' }} />
-              <div style={{ fontSize: '12px', marginBottom: '8px' }}>Rental Period</div>
-              <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginBottom: '16px' }}>{new Date(successOrder.start_date).toLocaleDateString()} to {new Date(successOrder.end_date).toLocaleDateString()}</div>
-              
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '8px' }}>
-                <span>Delivery Charges</span>
-                <span>{successOrder.fulfillment_type === 'delivery' ? `$50.00` : '-'}</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '24px' }}>
-                <span>Security Deposit</span>
-                <span>Rs {parseFloat(successOrder.deposit_paid).toFixed(2)}</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', fontWeight: 700, borderTop: '1px solid var(--border)', paddingTop: '16px' }}>
-                <span>Total</span>
-                <span>Rs {(parseFloat(successOrder.amount_paid) + parseFloat(successOrder.deposit_paid)).toFixed(2)}</span>
+
+              <div style={{ flex: 1, borderLeft: '1px solid var(--border)', paddingLeft: '40px' }}>
+                <h4 style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Payment Summary</h4>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', marginBottom: '12px' }}>
+                  <span style={{ color: 'var(--text-muted)' }}>Rental Total</span>
+                  <span style={{ fontWeight: 600 }}>Rs {parseFloat(successOrder.amount_paid).toFixed(2)}</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', marginBottom: '12px' }}>
+                  <span style={{ color: 'var(--text-muted)' }}>Security Deposit</span>
+                  <span style={{ fontWeight: 600 }}>Rs {parseFloat(successOrder.deposit_paid).toFixed(2)}</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '16px', fontWeight: 800, color: '#10b981', marginTop: '16px', paddingTop: '16px', borderTop: '1px solid var(--border)' }}>
+                  <span>Total Paid</span>
+                  <span>Rs {(parseFloat(successOrder.amount_paid) + parseFloat(successOrder.deposit_paid)).toFixed(2)}</span>
+                </div>
               </div>
             </div>
+          </div>
+          
+          <div style={{ textAlign: 'center', marginTop: '40px' }}>
+            <Link to="/" className="btn btn-primary" style={{ padding: '14px 32px', borderRadius: '12px', fontSize: '15px', fontWeight: 600 }}>
+              Continue Browsing
+            </Link>
           </div>
         </div>
       )}
