@@ -36,25 +36,25 @@ def seed():
     client_user, created = User.objects.get_or_create(
         username='client',
         defaults={
-            'email': 'client@gmail.com',
-            'role': 'customer',
-            'address': '123 Portal Lane, Cityville',
-            'phone_number': '+15550199'
+            'email': 'client@example.com',
+            'role': 'client'
         }
     )
     if created:
         client_user.set_password('client123')
         client_user.save()
+        from accounts.models import UserProfile
+        UserProfile.objects.create(user=client_user, address='123 Portal Lane, Cityville', phone_number='+15550199')
         print("Created client user: client/client123")
     else:
         # Data migration for existing 'client' roles
         if client_user.role == 'client':
-            client_user.role = 'customer'
+            client_user.role = 'client'
             client_user.save()
         print("Client user already exists")
 
-    # Migrate any other users with role='client'
-    User.objects.filter(role='client').update(role='customer')
+    # Migrate any other users with role='customer'
+    User.objects.filter(role='customer').update(role='client')
 
     # 2. Rental Periods
     periods = [
@@ -70,13 +70,14 @@ def seed():
         username='vendor',
         defaults={
             'email': 'vendor@rentalhub.com',
-            'role': 'vendor',
-            'phone_number': '+15550299'
+            'role': 'vendor'
         }
     )
     if created:
         vendor_user.set_password('vendor123')
         vendor_user.save()
+        from accounts.models import UserProfile
+        UserProfile.objects.create(user=vendor_user, phone_number='+15550299')
         print("Created vendor user: vendor/vendor123")
     else:
         print("Vendor user already exists")

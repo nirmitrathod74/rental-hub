@@ -226,7 +226,7 @@ export const Checkout = () => {
             <h2 style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', marginTop: '40px', marginBottom: '24px' }}>Delivery Address</h2>
             <div style={{ border: '1px solid #e2e8f0', borderRadius: '12px', padding: '24px', background: '#fff' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
-                <h3 style={{ fontSize: '18px', fontWeight: 700, color: '#0f172a', margin: 0 }}>{user?.first_name} {user?.last_name || 'Customer Name'}</h3>
+                <h3 style={{ fontSize: '18px', fontWeight: 700, color: '#0f172a', margin: 0 }}>{user?.first_name} {user?.last_name || 'Client Name'}</h3>
                 <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                   <span style={{ background: accentColor, color: 'white', fontSize: '11px', fontWeight: 600, padding: '4px 10px', borderRadius: '4px' }}>Main Address</span>
                 </div>
@@ -356,7 +356,7 @@ export const Checkout = () => {
                 <span style={{ fontSize: '12px', fontWeight: 700, padding: '4px 12px', border: '1px solid #e2e8f0', borderRadius: '20px', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Delivery &amp; Billing</span>
                 <div style={{ background: '#f1f5f9', color: '#475569', padding: '8px', borderRadius: '6px', cursor: 'pointer' }} onClick={() => setCurrentStep('address')}><Edit2 size={16} /></div>
               </div>
-              <h3 style={{ fontSize: '18px', fontWeight: 700, color: '#0f172a', marginBottom: '8px', margin: 0 }}>{user?.first_name} {user?.last_name || 'Customer Name'}</h3>
+              <h3 style={{ fontSize: '18px', fontWeight: 700, color: '#0f172a', marginBottom: '8px', margin: 0 }}>{user?.first_name} {user?.last_name || 'Client Name'}</h3>
               <div style={{ color: '#64748b', fontSize: '14px', marginTop: '4px' }}>
                 {fulfillmentType === 'delivery' ? shippingAddress || 'No address provided' : 'Store Pickup'}
               </div>
@@ -405,6 +405,45 @@ export const Checkout = () => {
                 Download Invoice
               </a>
             )}
+          </div>
+          <div style={{ background: '#174026', color: 'white', padding: '16px 24px', borderRadius: '8px', fontSize: '18px', marginBottom: '32px', border: '1px solid #28a745' }}>
+            Your Payment has been processed.
+          </div>
+
+          <div className="checkout-grid">
+            <div style={{ border: '1px solid var(--border)', borderRadius: '12px', padding: '24px', alignSelf: 'start' }}>
+              <div style={{ display: 'inline-block', fontSize: '12px', padding: '4px 12px', border: '1px solid var(--border)', borderRadius: '4px', marginBottom: '16px' }}>Delivery &amp; Billing</div>
+              <h3 style={{ fontSize: '18px', fontWeight: 700, marginBottom: '8px' }}>{user?.first_name} {user?.last_name || 'Client Name'}</h3>
+              <div style={{ color: 'var(--text-muted)', fontSize: '14px' }}>
+                {successOrder.fulfillment_type === 'delivery' ? successOrder.shipping_address : 'Store Pickup'}
+              </div>
+            </div>
+            
+            <div className="checkout-summary-box">
+              <div style={{ display: 'flex', gap: '16px', marginBottom: '24px' }}>
+                <div style={{ width: '60px', height: '60px', borderRadius: '8px', background: 'var(--extra-light)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>📦</div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: '13px', fontWeight: 600 }}>Order Items</div>
+                  <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Confirmed</div>
+                </div>
+              </div>
+              <hr style={{ border: 'none', borderTop: '1px solid var(--border)', margin: '0 0 16px 0' }} />
+              <div style={{ fontSize: '12px', marginBottom: '8px' }}>Rental Period</div>
+              <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginBottom: '16px' }}>{new Date(successOrder.start_date).toLocaleDateString()} to {new Date(successOrder.end_date).toLocaleDateString()}</div>
+              
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '8px' }}>
+                <span>Delivery Charges</span>
+                <span>{successOrder.fulfillment_type === 'delivery' ? `$50.00` : '-'}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '24px' }}>
+                <span>Security Deposit</span>
+                <span>Rs {parseFloat(successOrder.deposit_paid).toFixed(2)}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', fontWeight: 700, borderTop: '1px solid var(--border)', paddingTop: '16px' }}>
+                <span>Total</span>
+                <span>Rs {(parseFloat(successOrder.amount_paid) + parseFloat(successOrder.deposit_paid)).toFixed(2)}</span>
+              </div>
+            </div>
           </div>
         </div>
       )}

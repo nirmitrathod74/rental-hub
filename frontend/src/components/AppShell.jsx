@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext.jsx';
 import { useCart } from '../context/CartContext.jsx';
 import { useWishlist } from '../context/WishlistContext.jsx';
 import { getMediaUrl } from '../api/index.js';
+import logo from '../assets/final_logo.png';
 
 const NavItem = ({ to, icon: Icon, children, onClick }) => <Link to={to} className="nav-link" onClick={onClick}><Icon /> <span>{children}</span></Link>;
 
@@ -32,8 +33,9 @@ export const AppShell = ({ children }) => {
 
   return <div className="app-shell">
     <header className="topbar">
-      <Link className="brand" to="/" style={{ marginRight: '24px' }}>
-        <span className="brand-mark"><Boxes size={17} /></span>RentalHub ERP
+      <Link className="brand" to="/" style={{ marginRight: '24px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <img src={logo} alt="RentalHub Logo" style={{ height: '32px', width: '32px', objectFit: 'contain', display: 'block' }} />
+        <span>RentalHub ERP</span>
       </Link>
       
       <div className="topbar-links" style={{ display: 'flex', gap: '24px', marginRight: '32px', fontSize: '14px', fontWeight: 500, whiteSpace: 'nowrap' }}>
