@@ -26,16 +26,27 @@ class RentalOrderViewSet(viewsets.ModelViewSet):
         user = self.request.user
         if user.is_admin_role:
             return RentalOrder.objects.all().order_by('-created_at')
+        if getattr(user, 'role', '') == 'vendor':
+            # Vendor sees orders where they are the client OR where their products are rented
+            from django.db.models import Q
+            return RentalOrder.objects.filter(
+                Q(client=user) | Q(items__product__vendor=user)
+            ).distinct().order_by('-created_at')
         return RentalOrder.objects.filter(client=user).order_by('-created_at')
 
     @action(detail=False, methods=['get'])
     def schedule_data(self, request):
-        if not request.user.is_admin_role:
+        user = request.user
+        if not (user.is_admin_role or getattr(user, 'role', '') == 'vendor'):
             return Response({'error': 'Unauthorized'}, status=status.HTTP_403_FORBIDDEN)
         
         # We need orders that are confirmed, picked_up, or overdue
         active_statuses = ['confirmed', 'picked_up', 'overdue']
-        orders = RentalOrder.objects.filter(status__in=active_statuses).select_related('client').prefetch_related('items__product')
+        
+        if user.is_admin_role:
+            orders = RentalOrder.objects.filter(status__in=active_statuses).select_related('client').prefetch_related('items__product')
+        else:
+            orders = RentalOrder.objects.filter(status__in=active_statuses, items__product__vendor=user).distinct().select_related('client').prefetch_related('items__product')
         
         data = []
         for order in orders:

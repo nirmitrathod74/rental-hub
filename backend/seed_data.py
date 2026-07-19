@@ -66,50 +66,21 @@ def seed():
         RentalPeriod.objects.get_or_create(name=name, defaults={'duration': days, 'unit': 'Days'})
     print("Seeded rental periods.")
 
-<<<<<<< HEAD
-    # 3. Products
-    p1, _ = Product.objects.get_or_create(
-        sku='EXC-001',
+    vendor_user, created = User.objects.get_or_create(
+        username='vendor',
         defaults={
-            'name': 'Heavy Duty Excavator',
-            'description': 'Industrial excavator for massive building construction and excavation works.',
-            'base_price': Decimal('250.00'),
-            'stock_qty': 5,
-            'grace_period_hours': 2,
-            'vendor': admin_user
+            'email': 'vendor@rentalhub.com',
+            'role': 'vendor',
+            'phone_number': '+15550299'
         }
     )
-    ProductVariant.objects.get_or_create(product=p1, attribute_name='Manufacturer', attribute_value='Caterpillar')
-    ProductVariant.objects.get_or_create(product=p1, attribute_name='Color', attribute_value='Yellow')
+    if created:
+        vendor_user.set_password('vendor123')
+        vendor_user.save()
+        print("Created vendor user: vendor/vendor123")
+    else:
+        print("Vendor user already exists")
 
-    p2, _ = Product.objects.get_or_create(
-        sku='GEN-50K',
-        defaults={
-            'name': '50kW Silent Diesel Generator',
-            'description': 'Super silent diesel backup power generator with output of 50 kilowatts.',
-            'base_price': Decimal('120.00'),
-            'security_deposit_value': Decimal('15.00'), # 15% of rental price
-            'stock_qty': 10,
-            'grace_period_hours': 1,
-            'vendor': admin_user
-        }
-    )
-    ProductVariant.objects.get_or_create(product=p2, attribute_name='Brand', attribute_value='Cummins')
-
-    p3, _ = Product.objects.get_or_create(
-        sku='SCA-05',
-        defaults={
-            'name': 'Aluminium Scaffolding Set',
-            'description': 'Mobile tower aluminium scaffolding for painters, plasterers, and electricians.',
-            'base_price': Decimal('45.00'),
-            'stock_qty': 20,
-            'grace_period_hours': 6,
-            'vendor': admin_user
-        }
-    )
-    ProductVariant.objects.get_or_create(product=p3, attribute_name='Size', attribute_value='Height 5 Meters')
-    print("Seeded rental products and variants.")
-=======
     # 3. Categories and Products
     cat_heavy, _ = Category.objects.get_or_create(name='Heavy Machinery')
     cat_power, _ = Category.objects.get_or_create(name='Power Equipment')
@@ -156,7 +127,8 @@ def seed():
                 'description': desc,
                 'base_price': price,
                 'stock_qty': qty,
-                'category': cat
+                'category': cat,
+                'vendor': vendor_user
             }
         )
         ProductVariant.objects.get_or_create(product=p, attribute_name='Feature', attribute_value=var_val)
@@ -169,7 +141,6 @@ def seed():
     p2 = Product.objects.get(sku='GEN-50K')
     p3 = Product.objects.get(sku='SCA-05')
     print("Seeded rental products, categories, and variants.")
->>>>>>> fbe40a48341d8de3f76b85ac09f7cbbbb53eace8
 
     # 4. Pricelist
     pl, _ = PriceList.objects.get_or_create(
