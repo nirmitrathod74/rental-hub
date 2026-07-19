@@ -34,26 +34,43 @@ def seed():
         print("Admin user already exists")
 
     client_user, created = User.objects.get_or_create(
+<<<<<<< HEAD
+        email='client@example.com',
+        defaults={'username': 'client_user', 'role': 'client'}
+=======
         username='client',
         defaults={
             'email': 'client@example.com',
-            'role': 'client'
+            'role': 'client',
         }
+>>>>>>> c9806ef21a18692bd0749715b9549d9f9c9fc1af
     )
     if created:
-        client_user.set_password('client123')
+        client_user.set_password('clientpass')
+        client_user.is_active = True
         client_user.save()
+<<<<<<< HEAD
+        print("Created client user: client_user/clientpass")
+    else:
+        # Data migration back to 'client' role if it was accidentally set to 'customer'
+        if client_user.role == 'customer':
+=======
         from accounts.models import UserProfile
-        UserProfile.objects.create(user=client_user, address='123 Portal Lane, Cityville', phone_number='+15550199')
+        UserProfile.objects.get_or_create(user=client_user, defaults={'address': '123 Portal Lane, Cityville', 'phone_number': '+15550199'})
         print("Created client user: client/client123")
     else:
         # Data migration for existing 'client' roles
         if client_user.role == 'client':
+>>>>>>> c9806ef21a18692bd0749715b9549d9f9c9fc1af
             client_user.role = 'client'
             client_user.save()
         print("Client user already exists")
 
+<<<<<<< HEAD
+    # Migrate any other users with role='customer' back to 'client'
+=======
     # Migrate any other users with role='customer'
+>>>>>>> c9806ef21a18692bd0749715b9549d9f9c9fc1af
     User.objects.filter(role='customer').update(role='client')
 
     # 2. Rental Periods
@@ -70,14 +87,15 @@ def seed():
         username='vendor',
         defaults={
             'email': 'vendor@rentalhub.com',
-            'role': 'vendor'
+            'role': 'vendor',
         }
     )
     if created:
         vendor_user.set_password('vendor123')
         vendor_user.save()
-        from accounts.models import UserProfile
-        UserProfile.objects.create(user=vendor_user, phone_number='+15550299')
+        from accounts.models import UserProfile, VendorProfile
+        UserProfile.objects.get_or_create(user=vendor_user, defaults={'phone_number': '+15550299'})
+        VendorProfile.objects.get_or_create(user=vendor_user, defaults={'status': 'approved', 'business_name': 'RentalHub Vendor', 'gst_number': '22AAAAA0000A1Z5'})
         print("Created vendor user: vendor/vendor123")
     else:
         print("Vendor user already exists")
@@ -86,36 +104,29 @@ def seed():
     cat_power, _ = Category.objects.get_or_create(name='Power Equipment')
     cat_access, _ = Category.objects.get_or_create(name='Access Equipment')
     cat_tools, _ = Category.objects.get_or_create(name='Power Tools')
+    cat_vehicles, _ = Category.objects.get_or_create(name='Vehicles')
+    cat_av, _ = Category.objects.get_or_create(name='Electronics & AV')
 
     products_data = [
         ('EXC-001', 'Heavy Duty Excavator', 'Industrial excavator for massive building construction and excavation works.', Decimal('250.00'), 5, cat_heavy, 'Yellow', '#f3752e', 'Daily'),
         ('GEN-50K', '50kW Silent Diesel Generator', 'Super silent diesel backup power generator with output of 50 kilowatts.', Decimal('120.00'), 10, cat_power, 'Cummins', '#0b4e54', 'Weekly'),
         ('SCA-05', 'Aluminium Scaffolding Set', 'Mobile tower aluminium scaffolding for painters, plasterers, and electricians.', Decimal('45.00'), 20, cat_access, 'Height 5m', '#8c7df7', 'Monthly'),
         ('BLD-01', 'Bulldozer D8', 'Heavy bulldozer for earthmoving and grading.', Decimal('300.00'), 2, cat_heavy, 'Caterpillar', '#f3752e', 'Daily'),
-        ('LOD-02', 'Wheel Loader', 'Front-end wheel loader with high capacity bucket.', Decimal('210.00'), 4, cat_heavy, 'Volvo', '#0b4e54', 'Daily'),
         ('GEN-10K', '10kW Portable Generator', 'Compact gasoline generator for small sites.', Decimal('40.00'), 15, cat_power, 'Honda', '#6c431b', 'Hourly'),
-        ('SCA-10', 'High Reach Scaffolding 10m', 'Double height mobile tower scaffolding.', Decimal('85.00'), 12, cat_access, 'Height 10m', '#8c7df7', 'Monthly'),
-        ('BOM-45', '45ft Articulating Boom Lift', 'Aerial work platform for high reach access.', Decimal('180.00'), 6, cat_access, 'Genie', '#f3752e', 'Weekly'),
         ('DRL-01', 'Heavy Duty Jackhammer', 'Pneumatic demolition hammer for concrete breaking.', Decimal('35.00'), 25, cat_tools, 'Bosch', '#0b4e54', 'Hourly'),
         ('SAW-01', 'Concrete Saw', 'Gas powered walk-behind concrete saw.', Decimal('65.00'), 8, cat_tools, 'Husqvarna', '#f3752e', 'Hourly'),
-        ('WLD-01', 'Industrial Welder 300A', 'Multi-process welding machine for structural steel.', Decimal('75.00'), 10, cat_tools, 'Lincoln Electric', '#8c7df7', 'Weekly'),
-        ('CMP-01', 'Plate Compactor', 'Heavy duty vibratory plate compactor for soil.', Decimal('55.00'), 14, cat_heavy, 'Wacker Neuson', '#6c431b', 'Daily'),
-        ('CRN-100', '100 Ton Mobile Crane', 'Heavy lifting mobile crane for large scale construction.', Decimal('1500.00'), 1, cat_heavy, 'Liebherr', '#f3752e', 'Daily'),
         ('CRN-50', '50 Ton Mobile Crane', 'Medium lifting mobile crane.', Decimal('800.00'), 2, cat_heavy, 'Tadano', '#f3752e', 'Weekly'),
         ('FRK-03', '3 Ton Forklift', 'Diesel powered forklift for warehouse operations.', Decimal('90.00'), 8, cat_heavy, 'Toyota', '#0b4e54', 'Monthly'),
-        ('FRK-05', '5 Ton Forklift', 'Heavy duty diesel forklift.', Decimal('140.00'), 5, cat_heavy, 'Hyster', '#0b4e54', 'Weekly'),
-        ('LHT-01', 'Towable Light Tower', 'Diesel light tower for night time construction.', Decimal('60.00'), 15, cat_power, 'Wacker Neuson', '#f3752e', 'Weekly'),
-        ('LHT-02', 'Portable LED Light', 'Battery powered high intensity LED light.', Decimal('15.00'), 30, cat_power, 'Milwaukee', '#6c431b', 'Hourly'),
-        ('GEN-2K', '2kW Inverter Generator', 'Super quiet portable generator for events.', Decimal('25.00'), 20, cat_power, 'Honda', '#6c431b', 'Daily'),
-        ('PMP-01', '3" Trash Pump', 'Centrifugal trash pump for dewatering.', Decimal('45.00'), 12, cat_power, 'Subaru', '#8c7df7', 'Weekly'),
-        ('PMP-02', 'Submersible Water Pump', 'Electric submersible pump for clear water.', Decimal('20.00'), 18, cat_power, 'Tsurumi', '#8c7df7', 'Hourly'),
-        ('SZR-19', '19ft Scissor Lift', 'Electric slab scissor lift for indoor maintenance.', Decimal('110.00'), 10, cat_access, 'JLG', '#f3752e', 'Weekly'),
-        ('SZR-32', '32ft Rough Terrain Scissor Lift', 'Diesel scissor lift for outdoor construction.', Decimal('160.00'), 7, cat_access, 'Genie', '#f3752e', 'Monthly'),
-        ('BOM-65', '65ft Telescopic Boom Lift', 'Straight boom lift for maximum reach.', Decimal('250.00'), 4, cat_access, 'JLG', '#0b4e54', 'Weekly'),
         ('DRL-02', 'Rotary Hammer Drill', 'SDS Max rotary hammer for drilling concrete.', Decimal('25.00'), 30, cat_tools, 'Makita', '#0b4e54', 'Hourly'),
-        ('SAW-02', 'Tile Saw', 'Wet tile saw with stand for precise cutting.', Decimal('30.00'), 15, cat_tools, 'DeWalt', '#6c431b', 'Daily'),
-        ('SND-01', 'Floor Sander', 'Drum floor sander for hardwood floor refinishing.', Decimal('50.00'), 8, cat_tools, 'Clarke', '#6c431b', 'Daily'),
-        ('VAC-01', 'Industrial Wet/Dry Vac', 'High capacity vacuum for jobsite cleanup.', Decimal('35.00'), 20, cat_tools, 'Shop-Vac', '#8c7df7', 'Daily'),
+        
+        # New Real-world Items requested by User
+        ('DRL-03', 'DeWalt 20V Max Cordless Drill', 'Premium compact drill and driver kit with 2 batteries.', Decimal('15.00'), 40, cat_tools, 'DeWalt', '#f3752e', 'Daily'),
+        ('CAM-01', 'Sony Alpha A7S III Camera', 'Professional 4K mirrorless camera body, perfect for video production.', Decimal('110.00'), 5, cat_av, 'Sony', '#0b4e54', 'Daily'),
+        ('CAM-LENS1', 'Canon RF 24-70mm f/2.8L', 'Professional zoom lens for Canon mirrorless cameras.', Decimal('45.00'), 8, cat_av, 'Canon', '#0b4e54', 'Daily'),
+        ('CAR-01', 'Tesla Model 3', 'Electric premium sedan. Perfect for executive travel or test drives.', Decimal('120.00'), 3, cat_vehicles, 'Tesla', '#8c7df7', 'Daily'),
+        ('CAR-02', 'Ford F-150 Pickup Truck', 'Heavy duty pickup truck for moving equipment and material.', Decimal('85.00'), 5, cat_vehicles, 'Ford', '#0b4e54', 'Daily'),
+        ('GEN-PRO', 'Honda EU7000is Generator', '7000-watt super quiet inverter generator for events and food trucks.', Decimal('95.00'), 10, cat_power, 'Honda', '#f3752e', 'Daily'),
+        ('PRJ-01', 'Epson 4K PRO-UHD Projector', 'High brightness professional laser projector for corporate events.', Decimal('80.00'), 6, cat_av, 'Epson', '#6c431b', 'Daily'),
     ]
 
     import os
