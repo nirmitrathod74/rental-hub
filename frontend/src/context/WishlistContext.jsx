@@ -1,20 +1,37 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { useAuth } from './AuthContext.jsx';
 
 const WishlistContext = createContext(null);
 
-export const WishlistProvider = ({ children }) => {
-  const [wishlist, setWishlist] = useState(() => {
-    try {
-      const saved = localStorage.getItem('rentalhub_wishlist');
-      return saved ? JSON.parse(saved) : [];
-    } catch (e) {
-      return [];
-    }
-  });
+const getStorageKey = (userId) => userId ? `rentalhub_wishlist_${userId}` : null;
 
+export const WishlistProvider = ({ children }) => {
+  const { user } = useAuth();
+  const [wishlist, setWishlist] = useState([]);
+
+  // Load user-specific wishlist when user changes (login/logout)
   useEffect(() => {
-    localStorage.setItem('rentalhub_wishlist', JSON.stringify(wishlist));
-  }, [wishlist]);
+    if (user && user.id) {
+      try {
+        const key = getStorageKey(user.id);
+        const saved = localStorage.getItem(key);
+        setWishlist(saved ? JSON.parse(saved) : []);
+      } catch (e) {
+        setWishlist([]);
+      }
+    } else {
+      // User logged out — clear wishlist state
+      setWishlist([]);
+    }
+  }, [user?.id]);
+
+  // Persist wishlist to user-specific localStorage key whenever it changes
+  useEffect(() => {
+    if (user && user.id) {
+      const key = getStorageKey(user.id);
+      localStorage.setItem(key, JSON.stringify(wishlist));
+    }
+  }, [wishlist, user?.id]);
 
   const toggleWishlist = (product) => {
     setWishlist(prev => {

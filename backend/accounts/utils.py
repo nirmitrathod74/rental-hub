@@ -48,7 +48,8 @@ def send_verification_email(user):
     # Encode user primary key (ID)
     uid = urlsafe_base64_encode(force_bytes(user.pk))
     # Construct the direct backend URL to verify and activate user accounts
-    verification_link = f"http://localhost:8000/api/accounts/verify-email/?uid={uid}&token={token}"
+    backend_url = getattr(settings, 'BACKEND_URL', 'http://localhost:8000')
+    verification_link = f"{backend_url}/api/accounts/verify-email/?uid={uid}&token={token}"
     
     subject = "Verify your email for RentalHub"
     message = f"""

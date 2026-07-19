@@ -1,8 +1,12 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { useAuth } from './AuthContext.jsx';
 
 const CartContext = createContext(undefined);
 
+const getStorageKey = (userId) => userId ? `rentalhub_cart_${userId}` : null;
+
 export const CartProvider = ({ children }) => {
+  const { user } = useAuth();
   const [cart, setCart] = useState([]);
   const [startDate, setStartDate] = useState(() => {
     const d = new Date();
@@ -16,6 +20,47 @@ export const CartProvider = ({ children }) => {
   });
   const [fulfillmentType, setFulfillmentType] = useState('store_pickup');
   const [shippingAddress, setShippingAddress] = useState('');
+
+  // Load user-specific cart when user changes (login/logout)
+  useEffect(() => {
+    if (user && user.id) {
+      try {
+        const key = getStorageKey(user.id);
+        const saved = localStorage.getItem(key);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          setCart(parsed.cart || []);
+          if (parsed.startDate) setStartDate(parsed.startDate);
+          if (parsed.endDate) setEndDate(parsed.endDate);
+          if (parsed.fulfillmentType) setFulfillmentType(parsed.fulfillmentType);
+          if (parsed.shippingAddress) setShippingAddress(parsed.shippingAddress);
+        } else {
+          setCart([]);
+        }
+      } catch (e) {
+        setCart([]);
+      }
+    } else {
+      // User logged out — clear cart state
+      setCart([]);
+      setFulfillmentType('store_pickup');
+      setShippingAddress('');
+    }
+  }, [user?.id]);
+
+  // Persist cart to user-specific localStorage whenever it changes
+  useEffect(() => {
+    if (user && user.id) {
+      const key = getStorageKey(user.id);
+      localStorage.setItem(key, JSON.stringify({
+        cart,
+        startDate,
+        endDate,
+        fulfillmentType,
+        shippingAddress,
+      }));
+    }
+  }, [cart, startDate, endDate, fulfillmentType, shippingAddress, user?.id]);
 
   const addToCart = (product, quantity, selectedVariants) => {
     setCart((prev) => {

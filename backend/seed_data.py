@@ -36,8 +36,8 @@ def seed():
     client_user, created = User.objects.get_or_create(
         username='client',
         defaults={
-            'email': 'client@gmail.com',
-            'role': 'customer',
+            'email': 'client@example.com',
+            'role': 'client',
         }
     )
     if created:
@@ -49,12 +49,12 @@ def seed():
     else:
         # Data migration for existing 'client' roles
         if client_user.role == 'client':
-            client_user.role = 'customer'
+            client_user.role = 'client'
             client_user.save()
         print("Client user already exists")
 
-    # Migrate any other users with role='client'
-    User.objects.filter(role='client').update(role='customer')
+    # Migrate any other users with role='customer'
+    User.objects.filter(role='customer').update(role='client')
 
     # 2. Rental Periods
     periods = [

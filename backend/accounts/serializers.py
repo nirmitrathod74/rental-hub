@@ -96,15 +96,15 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
             if user_obj.role == 'vendor' and (not hasattr(user_obj, 'vendor_profile') or user_obj.vendor_profile.status != 'approved'):
                 from rest_framework.exceptions import AuthenticationFailed
                 raise AuthenticationFailed("Account pending approval")
-            if not user_obj.is_active:
-                from rest_framework.exceptions import AuthenticationFailed
-                raise AuthenticationFailed("Please verify your email address to activate your account.")
 
         try:
             data = super().validate(attrs)
         except Exception as e:
             from rest_framework.exceptions import AuthenticationFailed
             if isinstance(e, AuthenticationFailed):
+                # Check if the user exists but is inactive (unverified email)
+                if user_obj and not user_obj.is_active:
+                    raise AuthenticationFailed("Please verify your email address to activate your account.")
                 raise AuthenticationFailed("Invalid username or password")
             raise e
 
