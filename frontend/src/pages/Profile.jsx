@@ -129,20 +129,12 @@ export const Profile = () => {
   return (
     <div style={{ padding: '40px', maxWidth: '1200px', margin: '0 auto', fontFamily: 'Inter, sans-serif', color: '#333' }}>
       
-<<<<<<< HEAD
       <div style={{ marginBottom: '32px' }}>
         <h1 style={{ fontSize: '28px', fontWeight: 800, color: '#111', margin: 0 }}>My Account</h1>
         <p style={{ color: '#666', marginTop: '8px', fontSize: '15px' }}>Manage your profile information and view your rental history.</p>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '32px', marginBottom: '32px', alignItems: 'start' }}>
-        
-        {/* Profile Information Panel */}
-        <div style={cardStyle}>
-          <h2 style={{ fontSize: '20px', fontWeight: 800, marginBottom: '32px', display: 'flex', alignItems: 'center', gap: '10px', color: '#111' }}>
-            <User size={20} style={{ color: accentColor }} /> Profile Information
-=======
-      <div style={{ display: 'flex', gap: '8px', borderBottom: '1px solid var(--border)' }}>
+      <div style={{ display: 'flex', gap: '8px', borderBottom: '1px solid var(--border)', marginBottom: '32px' }}>
         <button 
           onClick={() => setSearchParams({ tab: 'profile' })}
           style={{ 
@@ -176,7 +168,6 @@ export const Profile = () => {
         <div className="glass-panel" style={{ padding: '32px' }}>
           <h2 style={{ fontSize: '20px', fontWeight: 800, marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '8px' }}>
             <User size={20} style={{ color: 'hsl(var(--primary))' }} /> Profile Information
->>>>>>> cafd3d6a02fc0217017cebeecbf2b37ea15ea118
           </h2>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '32px', paddingBottom: '24px', borderBottom: '1px solid #f1f5f9' }}>
@@ -275,17 +266,9 @@ export const Profile = () => {
       </div>
       )}
 
-<<<<<<< HEAD
-      {/* Order History Table */}
-      <div style={cardStyle}>
-        <h2 style={{ fontSize: '20px', fontWeight: 800, marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '10px', color: '#111' }}>
-          <Calendar size={20} style={{ color: '#6366f1' }} /> Rental Order History
-        </h2>
-=======
       {activeTab === 'rentals' && (
       <div className="glass-panel" style={{ padding: '32px', overflowX: 'auto' }}>
         <h2 style={{ fontSize: '20px', fontWeight: 800, marginBottom: '20px' }}>Rental Order History</h2>
->>>>>>> cafd3d6a02fc0217017cebeecbf2b37ea15ea118
 
         <div style={{ overflowX: 'auto' }}>
           {loading ? (

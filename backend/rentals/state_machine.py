@@ -52,10 +52,10 @@ class RentalStateMachine:
         # Deduct inventory when moving from draft to confirmed
         if current == 'draft' and new == 'confirmed':
             for item in self.order.items.all():
-                if item.product.available_qty < item.quantity:
+                if item.product.stock_qty < item.quantity:
                     raise ValueError(
                         f"Insufficient stock for product {item.product.name}. "
-                        f"Available: {item.product.available_qty}, Requested: {item.quantity}"
+                        f"Available: {item.product.stock_qty}, Requested: {item.quantity}"
                     )
                 ProductRepository.update_stock(item.product, -item.quantity)
 
