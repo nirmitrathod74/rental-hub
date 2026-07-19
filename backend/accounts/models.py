@@ -3,11 +3,11 @@ from django.contrib.auth.models import AbstractUser
 
 class User(AbstractUser):
     ROLE_CHOICES = (
-        ('client', 'Client'),
+        ('customer', 'Customer'),
         ('vendor', 'Vendor'),
         ('admin', 'Admin'),
     )
-    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='client', db_index=True)
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='customer', db_index=True)
     avatar = models.ImageField(upload_to='avatars/', blank=True, null=True)
 
     class Meta:

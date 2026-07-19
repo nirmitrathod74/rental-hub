@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from inventory.models import Category, Product, ProductVariant, PriceList, PriceListItem, RentalPeriod
+from inventory.models import Category, Product, ProductVariant, PriceList, PriceListItem, RentalPeriod, ProductAvailability
 from inventory.services import InventoryService
 from inventory.repositories import PriceListRepository
 
@@ -36,7 +36,8 @@ class ProductSerializer(serializers.ModelSerializer):
             'id', 'product_code', 'category', 'category_detail', 'name', 'sku', 'description', 'image', 'base_price',
             'security_deposit_type', 'security_deposit_value', 'stock_qty',
             'available_qty', 'late_fee_type', 'late_fee_rate', 'grace_period_hours',
-            'variants', 'calculated_price', 'calculated_deposit'
+            'variants', 'calculated_price', 'calculated_deposit',
+            'vendor', 'approval_status', 'condition', 'pickup_address'
         )
 
 
@@ -78,9 +79,11 @@ class PriceListItemSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PriceListItem
-        fields = ('id', 'product', 'product_name', 'product_sku', 'custom_price')
-
-
+        fields = (
+            'id', 'pricelist', 'product', 'product_name', 'product_sku', 
+            'price_type', 'discount_percentage', 'custom_price', 'min_qty', 
+            'start_date', 'end_date', 'selectable'
+        )
 class PriceListSerializer(serializers.ModelSerializer):
     items = PriceListItemSerializer(many=True, read_only=True)
     modifiers_count = serializers.IntegerField(read_only=True)
@@ -94,3 +97,18 @@ class RentalPeriodSerializer(serializers.ModelSerializer):
     class Meta:
         model = RentalPeriod
         fields = ('id', 'name', 'duration', 'unit')
+
+class VendorProductSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Product
+        fields = (
+            'id', 'product_code', 'category', 'name', 'sku', 'description', 'image', 'base_price',
+            'stock_qty', 'condition', 'pickup_address', 'approval_status'
+        )
+        read_only_fields = ('id', 'product_code', 'approval_status')
+
+class ProductAvailabilitySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductAvailability
+        fields = ('id', 'product', 'start_date', 'end_date', 'reason')
+

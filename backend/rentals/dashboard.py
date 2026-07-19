@@ -22,12 +22,12 @@ class DashboardService:
         month_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
 
         # Revenue logic
-        revenue_today = RentalRepository.get_all().filter(status__in=['returned', 'settled'], created_at__gte=today_start).aggregate(Sum('amount_paid'))['amount_paid__sum'] or 0
-        revenue_this_month = RentalRepository.get_all().filter(status__in=['returned', 'settled'], created_at__gte=month_start).aggregate(Sum('amount_paid'))['amount_paid__sum'] or 0
+        revenue_today = RentalRepository.get_all().filter(status__in=['returned', 'settled'], created_at__gte=today_start).aggregate(Sum('invoices__total'))['invoices__total__sum'] or 0
+        revenue_this_month = RentalRepository.get_all().filter(status__in=['returned', 'settled'], created_at__gte=month_start).aggregate(Sum('invoices__total'))['invoices__total__sum'] or 0
 
         # Products
         total_products = Product.objects.count()
-        products_available = sum(p.available_qty for p in Product.objects.all())
+        products_available = 0  # To be calculated via stock moves if needed
 
         metrics = {
             'active_rentals': RentalRepository.get_active_rentals().count(),
