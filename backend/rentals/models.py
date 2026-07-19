@@ -81,3 +81,21 @@ class QuotationTemplate(models.Model):
 
     def __str__(self):
         return self.name
+
+class Review(models.Model):
+    rental_order = models.ForeignKey(RentalOrder, on_delete=models.CASCADE, related_name='reviews')
+    reviewer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='reviews_written')
+    reviewee = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='reviews_received')
+    rating = models.IntegerField(default=5) # 1-5
+    comment = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['rental_order']),
+            models.Index(fields=['reviewer']),
+            models.Index(fields=['reviewee']),
+        ]
+
+    def __str__(self):
+        return f"Review by {self.reviewer.username} for {self.reviewee.username} - {self.rating} stars"

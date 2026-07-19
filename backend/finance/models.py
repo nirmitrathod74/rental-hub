@@ -55,3 +55,31 @@ class SecurityDeposit(models.Model):
     def __str__(self):
         return f"Deposit for Order {self.order.order_number} - {self.status}"
 
+class PlatformSettings(models.Model):
+    platform_commission_percentage = models.DecimalField(max_digits=5, decimal_places=2, default=15.00)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def save(self, *args, **kwargs):
+        if self.__class__.objects.count():
+            self.pk = self.__class__.objects.first().pk
+        super().save(*args, **kwargs)
+
+    @classmethod
+    def get_settings(cls):
+        obj, created = cls.objects.get_or_create(pk=1)
+        return obj
+
+    def __str__(self):
+        return f"Platform Settings ({self.platform_commission_percentage}%)"
+
+class PlatformRevenue(models.Model):
+    order = models.OneToOneField(RentalOrder, on_delete=models.CASCADE, related_name='revenue_split')
+    rental_fee = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    platform_commission = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    vendor_payout = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    is_paid_out = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Revenue Split for Order {self.order.id} - Platform: {self.platform_commission}, Vendor: {self.vendor_payout}"
+

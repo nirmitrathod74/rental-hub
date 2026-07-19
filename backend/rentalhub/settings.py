@@ -4,15 +4,21 @@ from datetime import timedelta
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Read .env file manually
+# --- CUSTOM ZERO-DEPENDENCY .env LOADER ---
+# We read the local `.env` file manually at startup so that we don't have to install 
+# external packages like `python-dotenv`. It parses lines containing key-value pairs 
+# and injects them directly into the system environment variable dictionary `os.environ`.
 env_file = BASE_DIR / '.env'
 if env_file.exists():
     with open(env_file, 'r', encoding='utf-8') as f:
         for line in f:
             line = line.strip()
+            # Ignore empty lines, comments (starting with #), and ensure there is an '=' separator
             if line and not line.startswith('#') and '=' in line:
                 key, val = line.split('=', 1)
+                # Trim quotes and whitespace from keys and values, then set in system environment
                 os.environ[key.strip()] = val.strip().strip('"').strip("'")
+# ------------------------------------------
 
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-rental-hub-secret-key-1234567890')
 
@@ -190,10 +196,13 @@ CACHES = {
     }
 }
 
-# Email Settings
+# --- DYNAMIC EMAIL INFRASTRUCTURE ---
+# We retrieve email credentials set from our manual `.env` file loader above.
 EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
 
+# If credentials exist, we configure a live Gmail SMTP relay server to deliver emails to users.
+# Otherwise, we fallback to printing the email contents directly into the Django console.
 if EMAIL_HOST_USER and EMAIL_HOST_PASSWORD:
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
     EMAIL_HOST = 'smtp.gmail.com'
@@ -203,5 +212,6 @@ if EMAIL_HOST_USER and EMAIL_HOST_PASSWORD:
 else:
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
     DEFAULT_FROM_EMAIL = 'noreply@rentalhub.com'
+# ------------------------------------
 
 FRONTEND_URL = os.environ.get('FRONTEND_URL', 'http://localhost:3000')

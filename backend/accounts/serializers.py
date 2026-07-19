@@ -79,16 +79,34 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
 
     def validate(self, attrs):
         username = attrs.get(self.username_field)
-        if username and '@' in username:
+        password = attrs.get('password')
+        user_obj = None
+        
+        if username:
             try:
-                user_obj = User.objects.get(email=username)
-                attrs[self.username_field] = user_obj.username
+                if '@' in username:
+                    user_obj = User.objects.get(email=username)
+                    attrs[self.username_field] = user_obj.username
+                else:
+                    user_obj = User.objects.get(username=username)
             except User.DoesNotExist:
                 pass
 
-        data = super().validate(attrs)
-        if self.user.role == 'vendor' and (not hasattr(self.user, 'vendor_profile') or self.user.vendor_profile.status != 'approved'):
+        if user_obj and user_obj.check_password(password):
+            if user_obj.role == 'vendor' and (not hasattr(user_obj, 'vendor_profile') or user_obj.vendor_profile.status != 'approved'):
+                from rest_framework.exceptions import AuthenticationFailed
+                raise AuthenticationFailed("Account pending approval")
+            if not user_obj.is_active:
+                from rest_framework.exceptions import AuthenticationFailed
+                raise AuthenticationFailed("Please verify your email address to activate your account.")
+
+        try:
+            data = super().validate(attrs)
+        except Exception as e:
             from rest_framework.exceptions import AuthenticationFailed
-            raise AuthenticationFailed("Account pending approval")
+            if isinstance(e, AuthenticationFailed):
+                raise AuthenticationFailed("Invalid username or password")
+            raise e
+
         data['user'] = UserSerializer(self.user).data
         return data

@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
 import { Mail, Phone, MapPin, Send, MessageSquareText } from 'lucide-react';
 import { validateEmail, validateRequired } from '../utils/validation.js';
+import { api } from '../api/index.js';
 
 export const Contact = () => {
   const [form, setForm] = useState({ name: '', email: '', subject: '', message: '' });
   const [fieldErrors, setFieldErrors] = useState({});
   const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState('');
+  const [submitting, setSubmitting] = useState(false);
 
   const update = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -26,11 +29,25 @@ export const Contact = () => {
     return Object.keys(errors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!validateForm()) return;
-    setSubmitted(true);
-    setForm({ name: '', email: '', subject: '', message: '' });
+    if (!validateForm()) return; // Stop if local validation fails
+    
+    setError('');
+    setSubmitting(true); // Toggle loading spinner
+    try {
+      // POST the name, email, subject, message to contact message endpoint
+      await api.post('/accounts/contact/', form);
+      // Toggle submission success view
+      setSubmitted(true);
+      // Clear the form fields
+      setForm({ name: '', email: '', subject: '', message: '' });
+    } catch (err) {
+      // Capture errors thrown from DRF or connection failure
+      setError(err.message || 'Failed to send your message. Please try again later.');
+    } finally {
+      setSubmitting(false); // Stop loading spinner
+    }
   };
 
   return (
@@ -106,43 +123,46 @@ export const Contact = () => {
               <button onClick={() => setSubmitted(false)} className="btn btn-secondary">Send another message</button>
             </div>
           ) : (
-            <form onSubmit={handleSubmit} noValidate style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              <div style={{ display: 'flex', gap: '16px' }}>
-                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                  <label style={{ fontSize: '12px', fontWeight: 600 }}>Your Name</label>
-                  <input name="name" value={form.name} onChange={update} className={`glass-input ${fieldErrors.name ? 'input-error' : ''}`} />
-                  {fieldErrors.name && <span className="field-error">{fieldErrors.name}</span>}
+            <>
+              {error && <div className="auth-error" style={{ marginBottom: '16px' }}>{error}</div>}
+              <form onSubmit={handleSubmit} noValidate style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <div style={{ display: 'flex', gap: '16px' }}>
+                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                    <label style={{ fontSize: '12px', fontWeight: 600 }}>Your Name</label>
+                    <input name="name" value={form.name} onChange={update} className={`glass-input ${fieldErrors.name ? 'input-error' : ''}`} />
+                    {fieldErrors.name && <span className="field-error">{fieldErrors.name}</span>}
+                  </div>
+                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                    <label style={{ fontSize: '12px', fontWeight: 600 }}>Email Address</label>
+                    <input type="email" name="email" value={form.email} onChange={update} className={`glass-input ${fieldErrors.email ? 'input-error' : ''}`} />
+                    {fieldErrors.email && <span className="field-error">{fieldErrors.email}</span>}
+                  </div>
                 </div>
-                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                  <label style={{ fontSize: '12px', fontWeight: 600 }}>Email Address</label>
-                  <input type="email" name="email" value={form.email} onChange={update} className={`glass-input ${fieldErrors.email ? 'input-error' : ''}`} />
-                  {fieldErrors.email && <span className="field-error">{fieldErrors.email}</span>}
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                  <label style={{ fontSize: '12px', fontWeight: 600 }}>Subject</label>
+                  <input name="subject" value={form.subject} onChange={update} className={`glass-input ${fieldErrors.subject ? 'input-error' : ''}`} />
+                  {fieldErrors.subject && <span className="field-error">{fieldErrors.subject}</span>}
                 </div>
-              </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                <label style={{ fontSize: '12px', fontWeight: 600 }}>Subject</label>
-                <input name="subject" value={form.subject} onChange={update} className={`glass-input ${fieldErrors.subject ? 'input-error' : ''}`} />
-                {fieldErrors.subject && <span className="field-error">{fieldErrors.subject}</span>}
-              </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                  <label style={{ fontSize: '12px', fontWeight: 600 }}>Message</label>
+                  <textarea 
+                    name="message" 
+                    value={form.message} 
+                    onChange={update} 
+                    className={`glass-input ${fieldErrors.message ? 'input-error' : ''}`} 
+                    rows={5} 
+                    style={{ resize: 'vertical' }}
+                  />
+                  {fieldErrors.message && <span className="field-error">{fieldErrors.message}</span>}
+                </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                <label style={{ fontSize: '12px', fontWeight: 600 }}>Message</label>
-                <textarea 
-                  name="message" 
-                  value={form.message} 
-                  onChange={update} 
-                  className={`glass-input ${fieldErrors.message ? 'input-error' : ''}`} 
-                  rows={5} 
-                  style={{ resize: 'vertical' }}
-                />
-                {fieldErrors.message && <span className="field-error">{fieldErrors.message}</span>}
-              </div>
-
-              <button type="submit" className="btn btn-primary" style={{ marginTop: '8px', padding: '12px' }}>
-                Submit Message <Send size={16} />
-              </button>
-            </form>
+                <button type="submit" disabled={submitting} className="btn btn-primary" style={{ marginTop: '8px', padding: '12px' }}>
+                  {submitting ? 'Sending Message...' : <>Submit Message <Send size={16} /></>}
+                </button>
+              </form>
+            </>
           )}
         </div>
       </div>

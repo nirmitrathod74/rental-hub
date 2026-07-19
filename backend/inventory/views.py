@@ -3,7 +3,8 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from inventory.models import Category, Product, ProductVariant, PriceList, PriceListItem, RentalPeriod
 from inventory.serializers import (
-    CategorySerializer, ProductSerializer, PriceListSerializer, PriceListItemSerializer, RentalPeriodSerializer
+    CategorySerializer, ProductSerializer, PriceListSerializer, PriceListItemSerializer, RentalPeriodSerializer,
+    VendorProductSerializer
 )
 from inventory.repositories import ProductRepository
 from inventory.services import InventoryService
@@ -179,27 +180,98 @@ class PriceListViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['post'], permission_classes=[permissions.IsAdminUser])
     def add_item(self, request, pk=None):
         pricelist = self.get_object()
-        product_id = request.data.get('product')
-        price = request.data.get('custom_price')
+        data = request.data.copy() if hasattr(request.data, 'copy') else request.data
+        data['pricelist'] = pricelist.id
         
-        if not product_id or not price:
-            return Response({'error': 'product and custom_price required'}, status=status.HTTP_400_BAD_REQUEST)
-        
-        try:
-            product = Product.objects.get(pk=product_id)
-        except Product.DoesNotExist:
-            return Response({'error': 'product not found'}, status=status.HTTP_404_NOT_FOUND)
+        # In case frontend passes empty string for product (All Products)
+        if data.get('product') == '':
+            data['product'] = None
             
-        item, created = PriceListItem.objects.update_or_create(
-            pricelist=pricelist,
-            product=product,
-            defaults={'custom_price': price}
-        )
-        serializer = PriceListItemSerializer(item)
-        return Response(serializer.data, status=status.HTTP_200_OK if not created else status.HTTP_201_CREATED)
+        serializer = PriceListItemSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
+class PriceListItemViewSet(viewsets.ModelViewSet):
+    queryset = PriceListItem.objects.all().order_by('id')
+    serializer_class = PriceListItemSerializer
+    permission_classes = (IsAdminOrReadOnly,)
 
 class RentalPeriodViewSet(viewsets.ModelViewSet):
     queryset = RentalPeriod.objects.all().order_by('id')
     serializer_class = RentalPeriodSerializer
     permission_classes = (IsAdminOrReadOnly,)
+
+class VendorProductViewSet(viewsets.ModelViewSet):
+    serializer_class = VendorProductSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+    from rest_framework.parsers import MultiPartParser, FormParser
+    parser_classes = (MultiPartParser, FormParser)
+
+    def get_queryset(self):
+        return Product.objects.filter(vendor=self.request.user)
+
+    def perform_create(self, serializer):
+        serializer.save(vendor=self.request.user, approval_status='Pending')
+
+from rest_framework.views import APIView
+
+class AdminProductApprovalAPIView(APIView):
+    permission_classes = (permissions.IsAdminUser,)
+
+    def get(self, request, *args, **kwargs):
+        pending = Product.objects.filter(approval_status='Pending')
+        serializer = VendorProductSerializer(pending, many=True)
+        return Response(serializer.data)
+
+    def patch(self, request, pk, *args, **kwargs):
+        try:
+            product = Product.objects.get(pk=pk, approval_status='Pending')
+        except Product.DoesNotExist:
+            return Response({'error': 'Pending product not found'}, status=status.HTTP_404_NOT_FOUND)
+        
+        new_status = request.data.get('approval_status')
+        if new_status not in ['Approved', 'Rejected']:
+            return Response({'error': 'Invalid status'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        product.approval_status = new_status
+        product.save()
+        return Response({'status': 'success', 'approval_status': new_status})
+
+class VendorDashboardStatsAPIView(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get(self, request, *args, **kwargs):
+        from django.core.cache import cache
+        from finance.models import PlatformRevenue
+        from rentals.models import RentalOrder
+        
+        user = request.user
+        cache_key = f'vendor_stats_{user.id}'
+        stats = cache.get(cache_key)
+
+        if not stats:
+            vendor_products = Product.objects.filter(vendor=user)
+            pending_approvals = vendor_products.filter(approval_status='Pending').count()
+            
+            # Active rentals
+            active_rentals = RentalOrder.objects.filter(
+                items__product__in=vendor_products,
+                status__in=['confirmed', 'picked_up', 'overdue']
+            ).distinct().count()
+
+            # Total Earnings
+            revenues = PlatformRevenue.objects.filter(order__items__product__in=vendor_products).distinct()
+            total_earnings = sum(rev.vendor_payout for rev in revenues)
+
+            stats = {
+                'total_earnings': float(total_earnings),
+                'active_rentals': active_rentals,
+                'pending_approvals': pending_approvals,
+            }
+            cache.set(cache_key, stats, timeout=300) # Cache for 5 minutes
+
+        return Response(stats)
+

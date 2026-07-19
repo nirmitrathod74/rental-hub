@@ -56,12 +56,15 @@ export const VendorSignup = () => {
   const handleSubmit = async (event) => { 
     event.preventDefault(); 
     setError(''); 
-    if (!validateForm()) return;
+    if (!validateForm()) return; // Stop if field validation checks fail
     
     setSubmitting(true); 
+    // Format unique username from email
     const username = form.email.split('@')[0].replace(/[^a-zA-Z0-9_.-]/g, '').slice(0, 150); 
     try { 
+      // POST registration details (role: vendor, business information)
       await register({ username, first_name: form.firstName, last_name: form.lastName, email: form.email, password: form.password, phone_number: form.phone, address: form.address, business_name: form.businessName, gst_number: form.gstNumber, product_category: form.productCategory, role: 'vendor' }); 
+      // Toggle local success screen to prompt verification and approval instructions
       setSuccess(true); 
     } catch (err) { 
       setError(err.message || 'We could not register this business. Try another email address.'); 

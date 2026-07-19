@@ -23,6 +23,7 @@ import { InvoiceModal } from '../components/InvoiceModal.jsx';
 import { QuotationTemplateView } from '../components/QuotationTemplateView.jsx';
 import { GlobalSettingsView } from '../components/GlobalSettingsView.jsx';
 import { UserProfileView } from '../components/UserProfileView.jsx';
+import { PricelistsView } from '../components/PricelistsView.jsx';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
@@ -513,6 +514,9 @@ export const AdminDashboard = () => {
                 <button className="erp-dropdown-item" onClick={() => setActiveTab('configuration')}>General Settings</button>
                 <button className="erp-dropdown-item" onClick={() => setActiveTab('user_profile')}>Users & Roles</button>
                 <button className="erp-dropdown-item" onClick={() => setActiveTab('quotations')}>Quotation Templates</button>
+                <button className="erp-dropdown-item" onClick={() => setActiveTab('vendors')}>
+                  Vendor Approvals {vendors.length > 0 && <span style={{ background: 'var(--danger)', color: 'white', borderRadius: '10px', padding: '2px 6px', fontSize: '10px', marginLeft: '6px' }}>{vendors.length}</span>}
+                </button>
               </div>
             </div>
           </nav>
@@ -565,6 +569,11 @@ export const AdminDashboard = () => {
           <div className="fade-in" style={{ height: 'calc(100vh - 120px)' }}>
             <RentalScheduler setActiveTab={setActiveTab} />
           </div>
+        )}
+
+        {/* PRICELISTS TAB */}
+        {activeTab === 'pricelists' && (
+          <PricelistsView setActiveTab={setActiveTab} onDataChange={fetchAdminData} />
         )}
 
         {/* DASHBOARD TAB */}
@@ -828,40 +837,7 @@ export const AdminDashboard = () => {
           </div>
         )}
 
-        {/* PRICELISTS TAB */}
-        {activeTab === 'pricelists' && (
-          <div className="glass-panel" style={{ padding: '24px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <h3 style={{ fontSize: '18px', fontWeight: 800, color: 'hsl(var(--warning))', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <CircleDollarSign size={18} /> PriceLists ({pricelists.length})
-              </h3>
-              <button onClick={openCreatePricelistModal} style={{ backgroundColor: '#6B4668', color: '#ffffff', padding: '8px 16px', borderRadius: '6px', border: 'none', display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 600, cursor: 'pointer', fontSize: '13px' }}>
-                <Plus size={16} /> Create Pricelist
-              </button>
-            </div>
-            
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '16px' }}>
-              {pricelists.map(pl => (
-                <div key={pl.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px', backgroundColor: 'var(--extra-light)', borderRadius: '6px' }}>
-                  <div style={{ display: 'flex', flexDirection: 'column' }}>
-                    <span style={{ fontWeight: 'bold', marginBottom: '4px' }}>{pl.name} {pl.is_default && <span className="badge badge-picked_up" style={{ fontSize: '10px' }}>Default</span>}</span>
-                    <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{pl.modifiers_count} modifiers</span>
-                    <span style={{ fontSize: '11px', color: 'gray', marginTop: '2px' }}>
-                      {pl.start_date && pl.end_date 
-                        ? `${new Date(pl.start_date).toLocaleDateString()} - ${new Date(pl.end_date).toLocaleDateString()}` 
-                        : 'Default / Always Active'}
-                    </span>
-                  </div>
-                  <div style={{ display: 'flex', gap: '8px' }}>
-                    <button onClick={() => openEditPricelistModal(pl)} className="btn btn-secondary" style={{ padding: '4px 8px', fontSize: '12px', color: '#6B4668' }}><Edit size={14} /></button>
-                    <button onClick={() => handleDeletePricelist(pl.id)} className="btn btn-secondary" style={{ padding: '4px 8px', fontSize: '12px', border: '1px solid var(--danger)', color: 'var(--danger)' }}><X size={14} /></button>
-                  </div>
-                </div>
-              ))}
-              {pricelists.length === 0 && <span style={{ fontSize: '12px', color: 'hsl(var(--text-muted))' }}>No pricelists configured.</span>}
-            </div>
-          </div>
-        )}
+
 
         {/* RENTAL PERIODS TAB */}
         {activeTab === 'rental_periods' && (

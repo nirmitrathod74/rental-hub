@@ -33,6 +33,23 @@ class RentalPolicy(models.Model):
         return self.name
 
 class Product(models.Model):
+    APPROVAL_CHOICES = (
+        ('Pending', 'Pending'),
+        ('Approved', 'Approved'),
+        ('Rejected', 'Rejected'),
+    )
+    CONDITION_CHOICES = (
+        ('New', 'New'),
+        ('Like New', 'Like New'),
+        ('Good', 'Good'),
+        ('Fair', 'Fair'),
+    )
+    
+    vendor = models.ForeignKey('accounts.User', on_delete=models.CASCADE, related_name='products', null=True, blank=True)
+    approval_status = models.CharField(max_length=20, choices=APPROVAL_CHOICES, default='Pending')
+    condition = models.CharField(max_length=20, choices=CONDITION_CHOICES, default='Good')
+    pickup_address = models.TextField(blank=True, null=True)
+
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True, related_name='products')
     product_code = models.CharField(max_length=50, unique=True, db_index=True, null=True, blank=True)
     rental_policy = models.ForeignKey(RentalPolicy, on_delete=models.SET_NULL, null=True, blank=True, related_name='products')
@@ -108,15 +125,24 @@ class PriceList(models.Model):
 
 
 class PriceListItem(models.Model):
+    PRICE_TYPE_CHOICES = (
+        ('discount', 'Discount'),
+        ('fixed_price', 'Fixed Price'),
+    )
     pricelist = models.ForeignKey(PriceList, on_delete=models.CASCADE, related_name='items')
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    custom_price = models.DecimalField(max_digits=10, decimal_places=2)
-
-    class Meta:
-        unique_together = ('pricelist', 'product')
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, null=True, blank=True)
+    price_type = models.CharField(max_length=20, choices=PRICE_TYPE_CHOICES, default='discount')
+    discount_percentage = models.DecimalField(max_digits=5, decimal_places=2, default=0.00)
+    custom_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    min_qty = models.IntegerField(default=0)
+    start_date = models.DateTimeField(null=True, blank=True)
+    end_date = models.DateTimeField(null=True, blank=True)
+    selectable = models.BooleanField(default=True)
 
     def __str__(self):
-        return f"{self.pricelist.name} - {self.product.name}: ${self.custom_price}"
+        product_name = self.product.name if self.product else "All Products"
+        val = f"{self.discount_percentage}%" if self.price_type == 'discount' else f"${self.custom_price}"
+        return f"{self.pricelist.name} - {product_name}: {val}"
 
 
 class RentalPeriod(models.Model):
@@ -132,3 +158,17 @@ class RentalPeriod(models.Model):
 
     def __str__(self):
         return f"{self.name} ({self.duration} {self.unit})"
+
+class ProductAvailability(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='blockout_dates')
+    start_date = models.DateField()
+    end_date = models.DateField()
+    reason = models.CharField(max_length=255, blank=True)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['product', 'start_date', 'end_date']),
+        ]
+
+    def __str__(self):
+        return f"{self.product.name} unavailable from {self.start_date} to {self.end_date}"
