@@ -34,43 +34,26 @@ def seed():
         print("Admin user already exists")
 
     client_user, created = User.objects.get_or_create(
-<<<<<<< HEAD
-        email='client@example.com',
-        defaults={'username': 'client_user', 'role': 'client'}
-=======
         username='client',
         defaults={
             'email': 'client@example.com',
             'role': 'client',
         }
->>>>>>> c9806ef21a18692bd0749715b9549d9f9c9fc1af
     )
     if created:
-        client_user.set_password('clientpass')
-        client_user.is_active = True
+        client_user.set_password('client123')
         client_user.save()
-<<<<<<< HEAD
-        print("Created client user: client_user/clientpass")
-    else:
-        # Data migration back to 'client' role if it was accidentally set to 'customer'
-        if client_user.role == 'customer':
-=======
         from accounts.models import UserProfile
         UserProfile.objects.get_or_create(user=client_user, defaults={'address': '123 Portal Lane, Cityville', 'phone_number': '+15550199'})
         print("Created client user: client/client123")
     else:
         # Data migration for existing 'client' roles
         if client_user.role == 'client':
->>>>>>> c9806ef21a18692bd0749715b9549d9f9c9fc1af
             client_user.role = 'client'
             client_user.save()
         print("Client user already exists")
 
-<<<<<<< HEAD
     # Migrate any other users with role='customer' back to 'client'
-=======
-    # Migrate any other users with role='customer'
->>>>>>> c9806ef21a18692bd0749715b9549d9f9c9fc1af
     User.objects.filter(role='customer').update(role='client')
 
     # 2. Rental Periods
