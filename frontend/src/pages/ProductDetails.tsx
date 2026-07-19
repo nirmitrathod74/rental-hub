@@ -144,7 +144,7 @@ export const ProductDetails: React.FC = () => {
             <div className="glass-panel" style={{ padding: '16px 24px', flex: 1, minWidth: '150px' }}>
               <span style={{ fontSize: '12px', color: 'hsl(var(--text-secondary))' }}>Security Deposit</span>
               <div style={{ fontSize: '24px', fontWeight: 800, color: 'hsl(var(--success))', marginTop: '4px' }}>
-                ${parseFloat(product.calculated_deposit).toFixed(2)}
+                ${(parseFloat(product.calculated_price) * 1.2).toFixed(2)}
               </div>
             </div>
           </div>

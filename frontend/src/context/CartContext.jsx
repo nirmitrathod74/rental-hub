@@ -71,7 +71,7 @@ export const CartProvider = ({ children }) => {
       );
 
       const rentPrice = parseFloat(product.calculated_price);
-      const depositPrice = parseFloat(product.calculated_deposit);
+      const depositPrice = rentPrice * 1.2;
 
       if (existingIndex > -1) {
         const next = [...prev];

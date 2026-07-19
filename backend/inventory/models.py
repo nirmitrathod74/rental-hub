@@ -59,8 +59,15 @@ class Product(models.Model):
     image = models.ImageField(upload_to='products/', blank=True, null=True)
     base_price = models.DecimalField(max_digits=10, decimal_places=2)
     
-    # Inventory (strict 3NF: available_qty removed)
     stock_qty = models.IntegerField(default=0)
+
+    @property
+    def available_qty(self):
+        return self.stock_qty
+
+    @available_qty.setter
+    def available_qty(self, value):
+        self.stock_qty = value
     
     class Meta:
         indexes = [

@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="frontend/src/assets/final_logo.png" alt="Rental Hub Logo" width="220">
+  <img src="docs/images/logo.png" alt="Rental Hub Logo" width="220">
 </p>
 
 <h1 align="center">Rental Hub</h1>
@@ -629,41 +629,14 @@ Completed --> Available
 ```mermaid
 flowchart LR
 
-Client
-
--->
-
-React Frontend
-
--->
-
-Django REST API
-
--->
-
-Serializer
-
--->
-
-Business Logic
-
--->
-
-Database Models
-
--->
-
-PostgreSQL
-
-PostgreSQL
-
--->
-
-API Response
-
--->
-
-Frontend UI
+Client --> React[React Frontend]
+React --> Django[Django REST Framework API]
+Django --> Serializer
+Serializer --> Logic[Business Logic]
+Logic --> Models[Database Models]
+Models --> PostgreSQL
+PostgreSQL --> Response[API Response]
+Response --> UI[Frontend UI]
 ```
 
 ---
