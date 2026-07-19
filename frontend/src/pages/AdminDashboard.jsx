@@ -471,18 +471,11 @@ export const AdminDashboard = () => {
 
   return (
     <div className="admin-dashboard-container" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: 'var(--background)' }}>
-<<<<<<< HEAD
-      <header className="topbar" style={{ position: 'sticky', top: 0 }}>
-        <div style={{ display: 'flex', alignItems: 'center' }}>
-          <Link className="brand" to="/" style={{ marginRight: '24px', textDecoration: 'none' }}>
-            <span className="brand-mark"><Boxes size={17} color="white" /></span>RentalHub ERP
-=======
       <header className="erp-navbar">
         <div className="erp-navbar-left">
-          <Link className="erp-brand" to="/" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <Link className="erp-brand" to="/" style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none' }}>
             <img src={logo} alt="RentalHub Logo" style={{ height: '32px', width: '32px', objectFit: 'contain', display: 'block' }} />
             RentalHub ERP
->>>>>>> c9806ef21a18692bd0749715b9549d9f9c9fc1af
           </Link>
           <nav className="erp-nav-links" style={{ display: 'flex', gap: '24px', fontSize: '14px', fontWeight: 500 }}>
             <div className="erp-nav-item">
@@ -490,11 +483,7 @@ export const AdminDashboard = () => {
               <div className="erp-dropdown-menu">
                 <button className="erp-dropdown-item" onClick={() => setActiveTab('orders')}>All Orders</button>
                 <button className="erp-dropdown-item" onClick={() => setActiveTab('invoices')}>Invoices</button>
-<<<<<<< HEAD
                 <button className="erp-dropdown-item" onClick={() => setActiveTab('clients')}>Clients</button>
-=======
-                <button className="erp-dropdown-item" onClick={() => setActiveTab('customers')}>Clients</button>
->>>>>>> c9806ef21a18692bd0749715b9549d9f9c9fc1af
               </div>
             </div>
 
@@ -618,11 +607,7 @@ export const AdminDashboard = () => {
               <div className="glass-panel" style={{ padding: '20px', display: 'flex', alignItems: 'center', gap: '16px' }}>
                 <FileText size={32} style={{ color: '#8b5cf6' }} />
                 <div><span style={{ fontSize: '12px', color: 'hsl(var(--text-secondary))' }}>Pending Quotations</span>
-<<<<<<< HEAD
                 <div style={{ fontSize: '24px', fontWeight: 800 }}>{metrics?.pending_quotations} <small style={{fontSize: '12px', color: 'hsl(var(--text-secondary))'}}>{metrics?.total_clients || metrics?.total_customers} Total Clients</small></div></div>
-=======
-                <div style={{ fontSize: '24px', fontWeight: 800 }}>{metrics?.pending_quotations} <small style={{fontSize: '12px', color: 'hsl(var(--text-secondary))'}}>{metrics?.total_customers} Total Clients</small></div></div>
->>>>>>> c9806ef21a18692bd0749715b9549d9f9c9fc1af
               </div>
               <div className="glass-panel" style={{ padding: '20px', display: 'flex', alignItems: 'center', gap: '16px' }}>
                 <CircleDollarSign size={32} style={{ color: '#10b981' }} />
@@ -650,11 +635,7 @@ export const AdminDashboard = () => {
                   <button className="btn btn-secondary" onClick={() => setActiveTab('pricelists')}><Plus size={16}/> Create Pricelist</button>
                   <button className="btn btn-secondary" onClick={() => setActiveTab('rental_periods')}><Plus size={16}/> Create Rental Period</button>
                   <button className="btn btn-secondary" onClick={() => setActiveTab('quotations')}><Plus size={16}/> Create Quotation</button>
-<<<<<<< HEAD
                   <button className="btn btn-secondary" onClick={() => setActiveTab('clients')}><Plus size={16}/> Create Client</button>
-=======
-                  <button className="btn btn-secondary" onClick={() => setActiveTab('customers')}><Plus size={16}/> Create Client</button>
->>>>>>> c9806ef21a18692bd0749715b9549d9f9c9fc1af
                   <button className="btn btn-outline" onClick={() => setActiveTab('invoices')}><Receipt size={16}/> Generate Invoice</button>
                 </div>
               </div>
@@ -929,11 +910,7 @@ export const AdminDashboard = () => {
                     </td>
                   </tr>
                 ))}
-<<<<<<< HEAD
                 {clients.length === 0 && (
-=======
-                {customers.length === 0 && (
->>>>>>> c9806ef21a18692bd0749715b9549d9f9c9fc1af
                   <tr><td colSpan="6" style={{ textAlign: 'center', padding: '20px', color: 'var(--text-muted)' }}>No clients found.</td></tr>
                 )}
               </tbody>

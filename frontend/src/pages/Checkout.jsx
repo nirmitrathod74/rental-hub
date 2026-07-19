@@ -270,7 +270,6 @@ export const Checkout = () => {
       )}
 
       {currentStep === 'payment' && (
-<<<<<<< HEAD
         <div className="checkout-grid">
           <div className="fade-in">
             <h2 style={{ fontSize: '24px', fontWeight: 700, marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -303,7 +302,7 @@ export const Checkout = () => {
                       }}
                       placeholder="0000 0000 0000 0000"
                       maxLength={19}
-                      style={{ paddingLeft: '40px', fontSize: '15px', letterSpacing: '1px' }}
+                      style={{ paddingLeft: '40px', fontSize: '15px', letterSpacing: '1px', width: '100%', boxSizing: 'border-box' }}
                     />
                     <CreditCard size={18} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
                   </div>
@@ -313,38 +312,9 @@ export const Checkout = () => {
                 <div style={{ display: 'flex', gap: '20px' }}>
                   <div style={{ flex: 1 }}>
                     <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '6px', display: 'block' }}>Expiry Date</label>
-=======
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 380px', gap: '32px', alignItems: 'start' }}>
-          <div>
-            <h2 style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', marginBottom: '24px' }}>Payment Method</h2>
-            
-            <div style={{ border: '1px solid #e2e8f0', borderRadius: '12px', padding: '32px', marginBottom: '32px', background: '#fff' }}>
-              <h3 style={{ fontSize: '16px', fontWeight: 700, color: '#0f172a', marginBottom: '8px' }}>Credit Card</h3>
-              <p style={{ fontSize: '13px', color: '#64748b', marginBottom: '24px' }}>Enter your payment details securely.</p>
-              
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                <div style={{ position: 'relative' }}>
-                  <input
-                    type="text"
-                    value={cardNumber}
-                    onChange={(e) => {
-                      setCardNumber(e.target.value.replace(/\s?/g, '').replace(/(\d{4})/g, '$1 ').trim());
-                      setFieldErrors({ ...fieldErrors, cardNumber: '' });
-                    }}
-                    placeholder="Card Number (xxxx xxxx xxxx xxxx)"
-                    maxLength={19}
-                    style={{ width: '100%', padding: '14px 16px', borderRadius: '8px', border: `1px solid ${fieldErrors.cardNumber ? '#dc2626' : '#e2e8f0'}`, outline: 'none', fontSize: '14px', background: '#f8fafc', boxSizing: 'border-box', fontFamily: 'inherit' }}
-                    onFocus={e => e.target.style.borderColor = accentColor}
-                    onBlur={e => e.target.style.borderColor = fieldErrors.cardNumber ? '#dc2626' : '#e2e8f0'}
-                  />
-                  {fieldErrors.cardNumber && <span style={{ fontSize: '12px', color: '#dc2626', marginTop: '6px', display: 'block' }}>{fieldErrors.cardNumber}</span>}
-                </div>
-                
-                <div style={{ display: 'flex', gap: '20px' }}>
-                  <div style={{ flex: 1, position: 'relative' }}>
->>>>>>> c9806ef21a18692bd0749715b9549d9f9c9fc1af
                     <input
                       type="text"
+                      className={`glass-input ${fieldErrors.cardExpiry ? 'input-error' : ''}`}
                       value={cardExpiry}
                       onChange={(e) => {
                         let val = e.target.value.replace(/\D/g, '');
@@ -354,8 +324,7 @@ export const Checkout = () => {
                       }}
                       placeholder="MM/YY"
                       maxLength={5}
-<<<<<<< HEAD
-                      style={{ fontSize: '15px', textAlign: 'center', letterSpacing: '1px' }}
+                      style={{ fontSize: '15px', textAlign: 'center', letterSpacing: '1px', width: '100%', boxSizing: 'border-box' }}
                     />
                     {fieldErrors.cardExpiry && <span className="field-error" style={{ fontSize: '12px', color: 'var(--danger)', marginTop: '4px', display: 'block' }}>{fieldErrors.cardExpiry}</span>}
                   </div>
@@ -372,7 +341,7 @@ export const Checkout = () => {
                         }}
                         placeholder="•••"
                         maxLength={4}
-                        style={{ fontSize: '15px', textAlign: 'center', letterSpacing: '2px', paddingRight: '40px' }}
+                        style={{ fontSize: '15px', textAlign: 'center', letterSpacing: '2px', paddingRight: '40px', width: '100%', boxSizing: 'border-box' }}
                       />
                       <Lock size={16} style={{ position: 'absolute', right: '14px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
                     </div>
@@ -382,40 +351,13 @@ export const Checkout = () => {
 
                 <div>
                   <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '6px', display: 'block' }}>Cardholder Name</label>
-=======
-                      style={{ width: '100%', padding: '14px 16px', borderRadius: '8px', border: `1px solid ${fieldErrors.cardExpiry ? '#dc2626' : '#e2e8f0'}`, outline: 'none', fontSize: '14px', background: '#f8fafc', boxSizing: 'border-box', fontFamily: 'inherit' }}
-                      onFocus={e => e.target.style.borderColor = accentColor}
-                      onBlur={e => e.target.style.borderColor = fieldErrors.cardExpiry ? '#dc2626' : '#e2e8f0'}
-                    />
-                    {fieldErrors.cardExpiry && <span style={{ fontSize: '12px', color: '#dc2626', marginTop: '6px', display: 'block' }}>{fieldErrors.cardExpiry}</span>}
-                  </div>
-                  <div style={{ flex: 1, position: 'relative' }}>
-                    <input
-                      type="password"
-                      value={cardCvv}
-                      onChange={(e) => {
-                        setCardCvv(e.target.value);
-                        setFieldErrors({ ...fieldErrors, cardCvv: '' });
-                      }}
-                      placeholder="CVV"
-                      maxLength={4}
-                      style={{ width: '100%', padding: '14px 16px', borderRadius: '8px', border: `1px solid ${fieldErrors.cardCvv ? '#dc2626' : '#e2e8f0'}`, outline: 'none', fontSize: '14px', background: '#f8fafc', boxSizing: 'border-box', fontFamily: 'inherit' }}
-                      onFocus={e => e.target.style.borderColor = accentColor}
-                      onBlur={e => e.target.style.borderColor = fieldErrors.cardCvv ? '#dc2626' : '#e2e8f0'}
-                    />
-                    {fieldErrors.cardCvv && <span style={{ fontSize: '12px', color: '#dc2626', marginTop: '6px', display: 'block' }}>{fieldErrors.cardCvv}</span>}
-                  </div>
-                </div>
-
-                <div style={{ position: 'relative' }}>
->>>>>>> c9806ef21a18692bd0749715b9549d9f9c9fc1af
                   <input
                     type="text"
+                    className={`glass-input ${fieldErrors.cardName ? 'input-error' : ''}`}
                     value={cardName}
                     onChange={(e) => { setCardName(e.target.value); setFieldErrors({ ...fieldErrors, cardName: '' }); }}
-<<<<<<< HEAD
                     placeholder="Enter name exactly as on card"
-                    style={{ fontSize: '15px' }}
+                    style={{ fontSize: '15px', width: '100%', boxSizing: 'border-box' }}
                   />
                   {fieldErrors.cardName && <span className="field-error" style={{ fontSize: '12px', color: 'var(--danger)', marginTop: '4px', display: 'block' }}>{fieldErrors.cardName}</span>}
                 </div>
@@ -436,44 +378,17 @@ export const Checkout = () => {
                 <div style={{ color: 'var(--text-muted)', fontSize: '14px' }}>
                   {fulfillmentType === 'delivery' ? shippingAddress || 'No address provided' : 'Store Pickup'}
                 </div>
-=======
-                    placeholder="Cardholder Name"
-                    style={{ width: '100%', padding: '14px 16px', borderRadius: '8px', border: `1px solid ${fieldErrors.cardName ? '#dc2626' : '#e2e8f0'}`, outline: 'none', fontSize: '14px', background: '#f8fafc', boxSizing: 'border-box', fontFamily: 'inherit' }}
-                    onFocus={e => e.target.style.borderColor = accentColor}
-                    onBlur={e => e.target.style.borderColor = fieldErrors.cardName ? '#dc2626' : '#e2e8f0'}
-                  />
-                  {fieldErrors.cardName && <span style={{ fontSize: '12px', color: '#dc2626', marginTop: '6px', display: 'block' }}>{fieldErrors.cardName}</span>}
-                </div>
-              </div>
-
-              <label style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '24px', fontSize: '13px', cursor: 'pointer', color: '#475569', fontWeight: 500 }}>
-                <input type="checkbox" checked={savePaymentDetails} onChange={(e) => setSavePaymentDetails(e.target.checked)} style={{ width: '16px', height: '16px', accentColor: accentColor }} />
-                <span>Save my payment details for next time</span>
-              </label>
-            </div>
-
-            <div style={{ border: '1px solid #e2e8f0', borderRadius: '12px', padding: '24px', background: '#fff' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                <span style={{ fontSize: '12px', fontWeight: 700, padding: '4px 12px', border: '1px solid #e2e8f0', borderRadius: '20px', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Delivery &amp; Billing</span>
-                <div style={{ background: '#f1f5f9', color: '#475569', padding: '8px', borderRadius: '6px', cursor: 'pointer' }} onClick={() => setCurrentStep('address')}><Edit2 size={16} /></div>
-              </div>
-              <h3 style={{ fontSize: '18px', fontWeight: 700, color: '#0f172a', marginBottom: '8px', margin: 0 }}>{user?.first_name} {user?.last_name || 'Client Name'}</h3>
-              <div style={{ color: '#64748b', fontSize: '14px', marginTop: '4px' }}>
-                {fulfillmentType === 'delivery' ? shippingAddress || 'No address provided' : 'Store Pickup'}
->>>>>>> c9806ef21a18692bd0749715b9549d9f9c9fc1af
               </div>
               <button onClick={() => setCurrentStep('address')} className="btn btn-secondary" style={{ padding: '8px', borderRadius: '8px' }}>
                 <Edit2 size={16} />
               </button>
             </div>
           </div>
-          
           {renderSummarySidebar(false)}
         </div>
       )}
 
       {currentStep === 'success' && successOrder && (
-<<<<<<< HEAD
         <div className="fade-in" style={{ maxWidth: '800px', margin: '0 auto', padding: '40px 0' }}>
           <div style={{ textAlign: 'center', marginBottom: '40px' }}>
             <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '80px', height: '80px', borderRadius: '50%', background: 'rgba(16, 185, 129, 0.1)', color: '#10b981', marginBottom: '24px' }}>
@@ -488,57 +403,6 @@ export const Checkout = () => {
               <div>
                 <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '1px' }}>Order Reference</span>
                 <div style={{ fontSize: '20px', fontWeight: 800, color: 'var(--primary)', marginTop: '4px' }}>S{successOrder.id.toString().padStart(6, '0')}</div>
-=======
-        <div style={{ maxWidth: '800px', margin: '60px auto 0', textAlign: 'center' }}>
-          <div style={{ width: '80px', height: '80px', background: '#ecfdf5', color: '#10b981', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px' }}>
-            <CheckCircle2 size={40} />
-          </div>
-          <h1 style={{ fontSize: '32px', fontWeight: 800, color: '#0f172a', marginBottom: '8px' }}>Payment Successful!</h1>
-          <p style={{ fontSize: '16px', color: '#64748b', marginBottom: '32px' }}>Your order <strong style={{ color: '#0f172a' }}>#{successOrder.id.toString().padStart(6, '0')}</strong> has been placed and is being processed.</p>
-
-          <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: '16px', padding: '32px', textAlign: 'left', marginBottom: '32px', boxShadow: '0 4px 12px rgba(0,0,0,0.02)' }}>
-            <h3 style={{ fontSize: '18px', fontWeight: 700, color: '#0f172a', marginBottom: '24px', borderBottom: '1px solid #f1f5f9', paddingBottom: '16px' }}>Order Details</h3>
-            
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
-              <span style={{ color: '#64748b', fontSize: '14px' }}>Date</span>
-              <span style={{ color: '#0f172a', fontSize: '14px', fontWeight: 600 }}>{new Date().toLocaleDateString()}</span>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
-              <span style={{ color: '#64748b', fontSize: '14px' }}>Rental Period</span>
-              <span style={{ color: '#0f172a', fontSize: '14px', fontWeight: 600 }}>{new Date(successOrder.start_date).toLocaleDateString()} - {new Date(successOrder.end_date).toLocaleDateString()}</span>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
-              <span style={{ color: '#64748b', fontSize: '14px' }}>Fulfillment</span>
-              <span style={{ color: '#0f172a', fontSize: '14px', fontWeight: 600 }}>{successOrder.fulfillment_type === 'delivery' ? 'Standard Delivery' : 'Store Pickup'}</span>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '24px', paddingTop: '16px', borderTop: '1px dashed #e2e8f0' }}>
-              <span style={{ color: '#0f172a', fontSize: '16px', fontWeight: 700 }}>Total Paid</span>
-              <span style={{ color: accentColor, fontSize: '20px', fontWeight: 800 }}>${(parseFloat(successOrder.amount_paid) + parseFloat(successOrder.deposit_paid)).toFixed(2)}</span>
-            </div>
-          </div>
-
-          <div style={{ display: 'flex', gap: '16px', justifyContent: 'center' }}>
-            <Link to="/profile" style={{ padding: '14px 28px', background: '#f8fafc', color: '#0f172a', textDecoration: 'none', borderRadius: '8px', fontWeight: 700, fontSize: '14px', border: '1px solid #e2e8f0', transition: 'background 0.2s' }} onMouseOver={e=>e.currentTarget.style.background='#f1f5f9'} onMouseOut={e=>e.currentTarget.style.background='#f8fafc'}>
-              View My Orders
-            </Link>
-            {invoiceUrl && (
-              <a href={invoiceUrl} target="_blank" rel="noreferrer" style={{ padding: '14px 28px', background: accentColor, color: '#fff', textDecoration: 'none', borderRadius: '8px', fontWeight: 700, fontSize: '14px', transition: 'opacity 0.2s' }} onMouseOver={e=>e.currentTarget.style.opacity=0.9} onMouseOut={e=>e.currentTarget.style.opacity=1}>
-                Download Invoice
-              </a>
-            )}
-          </div>
-
-          <div style={{ background: '#174026', color: 'white', padding: '16px 24px', borderRadius: '8px', fontSize: '18px', marginBottom: '32px', border: '1px solid #28a745' }}>
-            Your Payment has been processed.
-          </div>
-
-          <div className="checkout-grid">
-            <div style={{ border: '1px solid var(--border)', borderRadius: '12px', padding: '24px', alignSelf: 'start' }}>
-              <div style={{ display: 'inline-block', fontSize: '12px', padding: '4px 12px', border: '1px solid var(--border)', borderRadius: '4px', marginBottom: '16px' }}>Delivery &amp; Billing</div>
-              <h3 style={{ fontSize: '18px', fontWeight: 700, marginBottom: '8px' }}>{user?.first_name} {user?.last_name || 'Client Name'}</h3>
-              <div style={{ color: 'var(--text-muted)', fontSize: '14px' }}>
-                {successOrder.fulfillment_type === 'delivery' ? successOrder.shipping_address : 'Store Pickup'}
->>>>>>> c9806ef21a18692bd0749715b9549d9f9c9fc1af
               </div>
               {invoiceUrl && (
                 <a href={invoiceUrl} target="_blank" rel="noreferrer" className="btn btn-outline" style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 20px', borderRadius: '12px' }}>
