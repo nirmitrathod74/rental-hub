@@ -53,6 +53,8 @@ Built using a modern full-stack architecture with React, Django REST Framework, 
 - Rental Analytics Dashboard
 - Background Task Processing
 - Dockerized Deployment
+- Normalization and Indexing
+- Cursor Pagination
 
 ---
 
@@ -586,7 +588,7 @@ docker compose up --build
 
 | Service | URL |
 |----------|-----|
-| Frontend | http://localhost:5173 |
+| Frontend | http://localhost:3000 |
 | Backend API | http://localhost:8000 |
 | Admin Panel | http://localhost:8000/admin |
 
