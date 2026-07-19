@@ -66,7 +66,6 @@ def seed():
         RentalPeriod.objects.get_or_create(name=name, defaults={'duration': days, 'unit': 'Days'})
     print("Seeded rental periods.")
 
-<<<<<<< HEAD
     vendor_user, created = User.objects.get_or_create(
         username='vendor',
         defaults={
@@ -81,9 +80,6 @@ def seed():
         print("Created vendor user: vendor/vendor123")
     else:
         print("Vendor user already exists")
-
-=======
->>>>>>> b775403c7ebea5a534158a72c0878852492c0dd0
     # 3. Categories and Products
     cat_heavy, _ = Category.objects.get_or_create(name='Heavy Machinery')
     cat_power, _ = Category.objects.get_or_create(name='Power Equipment')
@@ -133,11 +129,7 @@ def seed():
                 'base_price': price,
                 'stock_qty': qty,
                 'category': cat,
-<<<<<<< HEAD
                 'vendor': vendor_user
-=======
-                'vendor': admin_user
->>>>>>> b775403c7ebea5a534158a72c0878852492c0dd0
             }
         )
         

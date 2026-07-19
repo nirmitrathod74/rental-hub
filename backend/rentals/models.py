@@ -43,6 +43,19 @@ class RentalOrder(models.Model):
     def __str__(self):
         return f"Order #{self.id} - {self.client.username} ({self.status})"
 
+    @property
+    def total_rent_amount(self):
+        return sum((item.quantity * item.unit_price) for item in self.items.all())
+
+    @property
+    def total_deposit_amount(self):
+        return sum((item.quantity * item.deposit_amount) for item in self.items.all())
+
+    @property
+    def late_fee_charged(self):
+        late_payments = self.payments.filter(payment_type='late_fee', status='paid')
+        return sum(p.amount for p in late_payments)
+
 class RentalItem(models.Model):
     rental_order = models.ForeignKey(RentalOrder, on_delete=models.CASCADE, related_name='items')
     product = models.ForeignKey(Product, on_delete=models.CASCADE)

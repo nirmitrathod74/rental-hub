@@ -27,6 +27,28 @@ export const Rentals = () => {
     }
   };
 
+  const handleMarkPickedUp = async (orderId) => {
+    try {
+      await api.post(`/rentals/orders/${orderId}/pickup/`, {});
+      fetchRentals();
+    } catch (err) {
+      alert(err.message || 'Failed to mark as picked up');
+    }
+  };
+
+  const handleProcessReturn = async (orderId) => {
+    try {
+      await api.post(`/rentals/orders/${orderId}/return_inspection/`, {
+        condition_rating: 'good',
+        damage_notes: '',
+        missing_accessories: ''
+      });
+      fetchRentals();
+    } catch (err) {
+      alert(err.message || 'Failed to process return');
+    }
+  };
+
   const filteredRentals = rentals.filter(rental => {
     const matchesSearch = rental.order_public_id.toLowerCase().includes(searchTerm.toLowerCase()) || 
                           rental.product_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -131,12 +153,22 @@ export const Rentals = () => {
                     </td>
                     <td style={{ padding: '20px 16px', textAlign: 'right' }}>
                       {rental.status === 'confirmed' && (
-                        <button style={{ background: '#f8fafc', border: '1px solid #e2e8f0', padding: '8px 12px', borderRadius: '6px', color: '#0f172a', fontWeight: 600, cursor: 'pointer', fontSize: '12px' }} onMouseOver={e=>e.currentTarget.style.background='#f1f5f9'} onMouseOut={e=>e.currentTarget.style.background='#f8fafc'}>
+                        <button 
+                          onClick={() => handleMarkPickedUp(rental.order_id)}
+                          style={{ background: '#f8fafc', border: '1px solid #e2e8f0', padding: '8px 12px', borderRadius: '6px', color: '#0f172a', fontWeight: 600, cursor: 'pointer', fontSize: '12px' }} 
+                          onMouseOver={e=>e.currentTarget.style.background='#f1f5f9'} 
+                          onMouseOut={e=>e.currentTarget.style.background='#f8fafc'}
+                        >
                           Mark Picked Up
                         </button>
                       )}
                       {(rental.status === 'picked_up' || rental.status === 'overdue') && (
-                        <button style={{ background: '#6B4668', border: 'none', padding: '8px 12px', borderRadius: '6px', color: '#fff', fontWeight: 600, cursor: 'pointer', fontSize: '12px' }} onMouseOver={e=>e.currentTarget.style.opacity=0.9} onMouseOut={e=>e.currentTarget.style.opacity=1}>
+                        <button 
+                          onClick={() => handleProcessReturn(rental.order_id)}
+                          style={{ background: '#6B4668', border: 'none', padding: '8px 12px', borderRadius: '6px', color: '#fff', fontWeight: 600, cursor: 'pointer', fontSize: '12px' }} 
+                          onMouseOver={e=>e.currentTarget.style.opacity=0.9} 
+                          onMouseOut={e=>e.currentTarget.style.opacity=1}
+                        >
                           Process Return
                         </button>
                       )}

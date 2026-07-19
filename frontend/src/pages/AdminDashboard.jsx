@@ -1083,7 +1083,7 @@ export const AdminDashboard = () => {
                   <tr key={order.id}>
                     <td><strong>#{order.id}</strong></td>
                     <td>{order.client_details?.username}</td>
-                    <td>${parseFloat(order.amount_paid).toFixed(2)}</td>
+                    <td>${parseFloat(order.amount_paid || order.total_rent_amount || 0).toFixed(2)}</td>
                     <td><span className={`badge badge-${order.status}`}>{order.status}</span></td>
                     <td style={{ textAlign: 'right' }}>
                       <button onClick={() => handleGenerateInvoice(order.id)} className="btn btn-outline" style={{ padding: '4px 8px', fontSize: '12px' }}><Receipt size={14}/> PDF Invoice</button>
@@ -1192,18 +1192,31 @@ export const AdminDashboard = () => {
                   style={{ padding: '8px 12px', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '14px', outline: 'none' }}
                 />
               </div>
-              <button style={{ backgroundColor: '#6B4668', color: '#ffffff', padding: '10px 16px', borderRadius: '6px', border: 'none', fontSize: '14px', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <button 
+                onClick={async () => {
+                  const barcode = window.prompt('Scan or enter Order ID:');
+                  if (!barcode) return;
+                  try {
+                    await api.post(`/rentals/orders/${barcode}/pickup/`);
+                    alert(`Pickup confirmed for Order #${barcode}`);
+                    setPickups(prev => prev.filter(p => p.id != barcode));
+                  } catch(e) {
+                    alert('Error confirming pickup: ' + (e.message || 'Verification failed.'));
+                  }
+                }}
+                style={{ backgroundColor: '#6B4668', color: '#ffffff', padding: '10px 16px', borderRadius: '6px', border: 'none', fontSize: '14px', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
+              >
                 + Scan Barcode
               </button>
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              {pickups.filter(p => p.start_date && p.start_date.startsWith(pickupDateFilter)).length === 0 ? (
+              {pickups.filter(p => !pickupDateFilter || (p.start_date && p.start_date.startsWith(pickupDateFilter))).length === 0 ? (
                 <div className="glass-panel" style={{ padding: '32px', textAlign: 'center', backgroundColor: '#ffffff', color: 'gray' }}>
-                  No pending pickups scheduled for {pickupDateFilter}.
+                  No pending pickups scheduled{pickupDateFilter ? ` for ${pickupDateFilter}` : ''}.
                 </div>
               ) : (
-                pickups.filter(p => p.start_date && p.start_date.startsWith(pickupDateFilter)).map(order => (
+                pickups.filter(p => !pickupDateFilter || (p.start_date && p.start_date.startsWith(pickupDateFilter))).map(order => (
                   <div key={order.id} className="glass-panel" style={{ padding: '20px', backgroundColor: '#ffffff', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px', borderLeft: '4px solid #6B4668' }}>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>

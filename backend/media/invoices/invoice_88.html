@@ -1,0 +1,101 @@
+
+        <html>
+        <head>
+            <style>
+                body { font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; background-color: #f9f9f9; color: #21252b; margin: 0; padding: 40px; }
+                .invoice-container { max-width: 800px; margin: 0 auto; background: #ffffff; border-radius: 6px; border: 1px solid #dee2e6; padding: 40px; }
+                .header { display: flex; justify-content: space-between; border-bottom: 2px solid #714B67; padding-bottom: 20px; margin-bottom: 30px; }
+                .business-title { font-size: 28px; font-weight: 800; color: #714B67; }
+                .invoice-title { font-size: 24px; font-weight: 700; text-align: right; color: #714B67; }
+                .meta-table { width: 100%; margin-bottom: 30px; border-collapse: collapse; }
+                .meta-table td { padding: 6px 0; color: #6c757d; }
+                .meta-table td strong { color: #21252b; }
+                .products-table { width: 100%; border-collapse: collapse; margin-bottom: 35px; }
+                .products-table th { background-color: #f2f2f2; color: #21252b; text-align: left; padding: 12px; border-bottom: 2px solid #dee2e6; font-weight: 600; }
+                .summary { width: 50%; margin-left: auto; }
+                .summary td { padding: 8px 12px; text-align: right; }
+                .total { font-size: 20px; font-weight: 700; color: #714B67; }
+                .footer { border-top: 1px solid #dee2e6; padding-top: 20px; margin-top: 40px; text-align: center; font-size: 13px; color: #6c757d; }
+            </style>
+        </head>
+        <body>
+            <div class="invoice-container">
+                <div class="header">
+                    <div>
+                        <div class="business-title">RentalHub</div>
+                        <div style="color: #6c757d;">Enterprise Asset Solutions</div>
+                    </div>
+                    <div class="invoice-title">
+                        <div>INVOICE</div>
+                        <div style="font-size: 14px; font-weight: normal; color: #6c757d; margin-top: 5px;">Order #88</div>
+                    </div>
+                </div>
+
+                <table class="meta-table">
+                    <tr>
+                        <td><strong>Customer Name:</strong> rushsamantha</td>
+                        <td style="text-align: right;"><strong>Start Date:</strong> 2026-07-05 01:38</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Contact Email:</strong> elizabeth14@example.net</td>
+                        <td style="text-align: right;"><strong>Due Return Date:</strong> 2026-07-07 01:38</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Fulfillment:</strong> Store Pickup</td>
+                        <td style="text-align: right;"><strong>Actual Return:</strong> 2026-07-07 04:38</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Shipping Address:</strong> Store Pickup Selected</td>
+                        <td style="text-align: right;"><strong>Status:</strong> <span style="background-color: #714B67; color: white; padding: 2px 8px; border-radius: 4px; font-size: 12px;">Returned</span></td>
+                    </tr>
+                </table>
+
+                <table class="products-table">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th style="text-align: center;">Qty</th>
+                            <th style="text-align: right;">Unit Rent</th>
+                            <th style="text-align: right;">Unit Deposit</th>
+                            <th style="text-align: right;">Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        
+            <tr>
+                <td style="padding: 12px; border-bottom: 1px solid #dee2e6; color: #21252b;">Others Really</td>
+                <td style="padding: 12px; border-bottom: 1px solid #dee2e6; text-align: center; color: #21252b;">1</td>
+                <td style="padding: 12px; border-bottom: 1px solid #dee2e6; text-align: right; color: #21252b;">$57.00</td>
+                <td style="padding: 12px; border-bottom: 1px solid #dee2e6; text-align: right; color: #21252b;">$50.00</td>
+                <td style="padding: 12px; border-bottom: 1px solid #dee2e6; text-align: right; color: #21252b;">$57.00</td>
+            </tr>
+            
+                    </tbody>
+                </table>
+
+                <table class="summary">
+                    <tr>
+                        <td style="color: #6c757d;">Total Rental Fee:</td>
+                        <td style="font-weight: 600; color: #21252b;">$57.00</td>
+                    </tr>
+                    <tr>
+                        <td style="color: #6c757d;">Total Deposit Held:</td>
+                        <td style="font-weight: 600; color: #21252b;">$50.00</td>
+                    </tr>
+                    <tr>
+                        <td style="color: #6c757d;">Late Return Penalty:</td>
+                        <td style="font-weight: 600; color: #dc3545;">$0</td>
+                    </tr>
+                    <tr style="border-top: 2px solid #dee2e6;">
+                        <td class="total" style="padding-top: 12px;">Grand Total:</td>
+                        <td class="total" style="padding-top: 12px;">$107.00</td>
+                    </tr>
+                </table>
+
+                <div class="footer">
+                    Thank you for choosing RentalHub! For terms & support, contact support@rentalhub.com
+                </div>
+            </div>
+        </body>
+        </html>
+        
