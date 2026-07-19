@@ -27,6 +27,8 @@ import { PricelistsView } from '../components/PricelistsView.jsx';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
+import logo from '../assets/final_logo.png';
+
 export const AdminDashboard = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
@@ -471,8 +473,8 @@ export const AdminDashboard = () => {
     <div className="admin-dashboard-container" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: 'var(--background)' }}>
       <header className="erp-navbar">
         <div className="erp-navbar-left">
-          <Link className="erp-brand" to="/">
-            <div className="erp-brand-icon"><Boxes size={18} color="white" /></div>
+          <Link className="erp-brand" to="/" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <img src={logo} alt="RentalHub Logo" style={{ height: '32px', width: '32px', objectFit: 'contain', display: 'block' }} />
             RentalHub ERP
           </Link>
           <nav className="erp-nav-links">

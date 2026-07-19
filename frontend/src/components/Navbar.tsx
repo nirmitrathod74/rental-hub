@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { getMediaUrl } from '../api';
 import { ShoppingCart, User as UserIcon, LogOut, LayoutDashboard, Database } from 'lucide-react';
+import logo from '../assets/final_logo.png';
 
 export const Navbar: React.FC = () => {
   const { user, logout } = useAuth();
@@ -32,7 +33,7 @@ export const Navbar: React.FC = () => {
         alignItems: 'center',
         gap: '8px',
       }}>
-        <span style={{ fontSize: '24px' }}>📦</span>
+        <img src={logo} alt="RentalHub Logo" style={{ height: '32px', width: '32px', objectFit: 'contain', filter: 'brightness(0)' }} />
         <span style={{
           fontFamily: 'var(--font-title)',
           fontSize: '20px',
