@@ -202,7 +202,7 @@ export const Checkout = () => {
             <h2 style={{ fontSize: '20px', fontWeight: 600, marginTop: '32px', marginBottom: '20px' }}>Delivery Address</h2>
             <div style={{ border: '1px solid var(--border)', borderRadius: '12px', padding: '24px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
-                <h3 style={{ fontSize: '18px', fontWeight: 700 }}>{user?.first_name} {user?.last_name || 'Customer Name'}</h3>
+                <h3 style={{ fontSize: '18px', fontWeight: 700 }}>{user?.first_name} {user?.last_name || 'Client Name'}</h3>
                 <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                   <span style={{ background: '#3b82f6', color: 'white', fontSize: '11px', padding: '4px 10px', borderRadius: '4px' }}>Main Address</span>
                 </div>
@@ -328,7 +328,7 @@ export const Checkout = () => {
                 <span style={{ fontSize: '12px', padding: '4px 12px', border: '1px solid var(--border)', borderRadius: '4px' }}>Delivery &amp; Billing</span>
                 <div style={{ background: 'var(--extra-light)', padding: '6px', borderRadius: '4px', cursor: 'pointer' }}><Edit2 size={14} /></div>
               </div>
-              <h3 style={{ fontSize: '18px', fontWeight: 700, marginBottom: '8px' }}>{user?.first_name} {user?.last_name || 'Customer Name'}</h3>
+              <h3 style={{ fontSize: '18px', fontWeight: 700, marginBottom: '8px' }}>{user?.first_name} {user?.last_name || 'Client Name'}</h3>
               <div style={{ color: 'var(--text-muted)', fontSize: '14px' }}>
                 {fulfillmentType === 'delivery' ? shippingAddress || 'No address provided' : 'Store Pickup'}
               </div>
@@ -359,7 +359,7 @@ export const Checkout = () => {
           <div className="checkout-grid">
             <div style={{ border: '1px solid var(--border)', borderRadius: '12px', padding: '24px', alignSelf: 'start' }}>
               <div style={{ display: 'inline-block', fontSize: '12px', padding: '4px 12px', border: '1px solid var(--border)', borderRadius: '4px', marginBottom: '16px' }}>Delivery &amp; Billing</div>
-              <h3 style={{ fontSize: '18px', fontWeight: 700, marginBottom: '8px' }}>{user?.first_name} {user?.last_name || 'Customer Name'}</h3>
+              <h3 style={{ fontSize: '18px', fontWeight: 700, marginBottom: '8px' }}>{user?.first_name} {user?.last_name || 'Client Name'}</h3>
               <div style={{ color: 'var(--text-muted)', fontSize: '14px' }}>
                 {successOrder.fulfillment_type === 'delivery' ? successOrder.shipping_address : 'Store Pickup'}
               </div>

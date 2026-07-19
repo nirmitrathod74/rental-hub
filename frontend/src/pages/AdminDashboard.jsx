@@ -456,7 +456,7 @@ export const AdminDashboard = () => {
     { id: 'categories', icon: Tags, label: 'Categories' },
     { id: 'pricelists', icon: CircleDollarSign, label: 'Pricelists' },
     { id: 'rental_periods', icon: Clock, label: 'Rental Periods' },
-    { id: 'customers', icon: Users, label: 'Customers' },
+    { id: 'customers', icon: Users, label: 'Clients' },
     { id: 'orders', icon: ShoppingBag, label: 'Rental Orders' },
     { id: 'quotations', icon: FileText, label: 'Quotations' },
     { id: 'invoices', icon: Receipt, label: 'Invoices' },
@@ -481,7 +481,7 @@ export const AdminDashboard = () => {
               <div className="erp-dropdown-menu">
                 <button className="erp-dropdown-item" onClick={() => setActiveTab('orders')}>All Orders</button>
                 <button className="erp-dropdown-item" onClick={() => setActiveTab('invoices')}>Invoices</button>
-                <button className="erp-dropdown-item" onClick={() => setActiveTab('customers')}>Customers</button>
+                <button className="erp-dropdown-item" onClick={() => setActiveTab('customers')}>Clients</button>
               </div>
             </div>
 
@@ -598,7 +598,7 @@ export const AdminDashboard = () => {
               <div className="glass-panel" style={{ padding: '20px', display: 'flex', alignItems: 'center', gap: '16px' }}>
                 <FileText size={32} style={{ color: '#8b5cf6' }} />
                 <div><span style={{ fontSize: '12px', color: 'hsl(var(--text-secondary))' }}>Pending Quotations</span>
-                <div style={{ fontSize: '24px', fontWeight: 800 }}>{metrics?.pending_quotations} <small style={{fontSize: '12px', color: 'hsl(var(--text-secondary))'}}>{metrics?.total_customers} Total Customers</small></div></div>
+                <div style={{ fontSize: '24px', fontWeight: 800 }}>{metrics?.pending_quotations} <small style={{fontSize: '12px', color: 'hsl(var(--text-secondary))'}}>{metrics?.total_customers} Total Clients</small></div></div>
               </div>
               <div className="glass-panel" style={{ padding: '20px', display: 'flex', alignItems: 'center', gap: '16px' }}>
                 <CircleDollarSign size={32} style={{ color: '#10b981' }} />
@@ -626,7 +626,7 @@ export const AdminDashboard = () => {
                   <button className="btn btn-secondary" onClick={() => setActiveTab('pricelists')}><Plus size={16}/> Create Pricelist</button>
                   <button className="btn btn-secondary" onClick={() => setActiveTab('rental_periods')}><Plus size={16}/> Create Rental Period</button>
                   <button className="btn btn-secondary" onClick={() => setActiveTab('quotations')}><Plus size={16}/> Create Quotation</button>
-                  <button className="btn btn-secondary" onClick={() => setActiveTab('customers')}><Plus size={16}/> Create Customer</button>
+                  <button className="btn btn-secondary" onClick={() => setActiveTab('customers')}><Plus size={16}/> Create Client</button>
                   <button className="btn btn-outline" onClick={() => setActiveTab('invoices')}><Receipt size={16}/> Generate Invoice</button>
                 </div>
               </div>
@@ -873,9 +873,9 @@ export const AdminDashboard = () => {
           <div className="fade-in glass-panel" style={{ padding: '32px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
               <h3 style={{ fontSize: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Users size={20} style={{ color: 'hsl(var(--primary))' }} /> Customer Management
+                <Users size={20} style={{ color: 'hsl(var(--primary))' }} /> Client Management
               </h3>
-              <button className="btn btn-primary" onClick={() => alert('Customer creation modal to be implemented')}><Plus size={16}/> Create Customer</button>
+              <button className="btn btn-primary" onClick={() => alert('Client creation modal to be implemented')}><Plus size={16}/> Create Client</button>
             </div>
             <table className="list-table">
               <thead>
@@ -902,7 +902,7 @@ export const AdminDashboard = () => {
                   </tr>
                 ))}
                 {customers.length === 0 && (
-                  <tr><td colSpan="6" style={{ textAlign: 'center', padding: '20px', color: 'var(--text-muted)' }}>No customers found.</td></tr>
+                  <tr><td colSpan="6" style={{ textAlign: 'center', padding: '20px', color: 'var(--text-muted)' }}>No clients found.</td></tr>
                 )}
               </tbody>
             </table>
@@ -974,7 +974,7 @@ export const AdminDashboard = () => {
                   <tr>
                     <th style={{ width: '40px', paddingLeft: '20px' }}><input type="checkbox" /></th>
                     <th>Order Reference</th>
-                    <th>Customer</th>
+                    <th>Client</th>
                     <th>Status</th>
                     <th>Pickup Date</th>
                     <th>Return Date</th>
@@ -1072,7 +1072,7 @@ export const AdminDashboard = () => {
               <thead>
                 <tr>
                   <th>Order ID</th>
-                  <th>Customer</th>
+                  <th>Client</th>
                   <th>Amount Paid</th>
                   <th>Status</th>
                   <th style={{ textAlign: 'right' }}>Actions</th>
@@ -1126,7 +1126,7 @@ export const AdminDashboard = () => {
               <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
                 <thead>
                   <tr style={{ borderBottom: '2px solid #f1f5f9', color: '#6B4668', fontSize: '13px', textTransform: 'uppercase' }}>
-                    <th style={{ padding: '12px' }}>Customer Name</th>
+                    <th style={{ padding: '12px' }}>Client Name</th>
                     <th style={{ padding: '12px' }}>Order ID</th>
                     <th style={{ padding: '12px' }}>Deposit Amount</th>
                     <th style={{ padding: '12px' }}>Penalty Amount</th>
