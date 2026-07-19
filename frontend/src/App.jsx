@@ -20,6 +20,10 @@ import { Contact } from './pages/Contact.jsx';
 import { ResetPassword } from './pages/ResetPassword.jsx';
 import { ScanRedirect } from './pages/ScanRedirect.jsx';
 import { VendorDashboard } from './components/VendorDashboard.jsx';
+import { AddVendorProduct } from './pages/AddVendorProduct.jsx';
+import { Orders } from './pages/Orders.jsx';
+import { Rentals } from './pages/Rentals.jsx';
+import { Logistics } from './pages/Logistics.jsx';
 
 
 // Protected Route components
@@ -74,7 +78,7 @@ const AppContent = () => {
               
               {/* Authenticated Client Routes */}
               <Route path="/checkout" element={
-                <ProtectedRoute roles={['client', 'admin']}>
+                <ProtectedRoute roles={['client', 'admin', 'customer', 'vendor']}>
                   <Checkout />
                 </ProtectedRoute>
               } />
@@ -88,6 +92,41 @@ const AppContent = () => {
               <Route path="/vendor/dashboard" element={
                 <ProtectedRoute roles={['vendor']}>
                   <VendorDashboard />
+                </ProtectedRoute>
+              } />
+              <Route path="/vendor/products/add" element={
+                <ProtectedRoute roles={['vendor']}>
+                  <AddVendorProduct />
+                </ProtectedRoute>
+              } />
+              <Route path="/vendor/orders" element={
+                <ProtectedRoute roles={['vendor']}>
+                  <Orders />
+                </ProtectedRoute>
+              } />
+              <Route path="/vendor/rentals" element={
+                <ProtectedRoute roles={['vendor']}>
+                  <Rentals />
+                </ProtectedRoute>
+              } />
+              <Route path="/vendor/logistics" element={
+                <ProtectedRoute roles={['vendor']}>
+                  <Logistics />
+                </ProtectedRoute>
+              } />
+              <Route path="/admin/orders" element={
+                <ProtectedRoute roles={['admin']}>
+                  <Orders />
+                </ProtectedRoute>
+              } />
+              <Route path="/admin/rentals" element={
+                <ProtectedRoute roles={['admin']}>
+                  <Rentals />
+                </ProtectedRoute>
+              } />
+              <Route path="/admin/logistics" element={
+                <ProtectedRoute roles={['admin']}>
+                  <Logistics />
                 </ProtectedRoute>
               } />
               

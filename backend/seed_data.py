@@ -66,6 +66,23 @@ def seed():
         RentalPeriod.objects.get_or_create(name=name, defaults={'duration': days, 'unit': 'Days'})
     print("Seeded rental periods.")
 
+<<<<<<< HEAD
+=======
+    vendor_user, created = User.objects.get_or_create(
+        username='vendor',
+        defaults={
+            'email': 'vendor@rentalhub.com',
+            'role': 'vendor',
+            'phone_number': '+15550299'
+        }
+    )
+    if created:
+        vendor_user.set_password('vendor123')
+        vendor_user.save()
+        print("Created vendor user: vendor/vendor123")
+    else:
+        print("Vendor user already exists")
+>>>>>>> c722c048fff149b49bf9c1eece19d7434eb80e26
     # 3. Categories and Products
     cat_heavy, _ = Category.objects.get_or_create(name='Heavy Machinery')
     cat_power, _ = Category.objects.get_or_create(name='Power Equipment')
@@ -85,7 +102,6 @@ def seed():
         ('SAW-01', 'Concrete Saw', 'Gas powered walk-behind concrete saw.', Decimal('65.00'), 8, cat_tools, 'Husqvarna', '#f3752e', 'Hourly'),
         ('WLD-01', 'Industrial Welder 300A', 'Multi-process welding machine for structural steel.', Decimal('75.00'), 10, cat_tools, 'Lincoln Electric', '#8c7df7', 'Weekly'),
         ('CMP-01', 'Plate Compactor', 'Heavy duty vibratory plate compactor for soil.', Decimal('55.00'), 14, cat_heavy, 'Wacker Neuson', '#6c431b', 'Daily'),
-        # New products to test pagination, high/low prices, and durations
         ('CRN-100', '100 Ton Mobile Crane', 'Heavy lifting mobile crane for large scale construction.', Decimal('1500.00'), 1, cat_heavy, 'Liebherr', '#f3752e', 'Daily'),
         ('CRN-50', '50 Ton Mobile Crane', 'Medium lifting mobile crane.', Decimal('800.00'), 2, cat_heavy, 'Tadano', '#f3752e', 'Weekly'),
         ('FRK-03', '3 Ton Forklift', 'Diesel powered forklift for warehouse operations.', Decimal('90.00'), 8, cat_heavy, 'Toyota', '#0b4e54', 'Monthly'),
@@ -104,17 +120,33 @@ def seed():
         ('VAC-01', 'Industrial Wet/Dry Vac', 'High capacity vacuum for jobsite cleanup.', Decimal('35.00'), 20, cat_tools, 'Shop-Vac', '#8c7df7', 'Daily'),
     ]
 
+    import os
+    from django.conf import settings
+
     for sku, name, desc, price, qty, cat, var_val, color_code, duration in products_data:
-        p, _ = Product.objects.get_or_create(
+        p, created = Product.objects.get_or_create(
             sku=sku,
             defaults={
                 'name': name,
                 'description': desc,
                 'base_price': price,
                 'stock_qty': qty,
-                'category': cat
+                'category': cat,
+                'vendor': vendor_user
             }
         )
+        
+        # Add images
+        image_name = f"{sku.lower()}.png"
+        image_path = os.path.join(settings.MEDIA_ROOT, 'products', image_name)
+        if os.path.exists(image_path):
+            p.image = f"products/{image_name}"
+        else:
+            # Fallback to a high-quality unsplash image instead of the red test_img
+            fallback_img = "products/borna-bevanda-CsbWQx1rzJI-unsplash.jpg"
+            p.image = fallback_img
+        p.save()
+
         ProductVariant.objects.get_or_create(product=p, attribute_name='Feature', attribute_value=var_val)
         if color_code:
             ProductVariant.objects.get_or_create(product=p, attribute_name='Color', attribute_value=color_code)

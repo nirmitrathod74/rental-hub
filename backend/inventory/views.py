@@ -35,6 +35,30 @@ class ProductViewSet(viewsets.ModelViewSet):
             context['pricelist_id'] = pricelist_id
         return context
 
+    def list(self, request, *args, **kwargs):
+        # Auto-seed images if any product is missing an image or has the ugly red test_img
+        invalid_images = Product.objects.filter(image='').exists() or \
+                         Product.objects.filter(image__isnull=True).exists() or \
+                         Product.objects.filter(image='products/test_img.jpg').exists()
+        
+        if invalid_images:
+            import os
+            from django.conf import settings
+            # We have two premium images, let's alternate them based on product ID for variety
+            unsplash1 = "products/borna-bevanda-CsbWQx1rzJI-unsplash.jpg"
+            unsplash2 = "products/jonatan-pie-EOoa3D1N0xc-unsplash.jpg"
+            
+            for p in Product.objects.all():
+                if not p.image or p.image.name == 'products/test_img.jpg':
+                    image_name = f"{p.sku.lower()}.png"
+                    image_path = os.path.join(settings.MEDIA_ROOT, 'products', image_name)
+                    if os.path.exists(image_path):
+                        p.image = f"products/{image_name}"
+                    else:
+                        p.image = unsplash1 if p.id % 2 == 0 else unsplash2
+                    p.save()
+        return super().list(request, *args, **kwargs)
+
     def create(self, request, *args, **kwargs):
         # Support bulk creating product + variants in service layer
         data = request.data.copy() if hasattr(request.data, 'copy') else request.data
