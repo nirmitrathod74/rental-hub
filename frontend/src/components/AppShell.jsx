@@ -54,7 +54,7 @@ export const AppShell = ({ children }) => {
             className="appshell-search-input"
             style={{ 
               width: '100%', height: '38px', padding: '0 16px 0 40px', border: 'none', 
-              borderRadius: '19px', outline: 'none', color: '#1e293b', 
+              borderRadius: '6px', outline: 'none', color: '#1e293b', 
               backgroundColor: '#f1f5f9', fontSize: '14px', fontWeight: 500,
               boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.02)'
             }}

@@ -112,7 +112,7 @@ class AdminVendorViewSet(viewsets.ViewSet):
             return standard_response(False, str(e), status_code=400)
 
 
-class CustomerViewSet(viewsets.ModelViewSet):
+class ClientViewSet(viewsets.ModelViewSet):
     permission_classes = (permissions.IsAuthenticated,)
     serializer_class = UserSerializer
 
@@ -133,7 +133,7 @@ class CustomerViewSet(viewsets.ModelViewSet):
         if not serializer.is_valid():
             return standard_response(False, "Validation failed", errors=serializer.errors, status_code=400)
         user = serializer.save()
-        return standard_response(True, "Customer created", data=UserSerializer(user).data, status_code=201)
+        return standard_response(True, "Client created", data=UserSerializer(user).data, status_code=201)
 
 
 # --- PASSWORD RESET FLOW VIEWS ---

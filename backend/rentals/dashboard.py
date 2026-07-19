@@ -42,7 +42,7 @@ class DashboardService:
             'late_fee_collection': RentalRepository.get_late_fees_collected_sum(),
             'total_products': total_products,
             'products_available': products_available,
-            'total_customers': User.objects.filter(role='client').count(),
+            'total_clients': User.objects.filter(role='client').count(),
             'pending_quotations': RentalRepository.get_all().filter(status='draft').count(),
         }
         cache.set(cls.CACHE_KEY, metrics, cls.CACHE_TTL_SECONDS)

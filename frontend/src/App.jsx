@@ -79,7 +79,7 @@ const AppContent = () => {
                 </ProtectedRoute>
               } />
               <Route path="/profile" element={
-                <ProtectedRoute roles={['client', 'admin', 'customer', 'vendor']}>
+                <ProtectedRoute roles={['client', 'admin', 'vendor']}>
                   <Profile />
                 </ProtectedRoute>
               } />

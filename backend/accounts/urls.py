@@ -2,13 +2,13 @@ from django.urls import path
 from rest_framework_simplejwt.views import TokenRefreshView
 from rest_framework.routers import DefaultRouter
 from accounts.views import (
-    RegisterView, ProfileView, CustomTokenObtainPairView, AdminVendorViewSet, CustomerViewSet,
+    RegisterView, ProfileView, CustomTokenObtainPairView, AdminVendorViewSet, ClientViewSet,
     PasswordResetRequestView, PasswordResetConfirmView, VerifyEmailView, ContactMessageView
 )
 
 router = DefaultRouter()
 router.register('vendors', AdminVendorViewSet, basename='vendor')
-router.register('customers', CustomerViewSet, basename='customer')
+router.register('clients', ClientViewSet, basename='client')
 
 urlpatterns = [
     # Standard JWT Login / Token Refresh routes

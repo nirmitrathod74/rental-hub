@@ -42,7 +42,7 @@ export const AdminDashboard = () => {
   const [rentalPeriods, setRentalPeriods] = useState([]);
   const [quotationTemplates, setQuotationTemplates] = useState([]);
   const [vendors, setVendors] = useState([]);
-  const [customers, setCustomers] = useState([]);
+  const [clients, setClients] = useState([]);
   const [securityDeposits, setSecurityDeposits] = useState([]);
   const [pickups, setPickups] = useState([]);
   const [pickupDateFilter, setPickupDateFilter] = useState(new Date().toISOString().split('T')[0]);
@@ -125,8 +125,8 @@ export const AdminDashboard = () => {
       const vendorRes = await api.get('/accounts/vendors/pending/');
       setVendors(vendorRes.data || vendorRes);
 
-      const customerRes = await api.get('/accounts/customers/');
-      setCustomers(customerRes.data || customerRes);
+      const clientRes = await api.get('/accounts/clients/');
+      setClients(clientRes.data || clientRes);
       
       const depositRes = await api.get('/security-deposits/');
       setSecurityDeposits(depositRes.data || depositRes);
@@ -469,19 +469,18 @@ export const AdminDashboard = () => {
 
   return (
     <div className="admin-dashboard-container" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: 'var(--background)' }}>
-      <header className="erp-navbar">
-        <div className="erp-navbar-left">
-          <Link className="erp-brand" to="/">
-            <div className="erp-brand-icon"><Boxes size={18} color="white" /></div>
-            RentalHub ERP
+      <header className="topbar" style={{ position: 'sticky', top: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <Link className="brand" to="/" style={{ marginRight: '24px', textDecoration: 'none' }}>
+            <span className="brand-mark"><Boxes size={17} color="white" /></span>RentalHub ERP
           </Link>
-          <nav className="erp-nav-links">
+          <nav className="erp-nav-links" style={{ display: 'flex', gap: '24px', fontSize: '14px', fontWeight: 500 }}>
             <div className="erp-nav-item">
               Sales
               <div className="erp-dropdown-menu">
                 <button className="erp-dropdown-item" onClick={() => setActiveTab('orders')}>All Orders</button>
                 <button className="erp-dropdown-item" onClick={() => setActiveTab('invoices')}>Invoices</button>
-                <button className="erp-dropdown-item" onClick={() => setActiveTab('customers')}>Customers</button>
+                <button className="erp-dropdown-item" onClick={() => setActiveTab('clients')}>Clients</button>
               </div>
             </div>
 
@@ -505,10 +504,6 @@ export const AdminDashboard = () => {
             </div>
 
             <div className="erp-nav-item">
-              Reports
-            </div>
-
-            <div className="erp-nav-item">
               Settings
               <div className="erp-dropdown-menu">
                 <button className="erp-dropdown-item" onClick={() => setActiveTab('configuration')}>General Settings</button>
@@ -522,37 +517,48 @@ export const AdminDashboard = () => {
           </nav>
         </div>
 
-        <div className="erp-search-container">
-          <input type="text" placeholder="Search..." className="erp-search-input" />
+        <div className="topbar-search" style={{ flex: '0 1 400px', margin: '0 auto', marginRight: '32px' }}>
+          <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+            <Search size={16} style={{ position: 'absolute', left: '16px', color: '#64748b' }} />
+            <input 
+              aria-label="Global search" 
+              placeholder="Search ERP..." 
+              className="appshell-search-input"
+              style={{ 
+                width: '100%', height: '38px', padding: '0 16px 0 40px', border: 'none', 
+                borderRadius: '6px', outline: 'none', color: '#1e293b', 
+                backgroundColor: '#f1f5f9', fontSize: '14px', fontWeight: 500,
+                boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.02)'
+              }}
+            />
+          </div>
         </div>
 
-        <div className="erp-actions">
-          <Heart size={20} className="erp-action-icon" />
-          <ShoppingCart size={20} className="erp-action-icon" />
-          <Bell size={20} className="erp-action-icon" />
+        <div className="topbar-actions">
+          <Bell size={18} className="topbar-icon" />
           
-          <div className="erp-divider"></div>
+          <div className="erp-divider" style={{ marginLeft: '8px', marginRight: '8px' }}></div>
 
           {user && (
             <div style={{ position: 'relative' }}>
-              <div className="erp-profile" onClick={() => setDropdownOpen(!dropdownOpen)}>
-                <div className="erp-profile-avatar">
+              <div className="account-menu" onClick={() => setDropdownOpen(!dropdownOpen)} style={{ cursor: 'pointer' }}>
+                <span className="avatar">
                   {user.avatar ? (
-                    <img src={getMediaUrl(user.avatar)} alt="" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+                    <img src={getMediaUrl(user.avatar)} alt="" />
                   ) : (
-                    <span>{user.username ? user.username.charAt(0).toUpperCase() : 'A'}</span>
+                    user.username ? user.username.charAt(0).toUpperCase() : 'A'
                   )}
-                </div>
-                <div className="erp-profile-text">
-                  <span className="erp-profile-name">{user.username || 'Admin'}</span>
-                  <span className="erp-profile-role">Admin</span>
-                </div>
-                <ChevronDown size={14} color="white" />
+                </span>
+                <span className="account-copy" style={{ color: 'white' }}>
+                  {user.username || 'Admin'}
+                  <small>Admin</small>
+                </span>
+                <ChevronDown size={14} style={{ opacity: 0.7, marginLeft: '4px', color: 'white' }} />
               </div>
               
               {dropdownOpen && (
-                <div className="erp-dropdown-menu" style={{ display: 'flex', top: '100%', right: 0, left: 'auto', transform: 'none', marginTop: '12px' }}>
-                  <button className="erp-dropdown-item text-danger" onClick={() => { logout(); navigate('/login'); }} style={{ color: 'var(--danger)' }}>
+                <div className="profile-dropdown" style={{ top: '100%', right: 0, marginTop: '12px' }}>
+                  <button className="dropdown-item text-danger" onClick={() => { logout(); navigate('/login'); }} style={{ color: 'var(--danger)', width: '100%', textAlign: 'left', padding: '12px 16px', background: 'transparent', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px' }}>
                     <LogOut size={16} /> Sign out
                   </button>
                 </div>
@@ -598,7 +604,7 @@ export const AdminDashboard = () => {
               <div className="glass-panel" style={{ padding: '20px', display: 'flex', alignItems: 'center', gap: '16px' }}>
                 <FileText size={32} style={{ color: '#8b5cf6' }} />
                 <div><span style={{ fontSize: '12px', color: 'hsl(var(--text-secondary))' }}>Pending Quotations</span>
-                <div style={{ fontSize: '24px', fontWeight: 800 }}>{metrics?.pending_quotations} <small style={{fontSize: '12px', color: 'hsl(var(--text-secondary))'}}>{metrics?.total_customers} Total Customers</small></div></div>
+                <div style={{ fontSize: '24px', fontWeight: 800 }}>{metrics?.pending_quotations} <small style={{fontSize: '12px', color: 'hsl(var(--text-secondary))'}}>{metrics?.total_clients || metrics?.total_customers} Total Clients</small></div></div>
               </div>
               <div className="glass-panel" style={{ padding: '20px', display: 'flex', alignItems: 'center', gap: '16px' }}>
                 <CircleDollarSign size={32} style={{ color: '#10b981' }} />
@@ -626,7 +632,7 @@ export const AdminDashboard = () => {
                   <button className="btn btn-secondary" onClick={() => setActiveTab('pricelists')}><Plus size={16}/> Create Pricelist</button>
                   <button className="btn btn-secondary" onClick={() => setActiveTab('rental_periods')}><Plus size={16}/> Create Rental Period</button>
                   <button className="btn btn-secondary" onClick={() => setActiveTab('quotations')}><Plus size={16}/> Create Quotation</button>
-                  <button className="btn btn-secondary" onClick={() => setActiveTab('customers')}><Plus size={16}/> Create Customer</button>
+                  <button className="btn btn-secondary" onClick={() => setActiveTab('clients')}><Plus size={16}/> Create Client</button>
                   <button className="btn btn-outline" onClick={() => setActiveTab('invoices')}><Receipt size={16}/> Generate Invoice</button>
                 </div>
               </div>
@@ -868,14 +874,14 @@ export const AdminDashboard = () => {
           </div>
         )}
 
-        {/* CUSTOMERS TAB */}
-        {activeTab === 'customers' && (
+        {/* CLIENTS TAB */}
+        {activeTab === 'clients' && (
           <div className="fade-in glass-panel" style={{ padding: '32px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
               <h3 style={{ fontSize: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Users size={20} style={{ color: 'hsl(var(--primary))' }} /> Customer Management
+                <Users size={20} style={{ color: 'hsl(var(--primary))' }} /> Client Management
               </h3>
-              <button className="btn btn-primary" onClick={() => alert('Customer creation modal to be implemented')}><Plus size={16}/> Create Customer</button>
+              <button className="btn btn-primary" onClick={() => alert('Client creation modal to be implemented')}><Plus size={16}/> Create Client</button>
             </div>
             <table className="list-table">
               <thead>
@@ -889,7 +895,7 @@ export const AdminDashboard = () => {
                 </tr>
               </thead>
               <tbody>
-                {customers.map(c => (
+                {clients.map(c => (
                   <tr key={c.id}>
                     <td><strong>{c.username}</strong></td>
                     <td>{c.first_name} {c.last_name}</td>
@@ -901,8 +907,8 @@ export const AdminDashboard = () => {
                     </td>
                   </tr>
                 ))}
-                {customers.length === 0 && (
-                  <tr><td colSpan="6" style={{ textAlign: 'center', padding: '20px', color: 'var(--text-muted)' }}>No customers found.</td></tr>
+                {clients.length === 0 && (
+                  <tr><td colSpan="6" style={{ textAlign: 'center', padding: '20px', color: 'var(--text-muted)' }}>No clients found.</td></tr>
                 )}
               </tbody>
             </table>
