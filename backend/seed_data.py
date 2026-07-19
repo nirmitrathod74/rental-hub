@@ -38,13 +38,13 @@ def seed():
         defaults={
             'email': 'client@gmail.com',
             'role': 'customer',
-            'address': '123 Portal Lane, Cityville',
-            'phone_number': '+15550199'
         }
     )
     if created:
         client_user.set_password('client123')
         client_user.save()
+        from accounts.models import UserProfile
+        UserProfile.objects.get_or_create(user=client_user, defaults={'address': '123 Portal Lane, Cityville', 'phone_number': '+15550199'})
         print("Created client user: client/client123")
     else:
         # Data migration for existing 'client' roles
@@ -71,12 +71,14 @@ def seed():
         defaults={
             'email': 'vendor@rentalhub.com',
             'role': 'vendor',
-            'phone_number': '+15550299'
         }
     )
     if created:
         vendor_user.set_password('vendor123')
         vendor_user.save()
+        from accounts.models import UserProfile, VendorProfile
+        UserProfile.objects.get_or_create(user=vendor_user, defaults={'phone_number': '+15550299'})
+        VendorProfile.objects.get_or_create(user=vendor_user, defaults={'status': 'approved', 'business_name': 'RentalHub Vendor', 'gst_number': '22AAAAA0000A1Z5'})
         print("Created vendor user: vendor/vendor123")
     else:
         print("Vendor user already exists")
