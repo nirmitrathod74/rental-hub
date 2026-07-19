@@ -7,7 +7,7 @@ import { useWishlist } from '../context/WishlistContext.jsx';
 import { getMediaUrl } from '../api/index.js';
 import logo from '../assets/final_logo.png';
 
-const NavItem = ({ to, icon: Icon, children }) => <NavLink to={to} end={to === '/'} className="nav-link"><Icon /> <span>{children}</span></NavLink>;
+const NavItem = ({ to, icon: Icon, children, onClick }) => <Link to={to} className="nav-link" onClick={onClick}><Icon /> <span>{children}</span></Link>;
 
 export const AppShell = ({ children }) => {
   const { user, logout } = useAuth();
@@ -39,10 +39,65 @@ export const AppShell = ({ children }) => {
       </Link>
       
       <div className="topbar-links" style={{ display: 'flex', gap: '24px', marginRight: '32px', fontSize: '14px', fontWeight: 500, whiteSpace: 'nowrap' }}>
-        <Link to="/" style={{ textDecoration: 'none', color: '#fff', padding: '6px 8px', borderRadius: '4px', transition: 'background 0.2s' }} onMouseOver={e => e.target.style.background = 'rgba(255,255,255,0.1)'} onMouseOut={e => e.target.style.background = 'transparent'}>Products</Link>
-        <Link to="/terms" style={{ textDecoration: 'none', color: '#fff', padding: '6px 8px', borderRadius: '4px', transition: 'background 0.2s' }} onMouseOver={e => e.target.style.background = 'rgba(255,255,255,0.1)'} onMouseOut={e => e.target.style.background = 'transparent'}>Terms & Condition</Link>
-        <Link to="/about" style={{ textDecoration: 'none', color: '#fff', padding: '6px 8px', borderRadius: '4px', transition: 'background 0.2s' }} onMouseOver={e => e.target.style.background = 'rgba(255,255,255,0.1)'} onMouseOut={e => e.target.style.background = 'transparent'}>About us</Link>
-        <Link to="/contact" style={{ textDecoration: 'none', color: '#fff', padding: '6px 8px', borderRadius: '4px', transition: 'background 0.2s' }} onMouseOver={e => e.target.style.background = 'rgba(255,255,255,0.1)'} onMouseOut={e => e.target.style.background = 'transparent'}>Contact Us</Link>
+        {user && (user.role === 'admin' || user.role === 'vendor') ? (
+          <>
+            <div className="erp-nav-item" style={{ position: 'relative' }} onMouseEnter={e => e.currentTarget.querySelector('.erp-dropdown').style.display = 'block'} onMouseLeave={e => e.currentTarget.querySelector('.erp-dropdown').style.display = 'none'}>
+              <div style={{ cursor: 'pointer', color: '#fff', padding: '6px 8px', borderRadius: '4px', transition: 'background 0.2s' }} onMouseOver={e => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'} onMouseOut={e => e.currentTarget.style.background = 'transparent'}>
+                Sales <ChevronDown size={14} style={{ marginLeft: '2px', opacity: 0.7 }} />
+              </div>
+              <div className="erp-dropdown" style={{ display: 'none', position: 'absolute', top: '100%', left: 0, background: '#fff', minWidth: '150px', borderRadius: '6px', boxShadow: '0 4px 12px rgba(0,0,0,0.15)', paddingTop: '8px', paddingBottom: '8px', zIndex: 100 }}>
+                <Link to={user.role === 'admin' ? "/admin" : "/vendor/dashboard"} style={{ display: 'block', padding: '8px 16px', color: '#333', textDecoration: 'none', fontSize: '13px' }} onMouseOver={e => e.target.style.background = '#f1f5f9'} onMouseOut={e => e.target.style.background = 'transparent'}>Dashboard</Link>
+                <Link to={user.role === 'admin' ? "/admin/orders" : "/vendor/orders"} style={{ display: 'block', padding: '8px 16px', color: '#333', textDecoration: 'none', fontSize: '13px' }} onMouseOver={e => e.target.style.background = '#f1f5f9'} onMouseOut={e => e.target.style.background = 'transparent'}>Orders</Link>
+              </div>
+            </div>
+
+            <div className="erp-nav-item" style={{ position: 'relative' }} onMouseEnter={e => e.currentTarget.querySelector('.erp-dropdown').style.display = 'block'} onMouseLeave={e => e.currentTarget.querySelector('.erp-dropdown').style.display = 'none'}>
+              <div style={{ cursor: 'pointer', color: '#fff', padding: '6px 8px', borderRadius: '4px', transition: 'background 0.2s' }} onMouseOver={e => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'} onMouseOut={e => e.currentTarget.style.background = 'transparent'}>
+                Operations <ChevronDown size={14} style={{ marginLeft: '2px', opacity: 0.7 }} />
+              </div>
+              <div className="erp-dropdown" style={{ display: 'none', position: 'absolute', top: '100%', left: 0, background: '#fff', minWidth: '150px', borderRadius: '6px', boxShadow: '0 4px 12px rgba(0,0,0,0.15)', paddingTop: '8px', paddingBottom: '8px', zIndex: 100 }}>
+                <Link to={`/${user?.role === 'admin' ? 'admin' : 'vendor'}/rentals`} style={{ display: 'block', padding: '8px 16px', color: '#0f172a', textDecoration: 'none', fontSize: '13px', fontWeight: 500, transition: 'background 0.2s', borderRadius: '4px' }} onMouseOver={e=>e.currentTarget.style.background='#f1f5f9'} onMouseOut={e=>e.currentTarget.style.background='transparent'}>Rentals</Link>
+                <Link to={`/${user?.role === 'admin' ? 'admin' : 'vendor'}/logistics`} style={{ display: 'block', padding: '8px 16px', color: '#0f172a', textDecoration: 'none', fontSize: '13px', fontWeight: 500, transition: 'background 0.2s', borderRadius: '4px' }} onMouseOver={e=>e.currentTarget.style.background='#f1f5f9'} onMouseOut={e=>e.currentTarget.style.background='transparent'}>Logistics</Link>
+              </div>
+            </div>
+
+            <div className="erp-nav-item" style={{ position: 'relative' }} onMouseEnter={e => e.currentTarget.querySelector('.erp-dropdown').style.display = 'block'} onMouseLeave={e => e.currentTarget.querySelector('.erp-dropdown').style.display = 'none'}>
+              <div style={{ cursor: 'pointer', color: '#fff', padding: '6px 8px', borderRadius: '4px', transition: 'background 0.2s' }} onMouseOver={e => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'} onMouseOut={e => e.currentTarget.style.background = 'transparent'}>
+                Catalog <ChevronDown size={14} style={{ marginLeft: '2px', opacity: 0.7 }} />
+              </div>
+              <div className="erp-dropdown" style={{ display: 'none', position: 'absolute', top: '100%', left: 0, background: '#fff', minWidth: '150px', borderRadius: '6px', boxShadow: '0 4px 12px rgba(0,0,0,0.15)', paddingTop: '8px', paddingBottom: '8px', zIndex: 100 }}>
+                <Link to="/" style={{ display: 'block', padding: '8px 16px', color: '#333', textDecoration: 'none', fontSize: '13px' }} onMouseOver={e => e.target.style.background = '#f1f5f9'} onMouseOut={e => e.target.style.background = 'transparent'}>All Equipment</Link>
+                <Link to={user.role === 'admin' ? "/admin" : "/vendor/products/add"} style={{ display: 'block', padding: '8px 16px', color: '#333', textDecoration: 'none', fontSize: '13px' }} onMouseOver={e => e.target.style.background = '#f1f5f9'} onMouseOut={e => e.target.style.background = 'transparent'}>Add Product</Link>
+              </div>
+            </div>
+
+            <div className="erp-nav-item" style={{ position: 'relative' }} onMouseEnter={e => e.currentTarget.querySelector('.erp-dropdown').style.display = 'block'} onMouseLeave={e => e.currentTarget.querySelector('.erp-dropdown').style.display = 'none'}>
+              <div style={{ cursor: 'pointer', color: '#fff', padding: '6px 8px', borderRadius: '4px', transition: 'background 0.2s' }} onMouseOver={e => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'} onMouseOut={e => e.currentTarget.style.background = 'transparent'}>
+                Reports <ChevronDown size={14} style={{ marginLeft: '2px', opacity: 0.7 }} />
+              </div>
+              <div className="erp-dropdown" style={{ display: 'none', position: 'absolute', top: '100%', left: 0, background: '#fff', minWidth: '150px', borderRadius: '6px', boxShadow: '0 4px 12px rgba(0,0,0,0.15)', paddingTop: '8px', paddingBottom: '8px', zIndex: 100 }}>
+                <Link to={user.role === 'admin' ? "/admin" : "/vendor/dashboard"} style={{ display: 'block', padding: '8px 16px', color: '#333', textDecoration: 'none', fontSize: '13px' }} onMouseOver={e => e.target.style.background = '#f1f5f9'} onMouseOut={e => e.target.style.background = 'transparent'}>Earnings</Link>
+              </div>
+            </div>
+
+            <div className="erp-nav-item" style={{ position: 'relative' }} onMouseEnter={e => e.currentTarget.querySelector('.erp-dropdown').style.display = 'block'} onMouseLeave={e => e.currentTarget.querySelector('.erp-dropdown').style.display = 'none'}>
+              <div style={{ cursor: 'pointer', color: '#fff', padding: '6px 8px', borderRadius: '4px', transition: 'background 0.2s' }} onMouseOver={e => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'} onMouseOut={e => e.currentTarget.style.background = 'transparent'}>
+                Settings <ChevronDown size={14} style={{ marginLeft: '2px', opacity: 0.7 }} />
+              </div>
+              <div className="erp-dropdown" style={{ display: 'none', position: 'absolute', top: '100%', left: 0, background: '#fff', minWidth: '150px', borderRadius: '6px', boxShadow: '0 4px 12px rgba(0,0,0,0.15)', paddingTop: '8px', paddingBottom: '8px', zIndex: 100 }}>
+                <Link to="/profile" style={{ display: 'block', padding: '8px 16px', color: '#333', textDecoration: 'none', fontSize: '13px' }} onMouseOver={e => e.target.style.background = '#f1f5f9'} onMouseOut={e => e.target.style.background = 'transparent'}>My Profile</Link>
+              </div>
+            </div>
+          </>
+
+        ) : (
+          <>
+            <Link to="/" style={{ textDecoration: 'none', color: '#fff', padding: '6px 8px', borderRadius: '4px', transition: 'background 0.2s' }} onMouseOver={e => e.target.style.background = 'rgba(255,255,255,0.1)'} onMouseOut={e => e.target.style.background = 'transparent'}>Products</Link>
+            <Link to="/terms" style={{ textDecoration: 'none', color: '#fff', padding: '6px 8px', borderRadius: '4px', transition: 'background 0.2s' }} onMouseOver={e => e.target.style.background = 'rgba(255,255,255,0.1)'} onMouseOut={e => e.target.style.background = 'transparent'}>Terms & Condition</Link>
+            <Link to="/about" style={{ textDecoration: 'none', color: '#fff', padding: '6px 8px', borderRadius: '4px', transition: 'background 0.2s' }} onMouseOver={e => e.target.style.background = 'rgba(255,255,255,0.1)'} onMouseOut={e => e.target.style.background = 'transparent'}>About us</Link>
+            <Link to="/contact" style={{ textDecoration: 'none', color: '#fff', padding: '6px 8px', borderRadius: '4px', transition: 'background 0.2s' }} onMouseOver={e => e.target.style.background = 'rgba(255,255,255,0.1)'} onMouseOut={e => e.target.style.background = 'transparent'}>Contact Us</Link>
+          </>
+        )}
       </div>
 
       <form className="topbar-search" onSubmit={handleSearch} style={{ flex: '0 1 480px', margin: '0 auto', marginRight: '32px' }}>
@@ -139,22 +194,30 @@ export const AppShell = ({ children }) => {
                 {user.role === 'admin' ? (
                   <>
                     <span className="dropdown-label">Workspace</span>
-                    <NavItem to="/admin" icon={LayoutDashboard}>Overview</NavItem>
-                    <NavItem to="/" icon={PackageSearch}>Equipment</NavItem>
-                    <NavItem to="/profile" icon={ClipboardList}>My rentals</NavItem>
-                    <NavItem to="/cart" icon={ShoppingCart}>Rental cart</NavItem>
+                    <NavItem to="/admin" icon={LayoutDashboard} onClick={() => setDropdownOpen(false)}>Overview</NavItem>
+                    <NavItem to="/" icon={PackageSearch} onClick={() => setDropdownOpen(false)}>Equipment</NavItem>
+                    <NavItem to="/profile?tab=rentals" icon={ClipboardList} onClick={() => setDropdownOpen(false)}>My rentals</NavItem>
+                    <NavItem to="/cart" icon={ShoppingCart} onClick={() => setDropdownOpen(false)}>Rental cart</NavItem>
                     
                     <span className="dropdown-label">Operations</span>
-                    <NavItem to="/admin" icon={CalendarDays}>Rental operations</NavItem>
-                    <NavItem to="/admin" icon={Boxes}>Inventory</NavItem>
+                    <NavItem to="/admin" icon={CalendarDays} onClick={() => setDropdownOpen(false)}>Rental operations</NavItem>
+                    <NavItem to="/admin" icon={Boxes} onClick={() => setDropdownOpen(false)}>Inventory</NavItem>
                     
                     <span className="dropdown-label">Account</span>
+                    <NavItem to="/profile?tab=profile" icon={UserRound} onClick={() => setDropdownOpen(false)}>My profile</NavItem>
+                  </>
+                ) : user.role === 'vendor' ? (
+                  <>
+                    <span className="dropdown-label">Workspace</span>
+                    <NavItem to="/vendor/dashboard" icon={LayoutDashboard}>Vendor Dashboard</NavItem>
+                    <span className="dropdown-label">Account</span>
+                    <NavItem to="/profile" icon={ClipboardList}>My rentals</NavItem>
                     <NavItem to="/profile" icon={UserRound}>My profile</NavItem>
                   </>
                 ) : (
                   <>
-                    <NavItem to="/profile" icon={ClipboardList}>My rentals</NavItem>
-                    <NavItem to="/profile" icon={UserRound}>My profile</NavItem>
+                    <NavItem to="/profile?tab=rentals" icon={ClipboardList} onClick={() => setDropdownOpen(false)}>My rentals</NavItem>
+                    <NavItem to="/profile?tab=profile" icon={UserRound} onClick={() => setDropdownOpen(false)}>My profile</NavItem>
                   </>
                 )}
                 <div className="dropdown-divider"></div>
