@@ -673,6 +673,7 @@ input.input-error:focus, select.input-error:focus, textarea.input-error:focus, .
   font-weight: 600;
   text-decoration: none;
   transition: background 0.15s;
+  border-radius: 0;
 }
 .profile-dropdown .nav-link:hover {
   background: #f3e9f0;

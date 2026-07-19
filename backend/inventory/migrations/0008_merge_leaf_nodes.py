@@ -1,0 +1,12 @@
+from django.db import migrations
+
+class Migration(migrations.Migration):
+
+    dependencies = [
+        ('inventory', '0005_merge_20260718'),
+        ('inventory', '0005_merge_20260718_1947'),
+        ('inventory', '0007_product_approval_status_product_condition_and_more'),
+    ]
+
+    operations = [
+    ]

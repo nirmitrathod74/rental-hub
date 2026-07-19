@@ -6,7 +6,7 @@ import { useCart } from '../context/CartContext.jsx';
 import { useWishlist } from '../context/WishlistContext.jsx';
 import { getMediaUrl } from '../api/index.js';
 
-const NavItem = ({ to, icon: Icon, children }) => <NavLink to={to} end={to === '/'} className="nav-link"><Icon /> <span>{children}</span></NavLink>;
+const NavItem = ({ to, icon: Icon, children, onClick }) => <Link to={to} className="nav-link" onClick={onClick}><Icon /> <span>{children}</span></Link>;
 
 export const AppShell = ({ children }) => {
   const { user, logout } = useAuth();
@@ -192,17 +192,17 @@ export const AppShell = ({ children }) => {
                 {user.role === 'admin' ? (
                   <>
                     <span className="dropdown-label">Workspace</span>
-                    <NavItem to="/admin" icon={LayoutDashboard}>Overview</NavItem>
-                    <NavItem to="/" icon={PackageSearch}>Equipment</NavItem>
-                    <NavItem to="/profile" icon={ClipboardList}>My rentals</NavItem>
-                    <NavItem to="/cart" icon={ShoppingCart}>Rental cart</NavItem>
+                    <NavItem to="/admin" icon={LayoutDashboard} onClick={() => setDropdownOpen(false)}>Overview</NavItem>
+                    <NavItem to="/" icon={PackageSearch} onClick={() => setDropdownOpen(false)}>Equipment</NavItem>
+                    <NavItem to="/profile?tab=rentals" icon={ClipboardList} onClick={() => setDropdownOpen(false)}>My rentals</NavItem>
+                    <NavItem to="/cart" icon={ShoppingCart} onClick={() => setDropdownOpen(false)}>Rental cart</NavItem>
                     
                     <span className="dropdown-label">Operations</span>
-                    <NavItem to="/admin" icon={CalendarDays}>Rental operations</NavItem>
-                    <NavItem to="/admin" icon={Boxes}>Inventory</NavItem>
+                    <NavItem to="/admin" icon={CalendarDays} onClick={() => setDropdownOpen(false)}>Rental operations</NavItem>
+                    <NavItem to="/admin" icon={Boxes} onClick={() => setDropdownOpen(false)}>Inventory</NavItem>
                     
                     <span className="dropdown-label">Account</span>
-                    <NavItem to="/profile" icon={UserRound}>My profile</NavItem>
+                    <NavItem to="/profile?tab=profile" icon={UserRound} onClick={() => setDropdownOpen(false)}>My profile</NavItem>
                   </>
                 ) : user.role === 'vendor' ? (
                   <>
@@ -214,8 +214,8 @@ export const AppShell = ({ children }) => {
                   </>
                 ) : (
                   <>
-                    <NavItem to="/profile" icon={ClipboardList}>My rentals</NavItem>
-                    <NavItem to="/profile" icon={UserRound}>My profile</NavItem>
+                    <NavItem to="/profile?tab=rentals" icon={ClipboardList} onClick={() => setDropdownOpen(false)}>My rentals</NavItem>
+                    <NavItem to="/profile?tab=profile" icon={UserRound} onClick={() => setDropdownOpen(false)}>My profile</NavItem>
                   </>
                 )}
                 <div className="dropdown-divider"></div>
