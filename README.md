@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/images/logo.png" alt="Rental Hub Logo" width="220">
+  <img src="final_logo.png" alt="Rental Hub Logo" width="220">
 </p>
 
 <h1 align="center">Rental Hub</h1>
