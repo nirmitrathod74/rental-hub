@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 import { api } from '../api/index.js';
 import { User, FileText, X, Clock, MapPin, Phone, Mail } from 'lucide-react';
@@ -6,6 +7,9 @@ import { validatePhone } from '../utils/validation.js';
 
 export const Profile = () => {
   const { user, updateProfile } = useAuth();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activeTab = searchParams.get('tab') || 'profile';
+  
   const [orders, setOrders] = useState([]);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -66,6 +70,32 @@ export const Profile = () => {
   return (
     <div className="fade-in" style={{ padding: '32px', maxWidth: '1200px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '32px' }}>
       
+      <div style={{ display: 'flex', gap: '8px', borderBottom: '1px solid var(--border)' }}>
+        <button 
+          onClick={() => setSearchParams({ tab: 'profile' })}
+          style={{ 
+            padding: '12px 24px', background: 'none', border: 'none', 
+            borderBottom: activeTab === 'profile' ? '2px solid var(--primary)' : '2px solid transparent',
+            color: activeTab === 'profile' ? 'var(--primary)' : 'var(--text-secondary)',
+            fontWeight: activeTab === 'profile' ? 700 : 500, cursor: 'pointer', fontSize: '15px'
+          }}
+        >
+          My Profile
+        </button>
+        <button 
+          onClick={() => setSearchParams({ tab: 'rentals' })}
+          style={{ 
+            padding: '12px 24px', background: 'none', border: 'none', 
+            borderBottom: activeTab === 'rentals' ? '2px solid var(--primary)' : '2px solid transparent',
+            color: activeTab === 'rentals' ? 'var(--primary)' : 'var(--text-secondary)',
+            fontWeight: activeTab === 'rentals' ? 700 : 500, cursor: 'pointer', fontSize: '15px'
+          }}
+        >
+          My Rentals
+        </button>
+      </div>
+
+      {activeTab === 'profile' && (
       <div style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
@@ -183,7 +213,9 @@ export const Profile = () => {
           </div>
         </div>
       </div>
+      )}
 
+      {activeTab === 'rentals' && (
       <div className="glass-panel" style={{ padding: '32px', overflowX: 'auto' }}>
         <h2 style={{ fontSize: '20px', fontWeight: 800, marginBottom: '20px' }}>Rental Order History</h2>
 
@@ -235,6 +267,7 @@ export const Profile = () => {
           </table>
         )}
       </div>
+      )}
 
       {selectedOrder && (
         <div style={{
