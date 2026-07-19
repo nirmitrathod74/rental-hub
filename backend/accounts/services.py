@@ -9,7 +9,7 @@ class UserService:
         if hasattr(user, 'vendor_profile') and user.vendor_profile.status == 'approved':
             return user
             
-        UserRepository.update_profile(user, status='approved')
+        UserRepository.update_profile(user, status='approved', is_active=True)
         # Future: Trigger NotificationService event here
         return user
 

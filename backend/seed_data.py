@@ -37,7 +37,7 @@ def seed():
         username='client',
         defaults={
             'email': 'client@gmail.com',
-            'role': 'client',
+            'role': 'customer',
             'address': '123 Portal Lane, Cityville',
             'phone_number': '+15550199'
         }
@@ -47,7 +47,14 @@ def seed():
         client_user.save()
         print("Created client user: client/client123")
     else:
+        # Data migration for existing 'client' roles
+        if client_user.role == 'client':
+            client_user.role = 'customer'
+            client_user.save()
         print("Client user already exists")
+
+    # Migrate any other users with role='client'
+    User.objects.filter(role='client').update(role='customer')
 
     # 2. Rental Periods
     periods = [
@@ -67,7 +74,8 @@ def seed():
             'description': 'Industrial excavator for massive building construction and excavation works.',
             'base_price': Decimal('250.00'),
             'stock_qty': 5,
-            'grace_period_hours': 2
+            'grace_period_hours': 2,
+            'vendor': admin_user
         }
     )
     ProductVariant.objects.get_or_create(product=p1, attribute_name='Manufacturer', attribute_value='Caterpillar')
@@ -81,7 +89,8 @@ def seed():
             'base_price': Decimal('120.00'),
             'security_deposit_value': Decimal('15.00'), # 15% of rental price
             'stock_qty': 10,
-            'grace_period_hours': 1
+            'grace_period_hours': 1,
+            'vendor': admin_user
         }
     )
     ProductVariant.objects.get_or_create(product=p2, attribute_name='Brand', attribute_value='Cummins')
@@ -93,7 +102,8 @@ def seed():
             'description': 'Mobile tower aluminium scaffolding for painters, plasterers, and electricians.',
             'base_price': Decimal('45.00'),
             'stock_qty': 20,
-            'grace_period_hours': 6
+            'grace_period_hours': 6,
+            'vendor': admin_user
         }
     )
     ProductVariant.objects.get_or_create(product=p3, attribute_name='Size', attribute_value='Height 5 Meters')

@@ -19,6 +19,7 @@ import { Terms } from './pages/Terms.jsx';
 import { Contact } from './pages/Contact.jsx';
 import { ResetPassword } from './pages/ResetPassword.jsx';
 import { ScanRedirect } from './pages/ScanRedirect.jsx';
+import { VendorDashboard } from './components/VendorDashboard.jsx';
 
 
 // Protected Route components
@@ -78,8 +79,15 @@ const AppContent = () => {
                 </ProtectedRoute>
               } />
               <Route path="/profile" element={
-                <ProtectedRoute roles={['client', 'admin']}>
+                <ProtectedRoute roles={['client', 'admin', 'customer', 'vendor']}>
                   <Profile />
+                </ProtectedRoute>
+              } />
+
+              {/* Authenticated Vendor Routes */}
+              <Route path="/vendor/dashboard" element={
+                <ProtectedRoute roles={['vendor']}>
+                  <VendorDashboard />
                 </ProtectedRoute>
               } />
               
