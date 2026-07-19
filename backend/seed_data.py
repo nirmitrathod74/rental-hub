@@ -37,14 +37,14 @@ def seed():
         username='client',
         defaults={
             'email': 'client@example.com',
-            'role': 'client',
-            'address': '123 Portal Lane, Cityville',
-            'phone_number': '+15550199'
+            'role': 'client'
         }
     )
     if created:
         client_user.set_password('client123')
         client_user.save()
+        from accounts.models import UserProfile
+        UserProfile.objects.create(user=client_user, address='123 Portal Lane, Cityville', phone_number='+15550199')
         print("Created client user: client/client123")
     else:
         # Data migration for existing 'client' roles
@@ -66,23 +66,21 @@ def seed():
         RentalPeriod.objects.get_or_create(name=name, defaults={'duration': days, 'unit': 'Days'})
     print("Seeded rental periods.")
 
-<<<<<<< HEAD
-=======
     vendor_user, created = User.objects.get_or_create(
         username='vendor',
         defaults={
             'email': 'vendor@rentalhub.com',
-            'role': 'vendor',
-            'phone_number': '+15550299'
+            'role': 'vendor'
         }
     )
     if created:
         vendor_user.set_password('vendor123')
         vendor_user.save()
+        from accounts.models import UserProfile
+        UserProfile.objects.create(user=vendor_user, phone_number='+15550299')
         print("Created vendor user: vendor/vendor123")
     else:
         print("Vendor user already exists")
->>>>>>> c722c048fff149b49bf9c1eece19d7434eb80e26
     # 3. Categories and Products
     cat_heavy, _ = Category.objects.get_or_create(name='Heavy Machinery')
     cat_power, _ = Category.objects.get_or_create(name='Power Equipment')
