@@ -7,7 +7,7 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'rentalhub.settings')
 django.setup()
 
 from django.contrib.auth import get_user_model
-from inventory.models import Product, ProductVariant, PriceList, PriceListItem, RentalPeriod
+from inventory.models import Product, ProductVariant, PriceList, PriceListItem, RentalPeriod, Category
 from rentals.models import QuotationTemplate
 from decimal import Decimal
 
@@ -59,45 +59,65 @@ def seed():
         RentalPeriod.objects.get_or_create(name=name, defaults={'duration': days, 'unit': 'Days'})
     print("Seeded rental periods.")
 
-    # 3. Products
-    p1, _ = Product.objects.get_or_create(
-        sku='EXC-001',
-        defaults={
-            'name': 'Heavy Duty Excavator',
-            'description': 'Industrial excavator for massive building construction and excavation works.',
-            'base_price': Decimal('250.00'),
-            'stock_qty': 5,
-            'grace_period_hours': 2
-        }
-    )
-    ProductVariant.objects.get_or_create(product=p1, attribute_name='Manufacturer', attribute_value='Caterpillar')
-    ProductVariant.objects.get_or_create(product=p1, attribute_name='Color', attribute_value='Yellow')
+    # 3. Categories and Products
+    cat_heavy, _ = Category.objects.get_or_create(name='Heavy Machinery')
+    cat_power, _ = Category.objects.get_or_create(name='Power Equipment')
+    cat_access, _ = Category.objects.get_or_create(name='Access Equipment')
+    cat_tools, _ = Category.objects.get_or_create(name='Power Tools')
 
-    p2, _ = Product.objects.get_or_create(
-        sku='GEN-50K',
-        defaults={
-            'name': '50kW Silent Diesel Generator',
-            'description': 'Super silent diesel backup power generator with output of 50 kilowatts.',
-            'base_price': Decimal('120.00'),
-            'security_deposit_value': Decimal('15.00'), # 15% of rental price
-            'stock_qty': 10,
-            'grace_period_hours': 1
-        }
-    )
-    ProductVariant.objects.get_or_create(product=p2, attribute_name='Brand', attribute_value='Cummins')
+    products_data = [
+        ('EXC-001', 'Heavy Duty Excavator', 'Industrial excavator for massive building construction and excavation works.', Decimal('250.00'), 5, cat_heavy, 'Yellow', '#f3752e', 'Daily'),
+        ('GEN-50K', '50kW Silent Diesel Generator', 'Super silent diesel backup power generator with output of 50 kilowatts.', Decimal('120.00'), 10, cat_power, 'Cummins', '#0b4e54', 'Weekly'),
+        ('SCA-05', 'Aluminium Scaffolding Set', 'Mobile tower aluminium scaffolding for painters, plasterers, and electricians.', Decimal('45.00'), 20, cat_access, 'Height 5m', '#8c7df7', 'Monthly'),
+        ('BLD-01', 'Bulldozer D8', 'Heavy bulldozer for earthmoving and grading.', Decimal('300.00'), 2, cat_heavy, 'Caterpillar', '#f3752e', 'Daily'),
+        ('LOD-02', 'Wheel Loader', 'Front-end wheel loader with high capacity bucket.', Decimal('210.00'), 4, cat_heavy, 'Volvo', '#0b4e54', 'Daily'),
+        ('GEN-10K', '10kW Portable Generator', 'Compact gasoline generator for small sites.', Decimal('40.00'), 15, cat_power, 'Honda', '#6c431b', 'Hourly'),
+        ('SCA-10', 'High Reach Scaffolding 10m', 'Double height mobile tower scaffolding.', Decimal('85.00'), 12, cat_access, 'Height 10m', '#8c7df7', 'Monthly'),
+        ('BOM-45', '45ft Articulating Boom Lift', 'Aerial work platform for high reach access.', Decimal('180.00'), 6, cat_access, 'Genie', '#f3752e', 'Weekly'),
+        ('DRL-01', 'Heavy Duty Jackhammer', 'Pneumatic demolition hammer for concrete breaking.', Decimal('35.00'), 25, cat_tools, 'Bosch', '#0b4e54', 'Hourly'),
+        ('SAW-01', 'Concrete Saw', 'Gas powered walk-behind concrete saw.', Decimal('65.00'), 8, cat_tools, 'Husqvarna', '#f3752e', 'Hourly'),
+        ('WLD-01', 'Industrial Welder 300A', 'Multi-process welding machine for structural steel.', Decimal('75.00'), 10, cat_tools, 'Lincoln Electric', '#8c7df7', 'Weekly'),
+        ('CMP-01', 'Plate Compactor', 'Heavy duty vibratory plate compactor for soil.', Decimal('55.00'), 14, cat_heavy, 'Wacker Neuson', '#6c431b', 'Daily'),
+        # New products to test pagination, high/low prices, and durations
+        ('CRN-100', '100 Ton Mobile Crane', 'Heavy lifting mobile crane for large scale construction.', Decimal('1500.00'), 1, cat_heavy, 'Liebherr', '#f3752e', 'Daily'),
+        ('CRN-50', '50 Ton Mobile Crane', 'Medium lifting mobile crane.', Decimal('800.00'), 2, cat_heavy, 'Tadano', '#f3752e', 'Weekly'),
+        ('FRK-03', '3 Ton Forklift', 'Diesel powered forklift for warehouse operations.', Decimal('90.00'), 8, cat_heavy, 'Toyota', '#0b4e54', 'Monthly'),
+        ('FRK-05', '5 Ton Forklift', 'Heavy duty diesel forklift.', Decimal('140.00'), 5, cat_heavy, 'Hyster', '#0b4e54', 'Weekly'),
+        ('LHT-01', 'Towable Light Tower', 'Diesel light tower for night time construction.', Decimal('60.00'), 15, cat_power, 'Wacker Neuson', '#f3752e', 'Weekly'),
+        ('LHT-02', 'Portable LED Light', 'Battery powered high intensity LED light.', Decimal('15.00'), 30, cat_power, 'Milwaukee', '#6c431b', 'Hourly'),
+        ('GEN-2K', '2kW Inverter Generator', 'Super quiet portable generator for events.', Decimal('25.00'), 20, cat_power, 'Honda', '#6c431b', 'Daily'),
+        ('PMP-01', '3" Trash Pump', 'Centrifugal trash pump for dewatering.', Decimal('45.00'), 12, cat_power, 'Subaru', '#8c7df7', 'Weekly'),
+        ('PMP-02', 'Submersible Water Pump', 'Electric submersible pump for clear water.', Decimal('20.00'), 18, cat_power, 'Tsurumi', '#8c7df7', 'Hourly'),
+        ('SZR-19', '19ft Scissor Lift', 'Electric slab scissor lift for indoor maintenance.', Decimal('110.00'), 10, cat_access, 'JLG', '#f3752e', 'Weekly'),
+        ('SZR-32', '32ft Rough Terrain Scissor Lift', 'Diesel scissor lift for outdoor construction.', Decimal('160.00'), 7, cat_access, 'Genie', '#f3752e', 'Monthly'),
+        ('BOM-65', '65ft Telescopic Boom Lift', 'Straight boom lift for maximum reach.', Decimal('250.00'), 4, cat_access, 'JLG', '#0b4e54', 'Weekly'),
+        ('DRL-02', 'Rotary Hammer Drill', 'SDS Max rotary hammer for drilling concrete.', Decimal('25.00'), 30, cat_tools, 'Makita', '#0b4e54', 'Hourly'),
+        ('SAW-02', 'Tile Saw', 'Wet tile saw with stand for precise cutting.', Decimal('30.00'), 15, cat_tools, 'DeWalt', '#6c431b', 'Daily'),
+        ('SND-01', 'Floor Sander', 'Drum floor sander for hardwood floor refinishing.', Decimal('50.00'), 8, cat_tools, 'Clarke', '#6c431b', 'Daily'),
+        ('VAC-01', 'Industrial Wet/Dry Vac', 'High capacity vacuum for jobsite cleanup.', Decimal('35.00'), 20, cat_tools, 'Shop-Vac', '#8c7df7', 'Daily'),
+    ]
 
-    p3, _ = Product.objects.get_or_create(
-        sku='SCA-05',
-        defaults={
-            'name': 'Aluminium Scaffolding Set',
-            'description': 'Mobile tower aluminium scaffolding for painters, plasterers, and electricians.',
-            'base_price': Decimal('45.00'),
-            'stock_qty': 20,
-            'grace_period_hours': 6
-        }
-    )
-    ProductVariant.objects.get_or_create(product=p3, attribute_name='Size', attribute_value='Height 5 Meters')
-    print("Seeded rental products and variants.")
+    for sku, name, desc, price, qty, cat, var_val, color_code, duration in products_data:
+        p, _ = Product.objects.get_or_create(
+            sku=sku,
+            defaults={
+                'name': name,
+                'description': desc,
+                'base_price': price,
+                'stock_qty': qty,
+                'category': cat
+            }
+        )
+        ProductVariant.objects.get_or_create(product=p, attribute_name='Feature', attribute_value=var_val)
+        if color_code:
+            ProductVariant.objects.get_or_create(product=p, attribute_name='Color', attribute_value=color_code)
+        if duration:
+            ProductVariant.objects.get_or_create(product=p, attribute_name='Duration', attribute_value=duration)
+
+    p1 = Product.objects.get(sku='EXC-001')
+    p2 = Product.objects.get(sku='GEN-50K')
+    p3 = Product.objects.get(sku='SCA-05')
+    print("Seeded rental products, categories, and variants.")
 
     # 4. Pricelist
     pl, _ = PriceList.objects.get_or_create(
