@@ -45,7 +45,7 @@ export const Signup = () => {
     const username = form.email.split('@')[0].replace(/[^a-zA-Z0-9_.-]/g, '').slice(0, 150); 
     try { 
       // Call register auth context trigger
-      await register({ username, first_name: form.firstName, last_name: form.lastName, email: form.email, password: form.password, phone_number: form.phone, role: 'client' }); 
+      await register({ username, first_name: form.firstName, last_name: form.lastName, email: form.email, password: form.password, phone_number: form.phone, role: 'client' });
       // Redirect directly to login with ?registered=true query flag to show check-email reminder
       navigate('/login?registered=true'); 
     } catch (err) { 

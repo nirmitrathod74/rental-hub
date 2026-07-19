@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/images/logo.png" alt="Rental Hub Logo" width="220">
+  <img src="frontend/src/assets/final_logo.png" alt="Rental Hub Logo" width="220">
 </p>
 
 <h1 align="center">Rental Hub</h1>
@@ -678,41 +678,19 @@ Rental Hub follows a layered backend architecture where requests are validated u
 ```mermaid
 flowchart TB
 
-Developer
+Developer --> GitHub
+GitHub --> Docker
 
---> GitHub
+Docker --> React[React Frontend]
+Docker --> Django[Django Backend]
 
-GitHub
+Django --> PostgreSQL
+Django --> Redis
 
---> Docker
+Redis --> Celery[Celery Worker]
+Celery --> SMTP[SMTP Server]
 
-Docker
-
---> React Frontend
-
-Docker
-
---> Django Backend
-
-Django Backend
-
---> PostgreSQL
-
-Django Backend
-
---> Redis
-
-Redis
-
---> Celery Worker
-
-Celery Worker
-
---> SMTP Server
-
-SMTP Server
-
---> Users
+SMTP --> Users
 ```
 
 ---
@@ -845,9 +823,9 @@ Feel free to use, modify, and distribute this project under the terms of the lic
 
 | Name | Role |
 |------|------|
-| **Ayan Shaikh** | Testing / Documentation |
+| **Ayan Shaikh** | Full Stack Developer |
 | **Nirmit Rathod** | Full Stack Developer |
-| **Bhavarth Dobariya** | Testing / Documentation |
+| **Bhavarth Dobariya** | Full Stack Developer |
 | **Jatin Panchal** | Full Stack Developer |
 
 ---

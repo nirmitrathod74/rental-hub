@@ -123,8 +123,8 @@ export const UserProfileView = () => {
                 <span style={{ fontSize: '14px', fontWeight: 500 }}>Vendor</span>
               </label>
               <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
-                <input type="radio" name="role" value="Customer" checked={formData.role === 'Customer'} onChange={e => setFormData({...formData, role: e.target.value})} />
-                <span style={{ fontSize: '14px', fontWeight: 500 }}>Customer</span>
+                <input type="radio" name="role" value="Client" checked={formData.role === 'Client'} onChange={e => setFormData({...formData, role: e.target.value})} />
+                <span style={{ fontSize: '14px', fontWeight: 500 }}>Client</span>
               </label>
             </div>
           </div>

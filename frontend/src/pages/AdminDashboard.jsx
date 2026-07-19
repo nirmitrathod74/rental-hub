@@ -27,6 +27,8 @@ import { PricelistsView } from '../components/PricelistsView.jsx';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
+import logo from '../assets/final_logo.png';
+
 export const AdminDashboard = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
@@ -456,7 +458,7 @@ export const AdminDashboard = () => {
     { id: 'categories', icon: Tags, label: 'Categories' },
     { id: 'pricelists', icon: CircleDollarSign, label: 'Pricelists' },
     { id: 'rental_periods', icon: Clock, label: 'Rental Periods' },
-    { id: 'customers', icon: Users, label: 'Customers' },
+    { id: 'customers', icon: Users, label: 'Clients' },
     { id: 'orders', icon: ShoppingBag, label: 'Rental Orders' },
     { id: 'quotations', icon: FileText, label: 'Quotations' },
     { id: 'invoices', icon: Receipt, label: 'Invoices' },
@@ -469,10 +471,18 @@ export const AdminDashboard = () => {
 
   return (
     <div className="admin-dashboard-container" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: 'var(--background)' }}>
+<<<<<<< HEAD
       <header className="topbar" style={{ position: 'sticky', top: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center' }}>
           <Link className="brand" to="/" style={{ marginRight: '24px', textDecoration: 'none' }}>
             <span className="brand-mark"><Boxes size={17} color="white" /></span>RentalHub ERP
+=======
+      <header className="erp-navbar">
+        <div className="erp-navbar-left">
+          <Link className="erp-brand" to="/" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <img src={logo} alt="RentalHub Logo" style={{ height: '32px', width: '32px', objectFit: 'contain', display: 'block' }} />
+            RentalHub ERP
+>>>>>>> c9806ef21a18692bd0749715b9549d9f9c9fc1af
           </Link>
           <nav className="erp-nav-links" style={{ display: 'flex', gap: '24px', fontSize: '14px', fontWeight: 500 }}>
             <div className="erp-nav-item">
@@ -480,7 +490,11 @@ export const AdminDashboard = () => {
               <div className="erp-dropdown-menu">
                 <button className="erp-dropdown-item" onClick={() => setActiveTab('orders')}>All Orders</button>
                 <button className="erp-dropdown-item" onClick={() => setActiveTab('invoices')}>Invoices</button>
+<<<<<<< HEAD
                 <button className="erp-dropdown-item" onClick={() => setActiveTab('clients')}>Clients</button>
+=======
+                <button className="erp-dropdown-item" onClick={() => setActiveTab('customers')}>Clients</button>
+>>>>>>> c9806ef21a18692bd0749715b9549d9f9c9fc1af
               </div>
             </div>
 
@@ -604,7 +618,11 @@ export const AdminDashboard = () => {
               <div className="glass-panel" style={{ padding: '20px', display: 'flex', alignItems: 'center', gap: '16px' }}>
                 <FileText size={32} style={{ color: '#8b5cf6' }} />
                 <div><span style={{ fontSize: '12px', color: 'hsl(var(--text-secondary))' }}>Pending Quotations</span>
+<<<<<<< HEAD
                 <div style={{ fontSize: '24px', fontWeight: 800 }}>{metrics?.pending_quotations} <small style={{fontSize: '12px', color: 'hsl(var(--text-secondary))'}}>{metrics?.total_clients || metrics?.total_customers} Total Clients</small></div></div>
+=======
+                <div style={{ fontSize: '24px', fontWeight: 800 }}>{metrics?.pending_quotations} <small style={{fontSize: '12px', color: 'hsl(var(--text-secondary))'}}>{metrics?.total_customers} Total Clients</small></div></div>
+>>>>>>> c9806ef21a18692bd0749715b9549d9f9c9fc1af
               </div>
               <div className="glass-panel" style={{ padding: '20px', display: 'flex', alignItems: 'center', gap: '16px' }}>
                 <CircleDollarSign size={32} style={{ color: '#10b981' }} />
@@ -632,7 +650,11 @@ export const AdminDashboard = () => {
                   <button className="btn btn-secondary" onClick={() => setActiveTab('pricelists')}><Plus size={16}/> Create Pricelist</button>
                   <button className="btn btn-secondary" onClick={() => setActiveTab('rental_periods')}><Plus size={16}/> Create Rental Period</button>
                   <button className="btn btn-secondary" onClick={() => setActiveTab('quotations')}><Plus size={16}/> Create Quotation</button>
+<<<<<<< HEAD
                   <button className="btn btn-secondary" onClick={() => setActiveTab('clients')}><Plus size={16}/> Create Client</button>
+=======
+                  <button className="btn btn-secondary" onClick={() => setActiveTab('customers')}><Plus size={16}/> Create Client</button>
+>>>>>>> c9806ef21a18692bd0749715b9549d9f9c9fc1af
                   <button className="btn btn-outline" onClick={() => setActiveTab('invoices')}><Receipt size={16}/> Generate Invoice</button>
                 </div>
               </div>
@@ -907,7 +929,11 @@ export const AdminDashboard = () => {
                     </td>
                   </tr>
                 ))}
+<<<<<<< HEAD
                 {clients.length === 0 && (
+=======
+                {customers.length === 0 && (
+>>>>>>> c9806ef21a18692bd0749715b9549d9f9c9fc1af
                   <tr><td colSpan="6" style={{ textAlign: 'center', padding: '20px', color: 'var(--text-muted)' }}>No clients found.</td></tr>
                 )}
               </tbody>
@@ -980,7 +1006,7 @@ export const AdminDashboard = () => {
                   <tr>
                     <th style={{ width: '40px', paddingLeft: '20px' }}><input type="checkbox" /></th>
                     <th>Order Reference</th>
-                    <th>Customer</th>
+                    <th>Client</th>
                     <th>Status</th>
                     <th>Pickup Date</th>
                     <th>Return Date</th>
@@ -1078,7 +1104,7 @@ export const AdminDashboard = () => {
               <thead>
                 <tr>
                   <th>Order ID</th>
-                  <th>Customer</th>
+                  <th>Client</th>
                   <th>Amount Paid</th>
                   <th>Status</th>
                   <th style={{ textAlign: 'right' }}>Actions</th>
@@ -1089,7 +1115,7 @@ export const AdminDashboard = () => {
                   <tr key={order.id}>
                     <td><strong>#{order.id}</strong></td>
                     <td>{order.client_details?.username}</td>
-                    <td>${parseFloat(order.amount_paid).toFixed(2)}</td>
+                    <td>${parseFloat(order.amount_paid || order.total_rent_amount || 0).toFixed(2)}</td>
                     <td><span className={`badge badge-${order.status}`}>{order.status}</span></td>
                     <td style={{ textAlign: 'right' }}>
                       <button onClick={() => handleGenerateInvoice(order.id)} className="btn btn-outline" style={{ padding: '4px 8px', fontSize: '12px' }}><Receipt size={14}/> PDF Invoice</button>
@@ -1132,7 +1158,7 @@ export const AdminDashboard = () => {
               <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
                 <thead>
                   <tr style={{ borderBottom: '2px solid #f1f5f9', color: '#6B4668', fontSize: '13px', textTransform: 'uppercase' }}>
-                    <th style={{ padding: '12px' }}>Customer Name</th>
+                    <th style={{ padding: '12px' }}>Client Name</th>
                     <th style={{ padding: '12px' }}>Order ID</th>
                     <th style={{ padding: '12px' }}>Deposit Amount</th>
                     <th style={{ padding: '12px' }}>Penalty Amount</th>
@@ -1198,18 +1224,31 @@ export const AdminDashboard = () => {
                   style={{ padding: '8px 12px', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '14px', outline: 'none' }}
                 />
               </div>
-              <button style={{ backgroundColor: '#6B4668', color: '#ffffff', padding: '10px 16px', borderRadius: '6px', border: 'none', fontSize: '14px', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <button 
+                onClick={async () => {
+                  const barcode = window.prompt('Scan or enter Order ID:');
+                  if (!barcode) return;
+                  try {
+                    await api.post(`/rentals/orders/${barcode}/pickup/`);
+                    alert(`Pickup confirmed for Order #${barcode}`);
+                    setPickups(prev => prev.filter(p => p.id != barcode));
+                  } catch(e) {
+                    alert('Error confirming pickup: ' + (e.message || 'Verification failed.'));
+                  }
+                }}
+                style={{ backgroundColor: '#6B4668', color: '#ffffff', padding: '10px 16px', borderRadius: '6px', border: 'none', fontSize: '14px', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
+              >
                 + Scan Barcode
               </button>
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              {pickups.filter(p => p.start_date && p.start_date.startsWith(pickupDateFilter)).length === 0 ? (
+              {pickups.filter(p => !pickupDateFilter || (p.start_date && p.start_date.startsWith(pickupDateFilter))).length === 0 ? (
                 <div className="glass-panel" style={{ padding: '32px', textAlign: 'center', backgroundColor: '#ffffff', color: 'gray' }}>
-                  No pending pickups scheduled for {pickupDateFilter}.
+                  No pending pickups scheduled{pickupDateFilter ? ` for ${pickupDateFilter}` : ''}.
                 </div>
               ) : (
-                pickups.filter(p => p.start_date && p.start_date.startsWith(pickupDateFilter)).map(order => (
+                pickups.filter(p => !pickupDateFilter || (p.start_date && p.start_date.startsWith(pickupDateFilter))).map(order => (
                   <div key={order.id} className="glass-panel" style={{ padding: '20px', backgroundColor: '#ffffff', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px', borderLeft: '4px solid #6B4668' }}>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>

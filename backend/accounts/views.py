@@ -151,8 +151,8 @@ class PasswordResetRequestView(APIView):
             return standard_response(False, "Email is required", status_code=400)
         
         try:
-            # Query active users matching this email address
-            users = User.objects.filter(email=email, is_active=True)
+            # Query all users matching this email address (including inactive/unverified)
+            users = User.objects.filter(email=email)
             if users.exists():
                 for user in users:
                     send_password_reset_email(user)
@@ -188,6 +188,9 @@ class PasswordResetConfirmView(APIView):
         # Verify the signature match and that the token is valid for this user
         if user is not None and default_token_generator.check_token(user, token):
             user.set_password(new_password)
+            # Also activate the account — resetting password via email link
+            # proves the user owns the email address (secondary verification)
+            user.is_active = True
             user.save()
             return standard_response(True, "Password has been reset successfully.")
         else:

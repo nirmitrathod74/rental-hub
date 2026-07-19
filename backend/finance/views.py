@@ -5,7 +5,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 
 class SecurityDepositViewSet(viewsets.ModelViewSet):
-    queryset = SecurityDeposit.objects.select_related('order', 'order__customer', 'order__customer__user').all().order_by('-updated_at')
+    queryset = SecurityDeposit.objects.select_related('order', 'order__client').all().order_by('-updated_at')
     serializer_class = SecurityDepositSerializer
     permission_classes = [permissions.IsAuthenticated]
 

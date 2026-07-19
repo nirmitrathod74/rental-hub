@@ -10,3 +10,4 @@ Pillow>=10.1.0
 reportlab>=4.0.8
 django-filter>=23.5
 qrcode>=7.4.2
+Faker>=20.0.0

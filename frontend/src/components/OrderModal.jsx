@@ -55,7 +55,7 @@ export const OrderModal = ({ order, onClose, onCreateInvoice }) => {
               S000{order.id}
             </div>
             <div className="detail-form-row">
-              <div className="detail-form-label">Customer</div>
+              <div className="detail-form-label">Client</div>
               <div className="detail-form-value">{order.client_details?.username || '-'}</div>
             </div>
             <div className="detail-form-row">
