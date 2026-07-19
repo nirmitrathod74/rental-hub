@@ -4,7 +4,14 @@ const BASE_URL = `${API_ROOT}/api`;
 export const getMediaUrl = (path) => {
   if (!path) return '';
   if (path.startsWith('http')) return path;
-  return `${API_ROOT}${path.startsWith('/') ? '' : '/'}${path}`;
+  
+  // Ensure the path starts with /media/ if it's a relative path from DRF
+  let normalizedPath = path;
+  if (!normalizedPath.startsWith('/media/') && !normalizedPath.startsWith('media/')) {
+    normalizedPath = `/media/${normalizedPath.startsWith('/') ? normalizedPath.slice(1) : normalizedPath}`;
+  }
+  
+  return `${API_ROOT}${normalizedPath.startsWith('/') ? '' : '/'}${normalizedPath}`;
 };
 
 // Retrieve JWT access token from localStorage and construct request authorization headers

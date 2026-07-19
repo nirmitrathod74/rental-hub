@@ -188,16 +188,40 @@ export const Catalog = () => {
           <div className="filter-block">
             <div className="filter-block-title">Price Range</div>
 
+            <div style={{ display: 'flex', gap: '8px', marginBottom: '16px', alignItems: 'center' }}>
+              <input 
+                type="number" 
+                className="glass-input" 
+                min={0} 
+                max={10000}
+                value={minPrice} 
+                onChange={(e) => {
+                  setMinPrice(Number(e.target.value));
+                  setCurrentPage(1);
+                }}
+                style={{ width: '80px', padding: '6px' }}
+              />
+              <span style={{ fontSize: '12px', color: 'hsl(var(--text-muted))' }}>to</span>
+              <input 
+                type="number" 
+                className="glass-input" 
+                min={0} 
+                max={10000}
+                value={maxPrice} 
+                onChange={(e) => {
+                  setMaxPrice(Number(e.target.value));
+                  setCurrentPage(1);
+                }}
+                style={{ width: '80px', padding: '6px' }}
+              />
+            </div>
+
             <div className="price-slider-wrap dual-range" style={{ position: 'relative' }}>
-              <div className="price-slider-labels">
-                <span>${minPrice}</span>
-                <span>${maxPrice}</span>
-              </div>
               <div style={{ position: 'relative', height: '4px', margin: '14px 12px 24px 12px' }}>
                 <div className="price-slider-track" style={{ margin: 0 }}>
                   <div className="price-slider-fill" style={{ left: `${(minPrice / 10000) * 100}%`, right: `${100 - (maxPrice / 10000) * 100}%` }} />
-                  <div className="price-slider-thumb left" style={{ left: `${(minPrice / 10000) * 100}%` }} />
-                  <div className="price-slider-thumb right" style={{ right: `${100 - (maxPrice / 10000) * 100}%` }} />
+                  <div className="price-slider-thumb left" style={{ left: `${(minPrice / 10000) * 100}%`, pointerEvents: 'none' }} />
+                  <div className="price-slider-thumb right" style={{ right: `${100 - (maxPrice / 10000) * 100}%`, pointerEvents: 'none' }} />
                 </div>
                 <input 
                   type="range" 
@@ -210,6 +234,7 @@ export const Catalog = () => {
                     setMinPrice(val);
                     setCurrentPage(1);
                   }}
+                  style={{ zIndex: minPrice > 9000 ? 5 : 3 }}
                 />
                 <input 
                   type="range" 
@@ -222,6 +247,7 @@ export const Catalog = () => {
                     setMaxPrice(val);
                     setCurrentPage(1);
                   }}
+                  style={{ zIndex: 4 }}
                 />
               </div>
             </div>
