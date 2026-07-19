@@ -69,6 +69,22 @@ class Product(models.Model):
         ]
 
     def save(self, *args, **kwargs):
+        from decimal import Decimal
+
+        if not self.rental_policy:
+            self.rental_policy = RentalPolicy.objects.create(
+                name=f"Auto Policy for {self.sku}",
+                security_deposit_type='fixed',
+                security_deposit_value=self.base_price * Decimal('1.2'),
+                late_fee_type='daily',
+                late_fee_rate=0,
+                grace_period_hours=0
+            )
+        else:
+            self.rental_policy.security_deposit_type = 'fixed'
+            self.rental_policy.security_deposit_value = self.base_price * Decimal('1.2')
+            self.rental_policy.save()
+
         if self.pk:
             # Enforce that product_code is read-only after creation
             original = Product.objects.get(pk=self.pk)

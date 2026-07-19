@@ -226,7 +226,7 @@ export const Checkout = () => {
             <h2 style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', marginTop: '40px', marginBottom: '24px' }}>Delivery Address</h2>
             <div style={{ border: '1px solid #e2e8f0', borderRadius: '12px', padding: '24px', background: '#fff' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
-                <h3 style={{ fontSize: '18px', fontWeight: 700 }}>{user?.first_name} {user?.last_name || 'Client Name'}</h3>
+                <h3 style={{ fontSize: '18px', fontWeight: 700, color: '#0f172a', margin: 0 }}>{user?.first_name} {user?.last_name || 'Client Name'}</h3>
                 <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                   <span style={{ background: accentColor, color: 'white', fontSize: '11px', fontWeight: 600, padding: '4px 10px', borderRadius: '4px' }}>Main Address</span>
                 </div>
@@ -356,8 +356,8 @@ export const Checkout = () => {
                 <span style={{ fontSize: '12px', fontWeight: 700, padding: '4px 12px', border: '1px solid #e2e8f0', borderRadius: '20px', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Delivery &amp; Billing</span>
                 <div style={{ background: '#f1f5f9', color: '#475569', padding: '8px', borderRadius: '6px', cursor: 'pointer' }} onClick={() => setCurrentStep('address')}><Edit2 size={16} /></div>
               </div>
-              <h3 style={{ fontSize: '18px', fontWeight: 700, marginBottom: '8px' }}>{user?.first_name} {user?.last_name || 'Client Name'}</h3>
-              <div style={{ color: 'var(--text-muted)', fontSize: '14px' }}>
+              <h3 style={{ fontSize: '18px', fontWeight: 700, color: '#0f172a', marginBottom: '8px', margin: 0 }}>{user?.first_name} {user?.last_name || 'Client Name'}</h3>
+              <div style={{ color: '#64748b', fontSize: '14px', marginTop: '4px' }}>
                 {fulfillmentType === 'delivery' ? shippingAddress || 'No address provided' : 'Store Pickup'}
               </div>
             </div>

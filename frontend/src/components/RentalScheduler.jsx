@@ -17,7 +17,7 @@ const RentalScheduler = ({ setActiveTab }) => {
     try {
       // Fetching all active schedules
       const response = await api.get('/rentals/orders/schedule_data/');
-      setScheduleData(response.data);
+      setScheduleData(response.data || response || []);
     } catch (error) {
       console.error("Error fetching schedule data:", error);
     } finally {
